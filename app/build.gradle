@@ -1,0 +1,97 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+    defaultConfig {
+        applicationId "com.exzell.mangaplayground"
+        minSdkVersion 24
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    dataBinding {
+        enabled = true
+    }
+    compileOptions{
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    sourceSets {
+        main.java.srcDirs = ['src/main/java']
+//        main.kotlin.srcDirs = ['src/main/java']
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.4.0'
+    //androidx
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.preference:preference:1.1.1'
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.navigation:navigation-fragment:2.3.1'
+    implementation 'androidx.navigation:navigation-ui:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0-rc03'
+    implementation 'androidx.recyclerview:recyclerview:1.2.0-alpha06'
+    implementation 'androidx.fragment:fragment:1.2.5'
+
+
+    //database
+    implementation 'androidx.room:room-runtime:2.2.5'
+    annotationProcessor 'androidx.room:room-compiler:2.2.5'
+    implementation 'androidx.room:room-rxjava2:2.2.5'
+    implementation 'androidx.room:room-guava:2.2.5'
+    testImplementation 'androidx.room:room-testing:2.2.5'
+
+    //internet
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava3:2.9.0'
+
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+
+    implementation 'me.zhanghai.android.materialratingbar:library:1.4.0'
+    implementation 'com.github.skydoves:powerspinner:1.1.2'
+
+    implementation 'org.jsoup:jsoup:1.13.1'
+
+    implementation "com.mikepenz:materialdrawer:6.1.2"
+
+
+    implementation "com.mikepenz:community-material-typeface:3.5.95.1@aar"
+    implementation "com.mikepenz:material-design-iconic-typeface:2.2.0.5@aar"
+    implementation "com.mikepenz:fontawesome-typeface:5.3.1.1@aar"
+
+
+    implementation "androidx.paging:paging-runtime:2.1.2"
+    implementation "androidx.paging:paging-rxjava2:2.1.2"
+    testImplementation "androidx.paging:paging-common:2.1.2"
+
+    implementation "io.reactivex.rxjava3:rxandroid:3.0.0"
+    implementation "io.reactivex.rxjava3:rxjava:3.0.0"
+
+    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
+
+}

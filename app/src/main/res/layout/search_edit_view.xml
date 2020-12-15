@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_search_title"
+            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Title" />
+
+        <EditText
+            android:id="@+id/edit_search_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <include layout="@layout/spinner_power"
+            android:id="@+id/spin_title_contain"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal" >
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_search_auth"
+            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Author" />
+
+        <EditText
+            android:id="@+id/edit_search_auth"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <include layout="@layout/spinner_power"
+            android:id="@+id/spin_auth_contain"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/rating" />
+
+        <me.zhanghai.android.materialratingbar.MaterialRatingBar
+            android:id="@+id/rating_rating"
+            style="@android:style/Widget.Material.RatingBar.Indicator"
+            ratingListener="@{model}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:isIndicator="false"
+            android:numStars="5"
+            android:stepSize="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textview.MaterialTextView
+            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Release" />
+
+        <include layout="@layout/spinner_power"
+            android:id="@+id/spin_release"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal" >
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.TextView.HomeTextView"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:text="Chapters" />
+
+        <include layout="@layout/spinner_power"
+            android:id="@+id/spin_chapter"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+</LinearLayout>

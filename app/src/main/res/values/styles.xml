@@ -1,0 +1,43 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="android:navigationBarColor">@color/colorSurface</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeBackground">@color/colorAccent</item>
+        <item name="actionModeStyle">@style/Widget.AppCompat.Light.ActionMode.Inverse.MangaActionMode</item>
+    </style>
+
+    <style name="Widget.AppCompat.Light.ActionMode.Inverse.MangaActionMode">
+        <item name="android:actionModeCloseDrawable">@android:drawable/ic_menu_close_clear_cancel</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.TextView.HomeTextView">
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:layout_gravity">bottom</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.TextView.HomeTextView.FilterTextView">
+        <item name="android:gravity">bottom</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.TextView.SpinnerText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_marginStart">4dp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+</resources>

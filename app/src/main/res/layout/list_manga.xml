@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="manga"
+            type="com.exzell.mangaplayground.models.Manga" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
+        android:padding="4dp"
+        app:cardBackgroundColor="#FFFFFF"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="5dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/image_manga"
+                thumbnail="@{manga.thumbnailLink}"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:scaleType="center"
+                app:layout_constraintDimensionRatio="12:15"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
+                app:srcCompat="@drawable/ic_android_black_24dp" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_manga_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-condensed-light"
+                    android:gravity="center"
+                    android:maxLines="2"
+                    android:text="@{manga.title}"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toEndOf="@id/image_manga"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="@string/summary" />
+
+            <me.zhanghai.android.materialratingbar.MaterialRatingBar
+                android:id="@+id/rating_rating"
+                style="@style/Widget.MaterialRatingBar.RatingBar.Indicator.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:isIndicator="true"
+                android:minHeight="24dp"
+                android:numStars="5"
+                android:rating="@{(int)manga.rating}"
+                app:layout_constraintStart_toStartOf="@id/text_manga_title"
+                app:layout_constraintTop_toBottomOf="@id/text_manga_title" />
+
+
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_extra_rank"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{manga.popularity}"
+                    app:layout_constraintStart_toStartOf="@id/text_manga_title"
+                    app:layout_constraintTop_toBottomOf="@id/rating_rating"
+                    tools:text="R.205th" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_extra_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{manga.author}"
+                app:layout_constraintStart_toStartOf="@id/text_manga_title"
+                app:layout_constraintTop_toBottomOf="@+id/text_extra_rank"
+                tools:text="Eiichiro Oda" />
+
+            <HorizontalScrollView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="@+id/image_manga"
+                app:layout_constraintStart_toStartOf="@id/text_manga_title"
+                app:layout_constraintTop_toBottomOf="@id/text_extra_author"
+                app:layout_constraintVertical_bias="0.0">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_genre"
+                    createChips="@{manga}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipSpacingHorizontal="4dp"
+                    app:chipSpacingVertical="2dp" />
+            </HorizontalScrollView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

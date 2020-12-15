@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_chapter_download"
+        android:title="Download" />
+
+    <item
+        android:id="@+id/action_chapter_bookmark"
+        android:title="Bookmark" />
+
+    <item
+        android:id="@+id/chapter_mark"
+        android:title="Mark as read" />
+</menu>

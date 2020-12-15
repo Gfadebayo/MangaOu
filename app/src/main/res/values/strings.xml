@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MangaOu</string>
+    <string name="popular_updates"><i>Popular Updates</i></string>
+    <string name="latest_updates">Latest Updates</string>
+    <string name="ongoing">Ongoing</string>
+    <string name="completed">Completed</string>
+    <string name="rating">Rating</string>
+    <string name="genre">Genre</string>
+    <string name="summary">Summary: <b><i>Gol D. Roger</i></b> was known as the Pirate King, the strongest and most infamous being to have sailed the Grand Line. The capture and death of Roger by the World Government brought a change throughout the world. His last words before his death revealed the location of the greatest treasure in the world, One Piece. It was this revelation that brought about the Grand Age of Pirates, men who dreamed of finding One Piece (which promises an unlimited amount of riches and fame), and quite possibly the most coveted of titles for the person who found it, the title of the Pirate King.
+Enter Monkey D. Luffy, a 17-year-old boy who defies the standard definition of a pirate. Rather than the popular persona of a wicked, hardened, toothless pirate who ransacks villages for fun, Luffy’s reason for being a pirate is one of pure wonder; the thought of an exciting adventure and meeting new and intriguing people, along with finding One Piece. Following in the footsteps of his childhood hero, Luffy and his crew travel across the Grand Line, experiencing crazy adventures, unveiling dark mysteries and battling strong enemies, all in order to reach One Piece.</string>
+    <string name="reset">Reset</string>
+    <string name="search">Search</string>
+    <string name="cancel">Cancel</string>
+    <string name="updating_manga">Updating Mangas</string>
+</resources>

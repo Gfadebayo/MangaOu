@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_bookamrk">
+
+    <fragment
+        android:name="com.exzell.mangaplayground.fragment.HomeFragment"
+        android:id="@+id/nav_home"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_to_frag_manga"
+            app:destination="@id/frag_manga"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_empty"
+            app:destination="@id/nav_empty"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_fade_exit" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_history"
+            app:destination="@id/nav_history" />
+        <action
+            android:id="@+id/action_nav_home_to_nav_bookamrk"
+            app:destination="@id/nav_bookamrk" />
+    </fragment>
+
+    <fragment
+        android:name="com.exzell.mangaplayground.fragment.SearchFragment"
+        android:id="@+id/nav_search"
+        android:label="Advanced Search"
+        tools:layout="@layout/fragment_search">
+        <action
+            android:id="@+id/action_nav_search_to_frag_manga"
+            app:destination="@id/frag_manga" />
+        <action
+            android:id="@+id/action_nav_search_to_nav_empty"
+            app:destination="@id/nav_empty" />
+    </fragment>
+
+    <fragment
+        android:name="com.exzell.mangaplayground.fragment.HistoryFragment"
+        android:id="@+id/nav_history"
+        android:label="History"
+        tools:layout="@layout/fragment_bookmark" >
+        <action
+            android:id="@+id/action_nav_history_to_frag_manga"
+            app:destination="@id/frag_manga"
+            app:popEnterAnim="@anim/fragment_fade_enter"
+            app:popExitAnim="@anim/fragment_close_exit" />
+    </fragment>
+
+    <fragment
+        android:name="com.exzell.mangaplayground.fragment.MangaFragment"
+        android:id="@+id/frag_manga"
+        android:label="Manga"
+        tools:layout="@layout/fragment_manga" />
+
+    <fragment
+        android:name="com.exzell.mangaplayground.fragment.BookmarkFragment"
+        android:id="@+id/nav_bookamrk"
+        android:label="Bookmarks"
+        tools:layout="@layout/fragment_bookmark" >
+        <action
+            android:id="@+id/action_nav_bookamrk_to_frag_manga"
+            app:destination="@id/frag_manga" />
+    </fragment>
+
+    <fragment
+        android:name="com.exzell.mangaplayground.fragment.EmptyFragment"
+        android:id="@+id/nav_empty" >
+        <action
+            android:id="@+id/action_nav_empty_to_frag_manga"
+            app:destination="@id/frag_manga" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_downloads"
+        android:label="Downloads"
+        android:name="com.exzell.mangaplayground.download.DownloadQueueFragment" />
+</navigation>

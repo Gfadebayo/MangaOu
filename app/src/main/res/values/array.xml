@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="home_names">
+        <item>Popular Updates</item>
+        <item>Latest Updates</item>
+        <item>Bookmarks</item>
+        <item>Downloads</item>
+    </string-array>
+
+    <string-array name="chapter_values">
+        <item>Any</item>
+        <item>1 and Above</item>
+        <item>5 and Above</item>
+        <item>10 and Above</item>
+        <item>20 and Above</item>
+        <item>30 and Above</item>
+        <item>40 and Above</item>
+        <item>50 and Above</item>
+        <item>100 and Above</item>
+        <item>200 and Above</item>
+    </string-array>
+
+    <string-array name="contain_values">
+        <item>Contains</item>
+        <item>Begins</item>
+        <item>Ends</item>
+    </string-array>
+
+    <string-array name="incl_values">
+        <item>Any</item>
+        <item>And</item>
+        <item>Or</item>
+    </string-array>
+
+    <string-array name="bookmark_titles">
+        <item>Bookmarks</item>
+        <item>Downloads</item>
+    </string-array>
+</resources>
