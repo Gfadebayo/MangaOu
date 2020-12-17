@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
 import com.exzell.mangaplayground.models.Manga;
@@ -37,6 +38,9 @@ public class EmptyFragment extends SelectionFragment {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this, new SavedStateViewModelFactory
                 (requireActivity().getApplication(), this)).get(HomeViewModel.class);
+
+        ((MangaApplication) requireActivity().getApplication())
+                .mAppComponent.injectRepo(mViewModel);
 
         setMenuResource(R.menu.cab_menu);
         mLink = getArguments().getString(TAG);

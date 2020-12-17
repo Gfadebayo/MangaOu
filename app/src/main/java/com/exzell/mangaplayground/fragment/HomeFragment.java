@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
 import com.exzell.mangaplayground.adapters.RecyclerViewAdapter;
@@ -42,6 +43,9 @@ public class HomeFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         mViewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity()
                 .getApplication(), this)).get(HomeViewModel.class);
+
+        ((MangaApplication) requireActivity().getApplication())
+                .mAppComponent.injectRepo(mViewModel);
     }
 
     @Nullable

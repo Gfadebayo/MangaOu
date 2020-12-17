@@ -8,6 +8,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
+import com.exzell.mangaplayground.di.ActivityScope;
 import com.exzell.mangaplayground.io.Repository;
 import com.exzell.mangaplayground.notification.Notifications;
 
@@ -18,11 +19,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import static com.exzell.mangaplayground.download.DownloadChangeListener.*;
 
+@Singleton
 public class DownloadManager {
 
-    private static DownloadManager sInstance;
     private Context context;
     private Map<Long, Download> downloads;
     private Repository repo;
@@ -47,14 +51,10 @@ public class DownloadManager {
         });
     }
 
-    public static DownloadManager getInstance(Application application){
-        if(sInstance == null) sInstance = new DownloadManager(application);
-        return sInstance;
-    }
-
-    private DownloadManager(Application app){
-        context = app.getApplicationContext();
-        repo = Repository.getInstance(app);
+    @Inject
+    public DownloadManager(Context context, Repository repo){
+        this.context = context;
+        this.repo = repo;
         downloads = new HashMap<>();
 
         listeners = new ArrayList<>();

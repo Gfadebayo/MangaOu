@@ -5,7 +5,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 object Migrations {
 
-    const val CURRENT_VERSION: Int = 25
+    const val CURRENT_VERSION: Int = 35
 
     @JvmField
     val MIGRATION_1_9 = object : Migration(1, 9) {

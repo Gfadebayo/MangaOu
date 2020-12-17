@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.UpdateService;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
@@ -53,6 +54,9 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
 
         mViewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity()
                 .getApplication(), requireActivity())).get(BookmarkViewModel.class);
+
+        ((MangaApplication) requireActivity().getApplication())
+                .mAppComponent.injectRepo(mViewModel);
     }
 
     @Nullable

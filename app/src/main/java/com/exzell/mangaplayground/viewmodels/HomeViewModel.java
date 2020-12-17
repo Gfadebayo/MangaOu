@@ -26,6 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Consumer;
@@ -35,7 +37,10 @@ import retrofit2.Response;
 
 public class HomeViewModel extends AndroidViewModel {
     private final String TAG = "ViewModel";
-    private Repository mRepo;
+
+    @Inject
+    Repository mRepo;
+
     private Context mContext;
     private ExecutorService mExecutor;
     private SavedStateHandle mHandle;
@@ -45,9 +50,8 @@ public class HomeViewModel extends AndroidViewModel {
 
     public HomeViewModel(@NonNull Application application, SavedStateHandle handle) {
         super(application);
-        mRepo = Repository.getInstance(application);
         mContext = application.getApplicationContext();
-        mExecutor = Executors.newFixedThreadPool(4);
+        mExecutor = Executors.newFixedThreadPool(2);
         mHandle = handle;
     }
 

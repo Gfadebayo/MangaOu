@@ -26,6 +26,8 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.exzell.mangaplayground.di.DaggerAppComponent;
+import com.exzell.mangaplayground.di.MainActivityComponent;
 import com.exzell.mangaplayground.download.DownloadManager;
 import com.exzell.mangaplayground.notification.Notifications;
 import com.exzell.mangaplayground.viewmodels.HomeViewModel;
@@ -34,7 +36,6 @@ import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.mikepenz.iconics.context.IconicsLayoutInflater2;
 
 import java.util.Arrays;
 import java.util.function.IntFunction;
@@ -44,10 +45,14 @@ import java.util.stream.Stream;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarLayout mBarLayout;
+    public MainActivityComponent mMainComponent;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        LayoutInflaterCompat.setFactory2(getLayoutInflater(), new IconicsLayoutInflater2(getDelegate()));
+
+        mMainComponent = ((MangaApplication) getApplication())
+                .mAppComponent.mainComponent().create();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer);
 

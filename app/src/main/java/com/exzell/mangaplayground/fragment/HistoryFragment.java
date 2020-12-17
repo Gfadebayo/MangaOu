@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.HistoryAdapter;
 import com.exzell.mangaplayground.adapters.TitleAdapter;
@@ -38,6 +39,9 @@ public class HistoryFragment extends Fragment {
         setRetainInstance(true);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.
                 AndroidViewModelFactory(requireActivity().getApplication())).get(BookmarkViewModel.class);
+
+        ((MangaApplication) requireActivity().getApplication())
+                .mAppComponent.injectRepo(mViewModel);
     }
 
     @Nullable

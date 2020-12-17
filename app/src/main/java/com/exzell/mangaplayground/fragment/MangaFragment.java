@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.reader.ReadActivity;
 import com.exzell.mangaplayground.download.Download;
 import com.exzell.mangaplayground.R;
@@ -56,6 +57,10 @@ public class MangaFragment extends SelectionFragment {
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory
                 (requireActivity().getApplication())).get(MangaViewModel.class);
+
+        ((MangaApplication) requireActivity().getApplication())
+                .mAppComponent.injectRepo(mViewModel);
+
         setMenuResource(R.menu.chapter_menu);
     }
 

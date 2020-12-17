@@ -9,12 +9,17 @@ import android.os.PowerManager;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.notification.Notifications;
+
+import javax.inject.Inject;
 
 public class DownloadService extends Service {
 
     private final String TAG = "wakelock:DownloadService";
-    private DownloadManager mManager;
+
+    @Inject
+    public DownloadManager mManager;
     private PowerManager.WakeLock mWakeLock;
     private Downloader mDownloader;
 
@@ -27,9 +32,9 @@ public class DownloadService extends Service {
 
     @Override
     public void onCreate() {
-        super.onCreate();
+        ((MangaApplication) getApplication()).mAppComponent
+                .injectDownloadManager(this);
 
-        mManager = DownloadManager.getInstance(getApplication());
         mDownloader = new Downloader(mManager, this);
         acquireWakeLock();
         //TODO: Find a better way to resume failed downloads

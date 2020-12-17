@@ -112,7 +112,7 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
 
     private ViewMultiplierAdapter createMultiAdapter(String name){
         //Deafult is status
-        List<String> list = mViewModel.statusData;
+        List<String> list = SearchViewModel.statusData;
         List<String> defaults = Collections.singletonList(mViewModel.getStatus());
 
         if(name.equals("Genre")) {
@@ -167,15 +167,15 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
                 (i, s) -> mViewModel.setContainValue(false, s.toLowerCase()));
 
         relSpinner.setSpinnerOutsideTouchListener((v, m) -> relSpinner.dismiss());
-        relSpinner.setItems(mViewModel.releaseData);
-        if(mViewModel.getRelease() != -1) relSpinner.selectItemByIndex(mViewModel.releaseData.indexOf(String.valueOf(mViewModel.getRelease())));
+        relSpinner.setItems(SearchViewModel.releaseData);
+        if(mViewModel.getRelease() != -1) relSpinner.selectItemByIndex(SearchViewModel.releaseData.indexOf(String.valueOf(mViewModel.getRelease())));
         relSpinner.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>) (i, integer)
                 -> mViewModel.setRelease(Integer.parseInt(integer)));
 
 
         chapSpinner.setItems(R.array.chapter_values);
         chapSpinner.setSpinnerOutsideTouchListener(((v, m) -> chapSpinner.dismiss()));
-        if(mViewModel.getChapters() != -1) chapSpinner.selectItemByIndex(mViewModel.chapterData.indexOf(mViewModel.getChapters()));
+        if(mViewModel.getChapters() != -1) chapSpinner.selectItemByIndex(SearchViewModel.chapterData.indexOf(mViewModel.getChapters()));
         chapSpinner.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>) (i, s) -> {
             String chapter = s.split("\\s+")[0];
             if(Character.isDigit(chapter.charAt(0))) mViewModel.setChapters(Integer.parseInt(chapter));

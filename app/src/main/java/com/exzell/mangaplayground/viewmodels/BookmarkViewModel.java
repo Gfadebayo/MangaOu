@@ -19,14 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 public class BookmarkViewModel extends AndroidViewModel {
 
-    private Repository mRepo;
+    @Inject
+    Repository mRepo;
+
     private Context mContext;
 
     public BookmarkViewModel(@NonNull Application application) {
         super(application);
-        mRepo = Repository.getInstance(application);
         mContext = application.getApplicationContext();
     }
 

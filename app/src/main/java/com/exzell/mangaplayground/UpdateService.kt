@@ -17,10 +17,11 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.jsoup.Jsoup
+import javax.inject.Inject
 
 class UpdateService: Service() {
 
-    private val mRepo: Repository by lazy { Repository.getInstance(application) }
+    @Inject lateinit var mRepo: Repository
 
     var mUpdates: ArrayList<Manga> = ArrayList()
 
@@ -36,7 +37,7 @@ class UpdateService: Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
-        super.onCreate()
+        (application as MangaApplication).mAppComponent.injectRepo(this)
         startForeground(Notifications.BOOKMARK_NOTIFY_ID, NotificationCompat.Builder(this, Notifications.BOOKMARK_ID).build())
     }
 

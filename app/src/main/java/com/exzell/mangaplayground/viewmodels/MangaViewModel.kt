@@ -23,12 +23,15 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Action
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
+import javax.inject.Inject
 
 class MangaViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mContext: Context = application.applicationContext
-    private val mRepo: Repository = Repository.getInstance(application)
-    private val mDownloadManager: DownloadManager = DownloadManager.getInstance(application)
+
+    @Inject lateinit var mRepo: Repository
+
+    @Inject lateinit var mDownloadManager: DownloadManager
 
     fun getDbManga(link: String): Manga? {
         return mRepo.getMangaWithLink(link)

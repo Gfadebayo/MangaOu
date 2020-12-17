@@ -1,5 +1,6 @@
 package com.exzell.mangaplayground.download;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,24 +11,33 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.exzell.mangaplayground.MainActivity;
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import javax.inject.Inject;
+
 public class DownloadQueueFragment extends Fragment implements DownloadChangeListener {
 
     private RecyclerView mRecyclerView;
     private DownloadAdapter mAdapter;
-    private DownloadManager mManager;
+    @Inject public DownloadManager mManager;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        ((MangaApplication) requireActivity().getApplication()).mAppComponent
+                .injectDownloadManager(this);
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mManager = DownloadManager.getInstance(requireActivity().getApplication());
-
         mManager.addListener(this);
     }
 

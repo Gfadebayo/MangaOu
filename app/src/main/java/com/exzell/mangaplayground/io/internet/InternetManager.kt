@@ -2,12 +2,15 @@ package com.exzell.mangaplayground.io.internet
 
 import android.content.Context
 import com.exzell.mangaplayground.BuildConfig
+import dagger.Module
+import dagger.Provides
 import okhttp3.*
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
-import retrofit2.create
 import java.util.concurrent.TimeUnit
+import javax.inject.Singleton
 
+@Module
 object InternetManager {
 
     const val mBaseUrl = "https://mangapark.net/"
@@ -16,17 +19,17 @@ object InternetManager {
     val mClient = createClient(false, null)
 
     @JvmStatic
-    fun getApi(context: Context): MangaParkApi{
+    @Singleton
+    @Provides
+    fun getApi(context: Context): Retrofit{
 
         val client = createClient(true, context)
 
-        val fit = Retrofit.Builder()
+        return Retrofit.Builder()
                 .baseUrl(mBaseUrl)
                 .client(client)
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()
-
-        return fit.create(MangaParkApi::class.java)
     }
 
     private fun createClient(withCache: Boolean, context: Context?): OkHttpClient{

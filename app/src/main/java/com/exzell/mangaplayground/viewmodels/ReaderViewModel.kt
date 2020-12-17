@@ -12,11 +12,13 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.*
+import javax.inject.Inject
 
 class ReaderViewModel(application: Application) : AndroidViewModel(application) {
 
     val mContext: Context = application.applicationContext
-    private val mRepo: Repository = Repository.getInstance(application)
+
+    @Inject lateinit var mRepo: Repository
 
     fun getImageLink(link: String, onNext: (String) -> Unit, onError: () -> Unit): Disposable{
         return (mRepo.moveTo(link).subscribeOn(Schedulers.io())

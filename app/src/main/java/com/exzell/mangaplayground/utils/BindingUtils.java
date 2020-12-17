@@ -40,10 +40,6 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.radiobutton.MaterialRadioButton;
 import com.google.android.material.textview.MaterialTextView;
-import com.mikepenz.community_material_typeface_library.CommunityMaterial;
-import com.mikepenz.iconics.Iconics;
-import com.mikepenz.iconics.IconicsArrayBuilder;
-import com.mikepenz.iconics.IconicsDrawable;
 
 import java.util.ArrayList;
 import java.util.Arrays;

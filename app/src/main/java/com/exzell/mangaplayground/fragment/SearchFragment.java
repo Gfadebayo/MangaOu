@@ -18,6 +18,7 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.advancedsearch.MangaSearch;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
@@ -49,6 +50,10 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
         super.onCreate(savedInstanceState);
         mViewModel = new ViewModelProvider(requireActivity(), new SavedStateViewModelFactory(
                 requireActivity().getApplication(), requireActivity())).get(SearchViewModel.class);
+
+        ((MangaApplication) requireActivity().getApplication())
+                .mAppComponent.injectRepo(mViewModel);
+
         mViewModel.handlerDefaults();
         setMenuResource(R.menu.cab_menu);
     }
