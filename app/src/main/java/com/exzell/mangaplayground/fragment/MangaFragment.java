@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.reader.ReadActivity;
@@ -33,17 +34,16 @@ import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 
-public class MangaFragment extends SelectionFragment {
+public class MangaFragment extends SelectionFragment implements SwipeRefreshLayout.OnRefreshListener {
     public static final String TAG = "MangaFragment";
 
-    public static final String MANGA_ID = "new manga";
+    public static final String MANGA_LINK = "new manga";
 
     private Manga mManga;
     private FragmentMangaBinding mBinding;
@@ -67,18 +67,18 @@ public class MangaFragment extends SelectionFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = FragmentMangaBinding.inflate(inflater, container, false);
-        return mBinding.frameManga;
+        return inflater.inflate(R.layout.fragment_manga, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-        //Access the network to re update manga information
-        //if theres no internet connection, simply display the bookmarked manga
-
         super.onViewCreated(view, savedInstanceState);
-        String link = getArguments().getString(MANGA_ID);
+        mBinding = FragmentMangaBinding.bind(view);
+        mBinding.setLifecycleOwner(this);
+        //Access the network to re-update manga information
+        //if there's no internet connection, simply display the bookmarked manga
+
+        String link = getArguments().getString(MANGA_LINK);
         mManga = mViewModel.getDbManga(link);
 
         if (mManga != null) {
@@ -86,6 +86,9 @@ public class MangaFragment extends SelectionFragment {
             if (doAutomaticUpdate) updateManga(true, link);
 
         } else updateManga(false, link);
+
+        mBinding.swipeRefresh.setOnRefreshListener(this);
+        setSwipeRefreshView(mBinding.swipeRefresh);
     }
 
     private void updateManga(boolean displaySnackbar, String link){
@@ -106,14 +109,14 @@ public class MangaFragment extends SelectionFragment {
         };
 
         Action onComplete = () -> {
-            if(bar.isShown()) bar.dismiss();
+            bar.dismiss();
 
             List<Chapter> updatedChaps = ChapterUtils.transferChapterInfo(mManga.getChapters(), oldChapters);
             mManga.setChapters(updatedChaps);
 
-            onComplete();
             mViewModel.updateDB(mManga);
             isDoneFetching = true;
+            onComplete();
         };
 
         addDisposable(mViewModel.fetchMangaInfo(link, onNext, onComplete));
@@ -121,7 +124,7 @@ public class MangaFragment extends SelectionFragment {
 
     private void onComplete(){
 
-        getView().findViewById(R.id.progress_bar).setVisibility(View.GONE);
+        mBinding.progressBar.setVisibility(View.GONE);
 
         mBinding.setManga(mManga);
 
@@ -150,6 +153,8 @@ public class MangaFragment extends SelectionFragment {
 //                mAdapter.notifyItemChanged(chapIndex);
             });
         }));
+
+        mBinding.swipeRefresh.setRefreshing(false);
     }
 
     private void clearConcatAdapter(){
@@ -262,5 +267,17 @@ public class MangaFragment extends SelectionFragment {
             mViewModel.queueDownloads(downloads);
         }
         return true;
+    }
+
+    @Override
+    public void onRefresh() {
+        isDoneFetching = false;
+        updateManga(true, mManga.getLink());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mAdapter = null;
     }
 }

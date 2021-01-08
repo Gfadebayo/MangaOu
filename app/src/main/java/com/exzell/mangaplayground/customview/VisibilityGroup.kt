@@ -2,19 +2,13 @@ package com.exzell.mangaplayground.customview
 
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.view.animation.Interpolator
 import com.exzell.mangaplayground.R
 
 class VisibilityGroup(vararg view: View, val decorView: View? = null) {
 
     private val viewList = ArrayList(view.asList())
 
-    init {
-        decorView?.let { decor ->
-            decor.setOnSystemUiVisibilityChangeListener {
-                if(it and View.SYSTEM_UI_FLAG_HIDE_NAVIGATION > 0){}
-            }
-        }
-    }
 //TODO: Fix Visibility Group
     private fun show(){
         viewList.forEach {

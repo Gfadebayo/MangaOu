@@ -14,7 +14,10 @@ import org.jsoup.select.Elements;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import timber.log.Timber;
 
 import static com.exzell.mangaplayground.BuildConfig.*;
 
@@ -28,9 +31,8 @@ public class MangaUtils {
         mangaHtml.body().select("header").remove();
 
         parseMangaSection(mangaHtml.body(), manga);
-//        getLatestChapters(mangaHtml.body(), manga);
 
-        long id = (manga.getAuthor().chars().sum()) * manga.getLink().chars().sum();
+        long id = ((manga.getThumbnailLink().hashCode() + manga.getLink().hashCode()) * 23);
         manga.setId(id);
     }
 
@@ -53,7 +55,7 @@ public class MangaUtils {
             manga.setThumbnailLink(thumbNail);
 
             String name = c.attr("title");
-            if(DEBUG) Log.i(TAG, name);
+            Timber.i(name);
             manga.setTitle(correctTitle(name));
         });
 
@@ -62,42 +64,42 @@ public class MangaUtils {
             if(c.text().contains("Author")) {
                 String author = c.nextElementSibling().getElementsByTag("a").attr("title");
                 manga.setAuthor(author);
-                if(DEBUG) Log.i(TAG, "Author name is: "+ author);
+                Timber.i("Author name is: %s", author);
             }
 
             if(c.text().contains("Artist")) {
                 String artist = c.nextElementSibling().getElementsByTag("a").attr("title");
                 if(artist != null && !artist.isEmpty()) manga.setArtist(artist);
-                if(DEBUG) Log.i(TAG, "Artist name is: "+ artist);
+                Timber.i("Artist name is: %s", artist);
             }
 
             if(c.text().contains("Rating")){
                 String rating = c.nextElementSibling().text();
-                if(DEBUG) Log.i(TAG, "Rating of:" + rating);
+                Timber.i("Rating of:%s", rating);
                 parseRatingAndVotes(manga, rating);
             }
 
             if(c.text().contains("Popularity")){
                 String popularity = c.nextElementSibling().text();
-                if(DEBUG) Log.i(TAG, "Popularity: " + popularity);
+                Timber.i("Popularity: %s", popularity);
                 parsePopularityAndViews(manga, popularity);
             }
 
             if(c.text().contains("Type")){
                 String type = c.nextElementSibling().text().split("-")[0].trim();
-                if(DEBUG) Log.i(TAG, "Type: " + type);
+                Timber.i("Type: %s", type);
                 Optional<Type> first = Stream.of(Type.values()).filter(type1 -> type1.dispName.equals(type)).findFirst();
 
 //                first.ifPresent(g -> g.getDispName());
                 first.ifPresent(type1 -> {
-                    if(DEBUG) Log.w(TAG, type1.name());
+                    Timber.tag(TAG).w(type1.name());
                     manga.setType(type1);
                 });
             }
 
             if(c.text().contains("Genre")){
                 c.nextElementSibling().getElementsByTag("a").forEach(a -> {
-                    if(DEBUG) Log.i(TAG, a.text());
+                    Timber.i(a.text());
                     Optional<Genre> genre = Stream.of(Genre.values()).filter(genre1 -> genre1.
                             dispName.equals(a.text())).findFirst();
 
@@ -106,13 +108,13 @@ public class MangaUtils {
             }
 
             if(c.text().contains("Release")){
-                if(DEBUG) Log.i(TAG, c.nextElementSibling().text());
+                Timber.i(c.nextElementSibling().text());
                 manga.setRelease(Integer.parseInt(c.nextElementSibling().text()));
             }
 
             if(c.text().contains("Status")){
                 String status = c.nextElementSibling().text();
-                if(DEBUG) Log.i(TAG, status);
+                Timber.i(status);
                 manga.setStatus(status);
             }
         });
@@ -149,6 +151,9 @@ public class MangaUtils {
             manga.setTitle(correctTitle(title));
             manga.setLink(link);
             manga.setThumbnailLink(thumbnail);
+
+            long id = ((thumbnail.hashCode() + link.hashCode()) * 23);
+            manga.setId(id);
             parseRatingAndVotes(manga, rate);
 
             c.getElementsByTag("b").forEach(b -> {
@@ -192,8 +197,8 @@ public class MangaUtils {
         String[] spltRate = rate.split("/");
         String rat = Stream.of(spltRate[0].split("\\s+")).filter(s -> Character.isDigit(s.charAt(0)))
                 .findFirst().get();
-        String votes = Stream.of(spltRate[1].split("\\s+")).filter(s -> !s.isEmpty() && Character.isDigit(s.charAt(0))
-                && Double.parseDouble(s) != 10.0).findFirst().get();
+
+        String votes = Stream.of(spltRate[1].trim().split("\\s+")).skip(1).filter(s -> !s.isEmpty() && Character.isDigit(s.charAt(0))).findFirst().get();
 //TODO: 10 / 10 out of 10 total votes gives an error...Fix it
 
         manga.setRating(Double.valueOf(rat) * 0.5);
@@ -204,11 +209,11 @@ public class MangaUtils {
 
     private static void parsePopularityAndViews(Manga manga, String popu){
         //Format: xth, it has xx monthly views
-        String views = Stream.of(popu.split("\\s+")).filter(s -> Character.isDigit(s.charAt(0))).findFirst().get();
 
-        String[] popuValues = popu.split(",");
-        String popular = popuValues[0];
+        String[] split = popu.split(",");
 
+        String popular = split[0].trim();
+        String views = Stream.of(split[1].trim().split("\\s+")).filter(p -> Character.isDigit(p.charAt(0))).findFirst().get();
 
         manga.setPopularity(popular);
         manga.setViews(views);

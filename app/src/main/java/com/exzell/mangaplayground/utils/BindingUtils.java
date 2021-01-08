@@ -49,6 +49,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import timber.log.Timber;
+
 public class BindingUtils {
     public static final String TAG = "BindingUtils";
 
@@ -64,10 +66,8 @@ public class BindingUtils {
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-//                        draw.stop();
-//                        v.setImageDrawable(null);
-//                        v.requestLayout();
-                            Log.i(TAG, "Failed to get Image");
+
+                            Timber.i("Failed to get Image");
                             return false;
                         }
 
@@ -141,28 +141,33 @@ public class BindingUtils {
     @BindingAdapter("createChips")
     public static void chips(ChipGroup parent, Manga manga){
         if(manga == null) return;
+
         NavController con = Navigation.findNavController(parent);
+
+        createOrHideChips(manga.getGenres().size() - parent.getChildCount(), parent);
 
         for(int i = 0; i < manga.getGenres().size(); i++){
             Genre g = manga.getGenres().get(i);
-            createOrHideChips(manga.getGenres().size() - parent.getChildCount(), parent);
             Chip ch = (Chip) parent.getChildAt(i);
             ch.setText(g.dispName);
             ch.setOnClickListener(v -> {
-                Bundle bund = new Bundle(1);
+                Bundle bund = new Bundle(2);
+
                 bund.putString(EmptyFragment.TAG, g.link);
+                bund.putString(EmptyFragment.TITLE, g.dispName);
 
                 con.navigate(R.id.nav_empty, bund);
             });
             ch.setVisibility(View.VISIBLE);
         }
+
+        int left = parent.getChildCount() - manga.getGenres().size();
+        if(left > 0) IntStream.range(parent.getChildCount()-left, parent.getChildCount())
+                .forEach(i -> parent.getChildAt(i).setVisibility(View.GONE));
     }
 
     private static void createOrHideChips(int size, ChipGroup parent){
-        if(size < 0){
-            IntStream.range(parent.getChildCount() - Math.abs(size), parent.getChildCount())
-                    .forEach(i -> parent.getChildAt(i).setVisibility(View.GONE));
-        }else {
+        for(int i = 0; i < size; i++) {
             Chip ch = new Chip(parent.getContext());
             ChipGroup.LayoutParams params = new ChipGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 

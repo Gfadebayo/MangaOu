@@ -166,6 +166,7 @@ public class ChapterUtils {
 
         List<Chapter> old = newChaps.stream().filter(p -> {
 
+            //Remove the old chapter and add it to found chapter so the searching will be faster
             if(oldChaps.contains(p)){
                 foundChapters.add(oldChaps.remove(oldChaps.indexOf(p)));
                 return true;

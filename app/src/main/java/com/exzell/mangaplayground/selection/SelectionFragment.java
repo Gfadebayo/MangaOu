@@ -6,6 +6,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.MenuRes;
@@ -21,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.exzell.mangaplayground.customview.BottomCab;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.fragment.base.DisposableFragment;
+import com.google.android.material.appbar.MaterialToolbar;
 
 public abstract class SelectionFragment extends DisposableFragment {
     public static final String SELECTION_ID = "selection view";
@@ -30,11 +34,13 @@ public abstract class SelectionFragment extends DisposableFragment {
     private ActionMode.Callback mActionCallback;
 
     private int mMenuRes;
+    private MaterialToolbar mToolbar;
 
     @Override
     @CallSuper
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mCab = requireActivity().findViewById(R.id.bottom_cab);
+        mToolbar = requireActivity().findViewById(R.id.toolbar);
     }
 
     protected void createTracker(RecyclerView recyclerView){
@@ -85,10 +91,8 @@ public abstract class SelectionFragment extends DisposableFragment {
         mActionCallback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+
                 mCab.show(mMenuRes, mode.getMenuInflater(), SelectionFragment.this::onActionItemClicked);
-
-//                mode.getMenuInflater().inflate(mMenuRes, menu);
-
                 mode.setTitle(String.valueOf(mTracker.getSelection().size()));
 
                 return true;
@@ -101,8 +105,7 @@ public abstract class SelectionFragment extends DisposableFragment {
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                SelectionFragment.this.onActionItemClicked(item);
-                return false;
+                return SelectionFragment.this.onActionItemClicked(item);
             }
 
             @Override
@@ -121,6 +124,8 @@ public abstract class SelectionFragment extends DisposableFragment {
         mCab.clearMenu();
         mTracker = null;
         if(mActionMode != null) mActionMode.finish();
+        mCab = null;
+        mToolbar = null;
     }
 
     public class DetailsLookup extends ItemDetailsLookup{

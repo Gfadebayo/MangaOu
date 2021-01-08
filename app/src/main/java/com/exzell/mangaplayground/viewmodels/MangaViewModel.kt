@@ -77,7 +77,7 @@ class MangaViewModel(application: Application) : AndroidViewModel(application) {
     fun updateDB(manga: Manga) { mRepo.insertManga(manga) }
 
     fun getDownloads(o : LifecycleOwner, consumer: java.util.function.Consumer<List<Download>>) {
-        mRepo.downloads.observe(o, Observer<List<Download>> {
+        mRepo.downloads.observe(o, {
             val failed = ensureDownloadExist(it)
 
                 consumer.accept(it)

@@ -31,10 +31,10 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import timber.log.Timber
 
 class SearchViewModel(application: Application, private val mHandle: SavedStateHandle) : AndroidViewModel(application) {
 
-    private val TAG = "SearchViewModel"
     private val mContext = application.applicationContext
 
     @Inject
@@ -124,7 +124,7 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
                         val searchManga = MangaUtils.createSearchManga(html)
                         mCurrentSearchResults.addAll(searchManga)
                         onMangaRetrieved.accept(searchManga)
-                        Log.w(TAG, next)
+                        Timber.w(next)
 
                     } catch (e: IOException) {
                         e.printStackTrace()

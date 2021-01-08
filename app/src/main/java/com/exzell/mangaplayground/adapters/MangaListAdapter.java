@@ -26,9 +26,7 @@ import com.exzell.mangaplayground.selection.DetailsViewHolder;
 import com.mikepenz.iconics.IconicsDrawable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHolder> {
 
@@ -39,13 +37,13 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         @Override
         public boolean areContentsTheSame(@NonNull Manga oldItem, @NonNull Manga newItem) { return oldItem.equals(newItem); }
     };
-    private final String TAG = "MangaListAdapter";
+
     private final Context mContext;
     private final LayoutInflater mInflater;
     private boolean mSummaryShow;
     private int mItemType;
     private boolean mShowMoreInfo;
-    private SelectionTracker mTracker;
+    private SelectionTracker<Long> mTracker;
 
     public MangaListAdapter(Context context, List<? extends Manga> mangas, @LayoutRes int itemType){
         super(DIFF_CALLBACK);
@@ -55,9 +53,10 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         mInflater = LayoutInflater.from(context);
         mItemType = itemType;
         setHasStableIds(true);
+
     }
 
-    public void setTracker(SelectionTracker track){
+    public void setTracker(SelectionTracker<Long> track){
         mTracker = track;
     }
 
@@ -76,8 +75,6 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         if(holder.mBinding != null) {
             holder.mBinding.setManga(manga);
 
-            int vis1 = mSummaryShow ? View.VISIBLE : View.GONE;
-
         }else if(holder.mHomeBinding != null) {
 
             holder.mHomeBinding.setManga(manga);
@@ -92,6 +89,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         int color = mContext.getResources().getColor(R.color.accent, null);
         draw.color(color).sizeDp(24);
         v.setImageDrawable(draw);
+
     }
 
     @Override
@@ -106,15 +104,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
     @Override
     public long getItemId(int position) {
-        return getCurrentList().get(position).getTitle().chars().sum();
-    }
-
-    public void clearMangas(){
-        submitList(Collections.EMPTY_LIST);
-    }
-
-    public void addManga(Manga newManga){
-        addMangas(Collections.singletonList(newManga));
+        return getCurrentList().get(position).getId();
     }
 
     public void addMangas(List<? extends Manga> mangas){
@@ -122,8 +112,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         ArrayList<Manga> newMangas = new ArrayList<>(getCurrentList());
         newMangas.addAll(mangas);
 
-
-        submitList(newMangas.stream().distinct().collect(Collectors.toList()));
+        submitList(newMangas);
     }
 
     public void showSummary(boolean show){
@@ -154,7 +143,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
                 Bundle bund = new Bundle();
 
 
-                bund.putString(MangaFragment.MANGA_ID, getCurrentList().get(pos).getLink());
+                bund.putString(MangaFragment.MANGA_LINK, getCurrentList().get(pos).getLink());
                 Navigation.findNavController(v).navigate(R.id.frag_manga, bund);
             });
 

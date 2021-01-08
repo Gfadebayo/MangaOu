@@ -1,5 +1,6 @@
 package com.exzell.mangaplayground.viewmodels;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.exzell.mangaplayground.io.Repository;
+import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Manga;
 
 import org.jsoup.Jsoup;
@@ -20,6 +22,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,6 +38,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+@SuppressLint("StaticFieldLeak")
 public class HomeViewModel extends AndroidViewModel {
     private final String TAG = "ViewModel";
 
@@ -80,9 +84,17 @@ public class HomeViewModel extends AndroidViewModel {
 
     public void queryDb(BiConsumer<List<? extends Manga>, Integer> consumer, int bookmarkIndex, int downloadIndex, LifecycleOwner o){
 
-        mRepo.getBookmarkedManga().observe(o, dbMangas -> consumer.accept(dbMangas, bookmarkIndex));
+        mRepo.getBookmarkedManga().observe(o, dbMangas -> {
+            List<DBManga> trim = dbMangas.stream().limit(5).collect(Collectors.toList());
 
-        mRepo.getDownloadedMangas().observe(o, dbMangas -> consumer.accept(dbMangas, downloadIndex));
+            consumer.accept(trim, bookmarkIndex);
+        });
+
+        mRepo.getDownloadedMangas().observe(o, dbMangas -> {
+            List<DBManga> trim = dbMangas.stream().limit(5).collect(Collectors.toList());
+
+            consumer.accept(trim, downloadIndex);
+        });
     }
 
     /**

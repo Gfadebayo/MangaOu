@@ -97,4 +97,19 @@ public class ExampleUnitTest {
 
         System.out.println("Translation: " + i);
     }
+
+    @Test
+    public void testTest(){
+        //Format: xth, it has xx monthly views
+
+        String popu = "6th, it has 112.82k monthly views.";
+
+        String[] split = popu.split(",");
+
+        String popular = split[0];
+
+        String views = Stream.of(split[1].trim().split("\\s+")).filter(p -> Character.isDigit(p.charAt(0))).collect(Collectors.joining());
+
+        System.out.printf("%s popularity with %s monthly views", popular, views);
+    }
 }

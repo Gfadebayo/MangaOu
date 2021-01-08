@@ -18,63 +18,63 @@ import java.util.function.Predicate;
 public class StableStringKeyProvider extends ItemKeyProvider<Long> {
     public static final String TAG = "Key Provider";
     private final RecyclerView mRecyclerView;
-    private final RecyclerView.Adapter mAdapter;
-    private LongSparseArray<Integer> mKeyToPosition = new LongSparseArray<>();
+//    private final RecyclerView.Adapter mAdapter;
+//    private LongSparseArray<Integer> mKeyToPosition = new LongSparseArray<>();
 
 
     public StableStringKeyProvider(RecyclerView rv) {
         super(SCOPE_MAPPED);
 
         mRecyclerView = rv;
-        mAdapter = rv.getAdapter();
+//        mAdapter = rv.getAdapter();
 
-        if(mAdapter instanceof ConcatAdapter){
-            ((ConcatAdapter) mAdapter).getAdapters().forEach(c -> observe(c));
-            mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
-                @Override
-                public void onChildViewAttachedToWindow(@NonNull View view) {
-                    RecyclerView.ViewHolder cVH = mRecyclerView.findContainingViewHolder(view);
-                    long itemId = cVH.getItemId();
-                    int pos = cVH.getAbsoluteAdapterPosition();
-                    mKeyToPosition.put(itemId, pos);
-                }
-
-                @Override
-                public void onChildViewDetachedFromWindow(@NonNull View view) {
-                    RecyclerView.ViewHolder cVH = mRecyclerView.findContainingViewHolder(view);
-                    long itemId = cVH.getItemId();
-                    int pos = cVH.getAbsoluteAdapterPosition();
-                    mKeyToPosition.remove(itemId);
-                }
-            });
-
-        }else observe(mAdapter);
+//        if(mAdapter instanceof ConcatAdapter){
+//            ((ConcatAdapter) mAdapter).getAdapters().forEach(c -> observe(c));
+//            mRecyclerView.addOnChildAttachStateChangeListener(new RecyclerView.OnChildAttachStateChangeListener() {
+//                @Override
+//                public void onChildViewAttachedToWindow(@NonNull View view) {
+//                    RecyclerView.ViewHolder cVH = mRecyclerView.findContainingViewHolder(view);
+//                    long itemId = cVH.getItemId();
+//                    int pos = cVH.getAbsoluteAdapterPosition();
+//                    mKeyToPosition.put(itemId, pos);
+//                }
+//
+//                @Override
+//                public void onChildViewDetachedFromWindow(@NonNull View view) {
+//                    RecyclerView.ViewHolder cVH = mRecyclerView.findContainingViewHolder(view);
+//                    long itemId = cVH.getItemId();
+//                    int pos = cVH.getAbsoluteAdapterPosition();
+//                    mKeyToPosition.remove(itemId);
+//                }
+//            });
+//
+//        }else observe(mAdapter);
     }
 
-    private void observe(RecyclerView.Adapter ad){
-        ad.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                for(int i = positionStart; i < positionStart+itemCount; i++) {
-                    long id = mAdapter.getItemId(i);
-                    mKeyToPosition.put(id, i);
-                }
-            }
-
-            @Override
-            public void onItemRangeChanged(int positionStart, int itemCount) {
-                Log.w(TAG, "Range Change called");
-            }
-
-            @Override
-            public void onItemRangeRemoved(int positionStart, int itemCount) {
-                for(int i = positionStart; i < positionStart+itemCount; i++){
-                    long id = mAdapter.getItemId(i);
-                    mKeyToPosition.delete(id);
-                }
-            }
-        });
-    }
+//    private void observe(RecyclerView.Adapter ad){
+//        ad.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onItemRangeInserted(int positionStart, int itemCount) {
+//                for(int i = positionStart; i < positionStart+itemCount; i++) {
+//                    long id = mAdapter.getItemId(i);
+//                    mKeyToPosition.put(id, i);
+//                }
+//            }
+//
+//            @Override
+//            public void onItemRangeChanged(int positionStart, int itemCount) {
+//                Log.w(TAG, "Range Change called");
+//            }
+//
+//            @Override
+//            public void onItemRangeRemoved(int positionStart, int itemCount) {
+//                for(int i = positionStart; i < positionStart+itemCount; i++){
+//                    long id = mAdapter.getItemId(i);
+//                    mKeyToPosition.delete(id);
+//                }
+//            }
+//        });
+//    }
 
     @Nullable
     @Override
@@ -96,9 +96,6 @@ public class StableStringKeyProvider extends ItemKeyProvider<Long> {
 //        return position;
 
         RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForItemId(key);
-        int pos = RecyclerView.NO_POSITION;
-        pos = mRecyclerView.getAdapter() instanceof ConcatAdapter ? vh.getBindingAdapterPosition() : vh.getAbsoluteAdapterPosition();
-//        else if((vh = getBodyViewHolderId(key)) != null) return vh.getAbsoluteAdapterPosition();
         return vh.getAbsoluteAdapterPosition();
     }
 

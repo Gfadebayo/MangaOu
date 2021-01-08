@@ -44,23 +44,19 @@ class BottomCab @JvmOverloads constructor(
     }
 
     private fun animate(appearance: Boolean){
+        if(appearance) visibility = View.VISIBLE
 
         val anim = AnimationUtils.loadAnimation(context, if(appearance) R.anim.enter_from_bottom else R.anim.exit_to_bottom).apply {
             setAnimationListener(object: Animation.AnimationListener{
                 override fun onAnimationRepeat(animation: Animation?) {}
 
                 override fun onAnimationEnd(animation: Animation?) {
-                    if(appearance) visibility = View.VISIBLE
-                    else visibility = View.GONE
+                    if (!appearance) visibility = View.GONE
                 }
-
                 override fun onAnimationStart(animation: Animation?) {}
             })
         }
-        if(appearance) {
-            startAnimation(anim)
-        }else{
-            startAnimation(anim)
-        }
+
+        startAnimation(anim)
     }
 }

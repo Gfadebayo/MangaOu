@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -12,20 +14,33 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_search_title"
-            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            style="@style/FilterTextView"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Title" />
-
-        <EditText
-            android:id="@+id/edit_search_title"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:text="@string/title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            app:boxBackgroundColor="@android:color/transparent"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            app:boxBackgroundMode="outline"
+            tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_search_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/Base.Widget.MaterialComponents.TextInputEditText.SearchEditText"
+                tools:text="@string/summary"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <include layout="@layout/spinner_power"
+            android:layout_weight="1"
             android:id="@+id/spin_title_contain"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="4dp"/>
 
@@ -39,21 +54,32 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_search_auth"
-            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            style="@style/FilterTextView"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Author" />
-
-        <EditText
-            android:id="@+id/edit_search_auth"
-            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:text="@string/author" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxBackgroundColor="@android:color/transparent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_search_auth"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                style="@style/Base.Widget.MaterialComponents.TextInputEditText.SearchEditText"
+                tools:text="@string/summary"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <include layout="@layout/spinner_power"
             android:id="@+id/spin_auth_contain"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_weight="1"
             android:layout_marginStart="4dp"/>
 
     </LinearLayout>
@@ -65,15 +91,14 @@
         android:orientation="horizontal">
 
         <com.google.android.material.textview.MaterialTextView
-            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            style="@style/FilterTextView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/rating" />
 
         <me.zhanghai.android.materialratingbar.MaterialRatingBar
             android:id="@+id/rating_rating"
-            style="@android:style/Widget.Material.RatingBar.Indicator"
-            ratingListener="@{model}"
+            style="@style/Widget.MaterialRatingBar.RatingBar"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -89,10 +114,10 @@
         android:orientation="horizontal">
 
         <com.google.android.material.textview.MaterialTextView
-            style="@style/Widget.MaterialComponents.TextView.HomeTextView.FilterTextView"
+            style="@style/FilterTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Release" />
+            android:text="@string/release" />
 
         <include layout="@layout/spinner_power"
             android:id="@+id/spin_release"
@@ -113,7 +138,7 @@
             android:layout_height="wrap_content"
             style="@style/Widget.MaterialComponents.TextView.HomeTextView"
             android:fontFamily="sans-serif-condensed-medium"
-            android:text="Chapters" />
+            android:text="@string/chapters" />
 
         <include layout="@layout/spinner_power"
             android:id="@+id/spin_chapter"
@@ -122,5 +147,7 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1" />
     </LinearLayout>
+
+
 
 </LinearLayout>

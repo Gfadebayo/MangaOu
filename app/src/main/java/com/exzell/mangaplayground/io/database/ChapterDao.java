@@ -26,7 +26,7 @@ public interface ChapterDao {
     @Query("DELETE FROM chapter")
     void deleteAll();
 
-    @Query("SELECT DISTINCT last_read_time FROM chapter WHERE lastReadingPosition > 0 ORDER BY last_read_time DESC")
+    @Query("SELECT DISTINCT last_read_time FROM chapter WHERE lastReadingPosition > 0 AND last_read_time > 0 ORDER BY last_read_time DESC")
     List<Long> allTime();
 
     @Query("SELECT * FROM chapter WHERE last_read_time > 0")

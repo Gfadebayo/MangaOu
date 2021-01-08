@@ -18,15 +18,13 @@ class RecyclerViewAdapter(val mViewAdapter: RecyclerView.Adapter<out RecyclerVie
                           val mContext: Context,
                           var mManager: RecyclerView.LayoutManager?): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-    val PAYLOAD_PROGRESS = 24
-
     lateinit var mRecyclerView: RecyclerView
 
     private var isProgressHidden = false
 
     fun hideProgressBar(hide: Boolean){
         isProgressHidden = true
-        notifyItemChanged(0, PAYLOAD_PROGRESS)
+        notifyItemChanged(0)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -37,7 +35,7 @@ class RecyclerViewAdapter(val mViewAdapter: RecyclerView.Adapter<out RecyclerVie
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.mRecyclerView.adapter = mViewAdapter
-        if(!(holder.mRecyclerView.layoutManager == mManager))  mManager.let { holder.mRecyclerView.layoutManager = it }
+        if((holder.mRecyclerView.layoutManager != mManager))  mManager.let { holder.mRecyclerView.layoutManager = it }
 
         holder.mBar.visibility = if(isProgressHidden) View.GONE else View.VISIBLE
     }

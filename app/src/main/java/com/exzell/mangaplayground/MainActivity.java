@@ -1,10 +1,7 @@
 package com.exzell.mangaplayground;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PermissionInfo;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,54 +10,35 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
-import androidx.core.content.pm.PermissionInfoCompat;
-import androidx.core.view.LayoutInflaterCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.SavedStateViewModelFactory;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
-import com.exzell.mangaplayground.di.DaggerAppComponent;
-import com.exzell.mangaplayground.di.MainActivityComponent;
-import com.exzell.mangaplayground.download.DownloadManager;
-import com.exzell.mangaplayground.notification.Notifications;
-import com.exzell.mangaplayground.viewmodels.HomeViewModel;
+import com.exzell.mangaplayground.fragment.MangaFragment;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
 
 import java.util.Arrays;
-import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import timber.log.Timber;
+
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarLayout mBarLayout;
-    public MainActivityComponent mMainComponent;
+    private float mAppbarElevation = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-
-        mMainComponent = ((MangaApplication) getApplication())
-                .mAppComponent.mainComponent().create();
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drawer);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        mBarLayout = findViewById(R.id.toolbar_layout);
-        int elevation = (int) mBarLayout.getElevation();
 
         NavigationView navView = findViewById(R.id.nav_view);
 
@@ -72,24 +50,46 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(toolbar, navController, configBar);
         setupNavViewWithNavController(drawer, navView, navController);
 
-        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            if (destination.getId() == R.id.frag_manga) {
-                mBarLayout.setElevation(0f);
-                mBarLayout.setBackground(null);
-            } else {
-                int color = getResources().getColor(R.color.colorPrimary, null);
-                mBarLayout.setBackgroundColor(color);
-                mBarLayout.setElevation(elevation);
-            }
-        });
+        setLayoutBehaviour(navController, toolbar);
+
+        if(getIntent().getAction().equals(Intent.ACTION_VIEW) && getIntent().hasCategory(Intent.CATEGORY_BROWSABLE)){
+            String link = getIntent().getData().getPath();
+            Timber.i("Path is %s", link);
+            Bundle linkBundle = new Bundle(1);
+            linkBundle.putString(MangaFragment.MANGA_LINK, link);
+
+            navController.navigate(R.id.frag_manga, linkBundle);
+        }
 
         if (BuildConfig.DEBUG) {
             if (PermissionChecker.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PermissionChecker.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, Stream.of(Manifest.permission.WRITE_EXTERNAL_STORAGE).toArray(String[]::new), 0);
             }
         }
+    }
 
-        Notifications.INSTANCE.createChannels(this);
+    /**
+     * Set how we want the toolbar to be when we navigate to {@link com.exzell.mangaplayground.fragment.MangaFragment}
+     */
+    private void setLayoutBehaviour(NavController controller, MaterialToolbar toolbar){
+        AppBarLayout barLayout  = findViewById(R.id.toolbar_layout);
+        mAppbarElevation = barLayout.getElevation();
+
+        controller.addOnDestinationChangedListener((control, dest, args) -> {
+            if(dest.getId() == R.id.frag_manga){
+                toolbar.setTitle(null);
+                barLayout.setElevation(0);
+                barLayout.setBackground(null);
+            }else{
+                int color = getResources().getColor(R.color.primary, null);
+                barLayout.setElevation(mAppbarElevation);
+                barLayout.setBackgroundColor(color);
+            }
+
+            if(dest.getId() == R.id.nav_search){
+                findViewById(R.id.fab).setVisibility(View.VISIBLE);
+            }else findViewById(R.id.fab).setVisibility(View.GONE);
+        });
     }
 
     /**

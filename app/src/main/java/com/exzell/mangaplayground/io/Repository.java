@@ -2,6 +2,7 @@ package com.exzell.mangaplayground.io;
 
 import android.app.Application;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.room.Transaction;
 
@@ -17,8 +18,12 @@ import com.exzell.mangaplayground.io.internet.MangaParkApi;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Manga;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +34,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,19 +59,15 @@ public class Repository {
     private MangaDao mMangaDao;
     private DownloadDao mDownloadDao;
 
-
-
     @Inject
     public Repository(AppExecutors exec, Retrofit service, AppDatabase db){
         mExecutor = exec;
-
 
         mMangaPark = service.create(MangaParkApi.class);
 
         mMangaDao = db.getMangaDao();
         mChapterDao = db.getChapterDao();
         mDownloadDao = db.getDownloadDao();
-
     }
 
     public Call<ResponseBody> advancedSearch(Map<String, String> queries){
@@ -107,23 +111,25 @@ public class Repository {
 
     //Database calls
     @Transaction
-    public void insertManga(Manga manga){
+    public void insertManga(Manga... manga){
         mExecutor.getDiskExecutor().submit((() -> {
-            mMangaDao.insertMangas(Collections.singletonList(manga));
-            mChapterDao.insertChapters(manga.getChapters());
+            mMangaDao.insertMangas(Arrays.asList(manga));
+
+            mChapterDao.insertChapters(Arrays.stream(manga).flatMap(man -> man.getChapters()
+                    .stream()).collect(Collectors.toList()));
         }));
     }
 
     @Transaction
-    public void updateManga(Manga manga){
+    public void updateManga(Manga... manga){
         mExecutor.getDiskExecutor().submit(() -> {
-            mMangaDao.updateMangas(Collections.singletonList(manga));
-            mChapterDao.updateChapters(manga.getChapters());
+            mMangaDao.updateMangas(Arrays.asList(manga));
+            mChapterDao.insertChapters(Arrays.stream(manga).flatMap(man -> man.getChapters()
+                    .stream()).collect(Collectors.toList()));
         });
     }
 
     public Manga getMangaWithLink(String link) {
-
         try {
             return mExecutor.getDiskExecutor().submit((Callable<Manga>) () -> mMangaDao.getMangaFromLink(link)).get();
 
@@ -263,5 +269,18 @@ public class Repository {
         mExecutor.getDiskExecutor().submit(() -> {
            mChapterDao.resetTime(chapter.getId());
         });
+    }
+
+    @NotNull
+    public List<DBManga> getMangaWithLinks(@NonNull List<Long> ids) {
+
+            try {
+
+                return mExecutor.getDiskExecutor().submit(() -> ids.stream().map(s ->
+                        mMangaDao.getMangaFromId(s)).collect(Collectors.toList())).get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return Collections.EMPTY_LIST;
+            }
     }
 }

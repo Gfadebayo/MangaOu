@@ -36,30 +36,30 @@ public class Manga{
 
     private boolean bookmark;
 
-    private String author = ""; //
+    private String author = "";
 
-    private String artist = ""; //
+    private String artist = "";
 
-    private String summary = ""; //
+    private String summary = "";
 
-    private double rating; //
+    private double rating;
 
     @TypeConverters(MangaTypeConverter.class)
     private List<Genre> genres = new ArrayList<>();
 
-    private int votes;  //
+    private int votes;
 
-    private String views = ""; //
+    private String views = "";
 
-    private String popularity = ""; //
+    private String popularity = "";
 
     @TypeConverters(MangaTypeConverter.class)
     private Type type = Type.UNKNOWN;
 
-    private String status = ""; //
+    private String status = "";
 
     @ColumnInfo(name = "_release")
-    private int release; //
+    private int release;
 
     @Ignore
     private List<Chapter> chapters = new ArrayList<>();
@@ -70,7 +70,7 @@ public class Manga{
     public Manga(String link){
         this.link = link;
 
-        id = link.chars().sum();//* (author.chars().sum() + artist.chars().sum());
+        id = link.chars().sum();
     }
 
     public void setId(long id){this.id = id;}
@@ -143,7 +143,10 @@ public class Manga{
         this.chapters = chapters;
     }
 
-    public long getId(){return id;}
+    public long getId(){
+        if(id == 0) throw new IllegalStateException("ID has a value of 0 ie it has not been implemented");
+        return id;
+    }
 
     public String getTitle() {
         return title;
@@ -213,6 +216,7 @@ public class Manga{
     @Override
     public boolean equals(@Nullable Object obj) {
         if(!(obj instanceof Manga)) return false;
+
         Manga manObj = (Manga) obj;
 
         return this.title.equals(manObj.title) &&

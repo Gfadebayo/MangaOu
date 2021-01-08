@@ -10,10 +10,7 @@ import com.exzell.mangaplayground.download.DownloadService
 import com.exzell.mangaplayground.fragment.*
 import com.exzell.mangaplayground.io.database.AppDatabase
 import com.exzell.mangaplayground.io.internet.InternetManager
-import com.exzell.mangaplayground.viewmodels.BookmarkViewModel
-import com.exzell.mangaplayground.viewmodels.HomeViewModel
-import com.exzell.mangaplayground.viewmodels.MangaViewModel
-import com.exzell.mangaplayground.viewmodels.SearchViewModel
+import com.exzell.mangaplayground.viewmodels.*
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Subcomponent
@@ -34,6 +31,8 @@ interface AppComponent{
     fun injectRepo(mangaViewModel: MangaViewModel)
 
     fun injectRepo(searchViewModel: SearchViewModel)
+
+    fun injectRepo(readerViewModel: ReaderViewModel)
 
     fun injectDownloadManager(downloadService: DownloadService)
 

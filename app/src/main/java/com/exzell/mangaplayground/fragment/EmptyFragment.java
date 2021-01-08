@@ -19,6 +19,7 @@ import com.exzell.mangaplayground.adapters.MangaListAdapter;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.HomeViewModel;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ import io.reactivex.rxjava3.functions.Consumer;
 public class EmptyFragment extends SelectionFragment {
 
     public static final String TAG = "EmptyFragment";
+    public static final String TITLE = "page title";
     private HomeViewModel mViewModel;
     private String mLink;
     private RecyclerView mRecyclerView;
@@ -46,6 +48,9 @@ public class EmptyFragment extends SelectionFragment {
         mLink = getArguments().getString(TAG);
 
         mViewModel.initHandler(mLink);
+
+        String title = getArguments().getString(TITLE);
+        ((MaterialToolbar) requireActivity().findViewById(R.id.toolbar)).setTitle(title);
     }
 
     @Nullable

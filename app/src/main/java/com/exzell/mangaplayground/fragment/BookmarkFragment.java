@@ -22,6 +22,8 @@ public class BookmarkFragment extends Fragment {
 
     public static int BOOKMARK_BOOKMARK = 0;
     private ViewPager2 mPager;
+    private TabLayout mTab;
+    private TabLayoutMediator mTabMediator;
 
     @Nullable
     @Override
@@ -32,7 +34,7 @@ public class BookmarkFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mPager = view.findViewById(R.id.pager_bookmark);
-        TabLayout mTab = view.findViewById(R.id.tab_bookmark);
+        mTab = view.findViewById(R.id.tab_bookmark);
 
         ViewPagerAdapter mAdapter = new ViewPagerAdapter(this, requireActivity().getResources().getStringArray(R.array.bookmark_titles));
 
@@ -42,14 +44,18 @@ public class BookmarkFragment extends Fragment {
             String s = mAdapter.getTitle(position);
             tab.setText(s);
         };
+        mTabMediator = new TabLayoutMediator(mTab, mPager, stra);
 
-        new TabLayoutMediator(mTab, mPager, stra).attach();
+        mTabMediator.attach();
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mTabMediator.detach();
         mPager.setAdapter(null);
         mPager = null;
+        mTab = null;
+        mTabMediator = null;
     }
 }

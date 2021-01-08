@@ -15,7 +15,7 @@ class AppExecutors {
     val mainExecutor: Executor
 
     init {
-        diskExecutor = Executors.newSingleThreadExecutor()
+        diskExecutor = Executors.newFixedThreadPool(3)
 
         ioExecutor = Executors.newFixedThreadPool(3)
 

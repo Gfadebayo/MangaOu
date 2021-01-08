@@ -6,10 +6,11 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -21,20 +22,21 @@ import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.UpdateService;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
 import com.exzell.mangaplayground.io.database.DBManga;
+import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.Collectors;
+
+import timber.log.Timber;
 
 public class ViewPagerFragment extends SelectionFragment implements SwipeRefreshLayout.OnRefreshListener {
-    private static final String TAG = "ViewPagerFragment";
     private static final String BUNDLE_KEY = "for which";
     private boolean forBookmark;
 
     private BookmarkViewModel mViewModel;
     private RecyclerView mRecyclerView;
-
 
     public static ViewPagerFragment getInstance(int which){
         Bundle b = new Bundle(1);
@@ -50,6 +52,7 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         setMenuResource(R.menu.cab_menu);
+
         forBookmark = getArguments().getInt(BUNDLE_KEY) == BookmarkFragment.BOOKMARK_BOOKMARK;
 
         mViewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity()
@@ -67,7 +70,6 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
         super.onViewCreated(view, savedInstanceState);
         view.findViewById(R.id.progress_load).setVisibility(View.GONE);
         mRecyclerView = view.findViewById(R.id.recycler_load);
@@ -78,21 +80,43 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         MangaListAdapter adapter = new MangaListAdapter(requireActivity(), new ArrayList<>(), R.layout.list_manga_home);
         mRecyclerView.setAdapter(adapter);
 
-        mViewModel.getBookmarks(forBookmark).observe(this, dbMangas -> {
-            adapter.clearMangas();
-            adapter.addMangas(dbMangas);
+        Timber.i("View Created reached");
+        mViewModel.getBookmarks(forBookmark).observe(getViewLifecycleOwner(), dbMangas -> {
+            Timber.i("Mangas finally gotten");
+            adapter.submitList(new ArrayList<>(dbMangas));
         });
 
-        mRecyclerView.setAdapter(adapter);
         createTracker(mRecyclerView);
         adapter.setTracker(getTracker());
 
         ((SwipeRefreshLayout) view.findViewById(R.id.load_refresh)).setOnRefreshListener(this);
+        setSwipeRefreshView((SwipeRefreshLayout) view.findViewById(R.id.load_refresh));
     }
 
     @Override
     public boolean onActionItemClicked(MenuItem item) {
-        return false;
+        ArrayList<DBManga> mangas = new ArrayList<>(getTracker().getSelection().size());
+
+        getTracker().getSelection().forEach(c -> {
+            MangaListAdapter.ViewHolder viewHolder = (MangaListAdapter.ViewHolder) mRecyclerView.findViewHolderForItemId(c);
+
+            mangas.add((DBManga) ((MangaListAdapter) mRecyclerView.getAdapter())
+                    .getCurrentList().get(viewHolder.getBindingAdapterPosition()));
+        });
+
+        if(item.getItemId() == R.id.cab_refresh){
+            Bundle bund = new Bundle(1);
+            bund.putLongArray(UpdateService.MANGAS, mangas.stream().mapToLong(Manga::getId).toArray());
+
+            Intent bookmark = new Intent(requireActivity(), UpdateService.class);
+            bookmark.putExtras(bund);
+
+            requireActivity().startService(bookmark);
+        }else if(item.getItemId() == R.id.cab_delete){
+            mViewModel.deleteBookmarks(mangas);
+        }
+
+        return true;
     }
 
     @Override
@@ -108,5 +132,6 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         super.onDestroyView();
         ((SwipeRefreshLayout) getView().findViewById(R.id.load_refresh)).setOnRefreshListener(null);
         mRecyclerView.setAdapter(null);
+        mRecyclerView = null;
     }
 }

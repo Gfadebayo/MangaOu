@@ -19,7 +19,17 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import org.jsoup.Jsoup
 import javax.inject.Inject
 
+/**
+ * A Class that is primarily used for updating the mangas the user has bookmarked
+ * but it can also be used to add mangas to the DB primarily searched mangas or mangas selected
+ * from popular upates and the likes
+ */
 class UpdateService: Service() {
+
+    companion object{
+        const val MANGAS = "specific mangas"
+        const val CREATE_MANGAS = "new mangas"
+    }
 
     @Inject lateinit var mRepo: Repository
 
@@ -42,19 +52,32 @@ class UpdateService: Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        mUpdates.addAll((mRepo.bookmarkedMangaNotLive))
+
+        if(intent?.hasExtra(CREATE_MANGAS) == true){
+            mUpdates.addAll(intent.getStringArrayListExtra(CREATE_MANGAS)!!.map { Manga(it) })
+        }
+        else if(intent?.hasExtra(MANGAS) == true) mUpdates.addAll(mRepo.getMangaWithLinks((intent.getLongArrayExtra(MANGAS))!!.toMutableList()))
+        else mUpdates.addAll(mRepo.bookmarkedMangaNotLive)
+
         mUpdates.removeAll(mCompleted)
 
         mDisposer.add(Observable.fromIterable(mUpdates).subscribeOn(Schedulers.io())
                 .flatMap { createObservable(it) }
                 .doOnNext {
-                    mNotification.setContentText(it.title)
-                    mNotification.setProgress(mUpdates.size + mCompleted.size, mCompleted.size, false)
-                    NotificationManagerCompat.from(this).notify(Notifications.BOOKMARK_NOTIFY_ID, mNotification.build())
-
-                    mRepo.updateManga(it)
                     mUpdates.remove(it)
                     mCompleted.add(it)
+
+                    if(intent?.hasExtra(CREATE_MANGAS) == true){
+                        it.isBookmark = true
+                        mRepo.insertManga(it)
+                    }
+                    else mRepo.updateManga(it)
+
+                    if(intent?.hasExtra(CREATE_MANGAS) == false) {
+                        mNotification.setContentText(it.title)
+                        mNotification.setProgress(mUpdates.size + mCompleted.size, mCompleted.size, false)
+                        NotificationManagerCompat.from(this).notify(Notifications.BOOKMARK_NOTIFY_ID, mNotification.build())
+                    }
                 }
                 .doOnComplete { stopService(intent) }.subscribe())
 

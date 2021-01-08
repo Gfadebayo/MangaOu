@@ -19,18 +19,20 @@ import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.HistoryAdapter;
 import com.exzell.mangaplayground.adapters.TitleAdapter;
+import com.exzell.mangaplayground.databinding.GenericLoadingRecyclerViewBinding;
 import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.reader.ReadActivity;
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HistoryFragment extends Fragment {
     private final String TAG = "HistoryFragment";
-    private RecyclerView mRecyclerView;
-    private ConcatAdapter mAdapter;
     private BookmarkViewModel mViewModel;
+    private GenericLoadingRecyclerViewBinding mBinding;
 
 
     @Override
@@ -47,17 +49,17 @@ public class HistoryFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.generic_loading_recycler_view, container, false);
+        mBinding = GenericLoadingRecyclerViewBinding.inflate(getLayoutInflater());
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-//        RecyclerView rv = view.findViewById(R.id.recycler_history);
-        view.findViewById(R.id.progress_load).setVisibility(View.GONE);
 
-        mAdapter = new ConcatAdapter();
-        mRecyclerView = view.findViewById(R.id.recycler_load);
-        mRecyclerView.setAdapter(mAdapter);
+        mBinding.progressLoad.setVisibility(View.GONE);
+
+        ConcatAdapter mAdapter = new ConcatAdapter();
+        mBinding.recyclerLoad.setAdapter(mAdapter);
 
         setHistory();
     }
@@ -66,6 +68,7 @@ public class HistoryFragment extends Fragment {
 
         new Thread(() -> {
             List<Long> times = mViewModel.getTimes();
+            List<Long> foundMangas = new ArrayList<>();
 
             Calendar in = Calendar.getInstance();
             in.set(Calendar.MINUTE, 0);
@@ -76,7 +79,12 @@ public class HistoryFragment extends Fragment {
             long today = in.getTimeInMillis();
 
             times.forEach(c -> {
-                List<DBManga> historyManga = mViewModel.getHistoryManga(c);
+                List<DBManga> historyManga = mViewModel.getHistoryManga(c).stream()
+                        .filter(man -> !foundMangas.contains(man.getId())).collect(Collectors.toList());
+                foundMangas.addAll(historyManga.stream().map(man -> man.getId()).collect(Collectors.toList()));
+
+                if(historyManga.isEmpty()) return;
+
                 int day = (int) Math.abs(today - c) / (1000*60*60*24);
                 String dayTitle = mViewModel.getDayTitle(day);
 
@@ -85,8 +93,9 @@ public class HistoryFragment extends Fragment {
                     TitleAdapter tAdapter = new TitleAdapter(requireActivity(), dayTitle, hAdapter);
 
                     hAdapter.setOnButtonsClickedListener(onButtonClicked(), onButtonClicked());
-                    mAdapter.addAdapter(tAdapter);
-                    mAdapter.addAdapter(hAdapter);
+
+                    ((ConcatAdapter) mBinding.recyclerLoad.getAdapter()).addAdapter(tAdapter);
+                    ((ConcatAdapter) mBinding.recyclerLoad.getAdapter()).addAdapter(hAdapter);
                 });
             });
 
@@ -96,7 +105,7 @@ public class HistoryFragment extends Fragment {
     private View.OnClickListener onButtonClicked(){
         return v -> {
 
-            HistoryAdapter.ViewHolder viewHolder = (HistoryAdapter.ViewHolder) mRecyclerView.findContainingViewHolder(v);
+            HistoryAdapter.ViewHolder viewHolder = (HistoryAdapter.ViewHolder) mBinding.recyclerLoad.findContainingViewHolder(v);
 
             DBManga manga = ((HistoryAdapter) viewHolder.getBindingAdapter()).getMangas().get(viewHolder.getBindingAdapterPosition());
 
@@ -116,8 +125,7 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mRecyclerView.setAdapter(null);
-        mAdapter = null;
-        mRecyclerView = null;
+        mBinding.recyclerLoad.setAdapter(null);
+        mBinding = null;
     }
 }

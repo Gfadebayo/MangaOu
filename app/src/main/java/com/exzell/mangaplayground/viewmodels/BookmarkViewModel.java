@@ -12,6 +12,7 @@ import com.exzell.mangaplayground.UpdateService;
 import com.exzell.mangaplayground.io.Repository;
 import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Chapter;
+import com.exzell.mangaplayground.models.Manga;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -63,13 +64,14 @@ public class BookmarkViewModel extends AndroidViewModel {
         }
     }
 
-    public List<DBManga> getHistoryManga(long time){
-        return mRepo.lastReadMangas(time);
+    public void deleteBookmarks(List<DBManga> mangas){
+        mangas.forEach(m -> m.setBookmark(false));
+
+        mRepo.updateManga(mangas.toArray(new Manga[0]));
     }
 
-    public void startUpdating(){
-        Intent bookmarkIntent = new Intent(mContext, UpdateService.class);
-        mContext.startService(bookmarkIntent);
+    public List<DBManga> getHistoryManga(long time){
+        return mRepo.lastReadMangas(time);
     }
 
     public void removeFromHistory(Chapter lastChapter) {

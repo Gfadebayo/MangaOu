@@ -53,7 +53,7 @@ class ReaderFragment : DisposableFragment() {
     private val mTarget: ImageViewTarget by lazy { ImageViewTarget(view!!.findViewById(R.id.image_pager), view!!.findViewById(R.id.text_pager), view!!.findViewById(R.id.progress_pager)) }
 
     private val mViewModel: ReaderViewModel by lazy {
-        ViewModelProvider(this,
+        ViewModelProvider(requireActivity(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)).get(ReaderViewModel::class.java)
     }
 

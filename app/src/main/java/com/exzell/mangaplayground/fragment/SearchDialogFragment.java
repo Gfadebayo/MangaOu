@@ -145,27 +145,27 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
     private void setDefaultValues(View root){
 
         EditText editTitle = root.findViewById(R.id.edit_search_title);
-        EditText editAuthor = root.findViewById(R.id.edit_search_auth);
-        PowerSpinnerView chapSpinner = root.findViewById(R.id.spin_chapter);
-        PowerSpinnerView relSpinner = root.findViewById(R.id.spin_release);
-        PowerSpinnerView containAuthSpinner = root.findViewById(R.id.spin_auth_contain);
-        PowerSpinnerView containTitleSpinner = root.findViewById(R.id.spin_title_contain);
-
         editTitle.setText(mViewModel.getName(false));
         editTitle.addTextChangedListener(setTextChangeListener(editTitle));
 
+        EditText editAuthor = root.findViewById(R.id.edit_search_auth);
         editAuthor.setText(mViewModel.getName(true));
         editAuthor.addTextChangedListener(setTextChangeListener(editAuthor));
 
 
+        PowerSpinnerView containAuthSpinner = root.findViewById(R.id.spin_auth_contain);
         containAuthSpinner.setItems(R.array.contain_values);
         containAuthSpinner.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>)
                 (i, s) -> mViewModel.setContainValue(true, s.toLowerCase()));
 
+
+        PowerSpinnerView containTitleSpinner = root.findViewById(R.id.spin_title_contain);
         containTitleSpinner.setItems(R.array.contain_values);
         containTitleSpinner.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>)
                 (i, s) -> mViewModel.setContainValue(false, s.toLowerCase()));
 
+
+        PowerSpinnerView relSpinner = root.findViewById(R.id.spin_release);
         relSpinner.setSpinnerOutsideTouchListener((v, m) -> relSpinner.dismiss());
         relSpinner.setItems(SearchViewModel.releaseData);
         if(mViewModel.getRelease() != -1) relSpinner.selectItemByIndex(SearchViewModel.releaseData.indexOf(String.valueOf(mViewModel.getRelease())));
@@ -173,6 +173,7 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
                 -> mViewModel.setRelease(Integer.parseInt(integer)));
 
 
+        PowerSpinnerView chapSpinner = root.findViewById(R.id.spin_chapter);
         chapSpinner.setItems(R.array.chapter_values);
         chapSpinner.setSpinnerOutsideTouchListener(((v, m) -> chapSpinner.dismiss()));
         if(mViewModel.getChapters() != -1) chapSpinner.selectItemByIndex(SearchViewModel.chapterData.indexOf(mViewModel.getChapters()));
@@ -182,9 +183,9 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
         });
 
 
-        ((MaterialRatingBar) root.findViewById(R.id.rating_rating)).setRating(mViewModel.getRating());
-        ((MaterialRatingBar)root.findViewById(R.id.rating_rating))
-                .setOnRatingChangeListener((ratingBar, rating) -> mViewModel.setRating((int) rating));
+        MaterialRatingBar bar = root.findViewById(R.id.rating_rating);
+        bar.setRating(mViewModel.getRating());
+        bar.setOnRatingChangeListener((ratingBar, rating) -> mViewModel.setRating((int) rating));
     }
 
     private TextWatcher setTextChangeListener(View v){

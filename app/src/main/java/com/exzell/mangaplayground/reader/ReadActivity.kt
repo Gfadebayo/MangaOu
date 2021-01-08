@@ -9,8 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager.widget.ViewPager
 import com.bumptech.glide.Glide
+import com.exzell.mangaplayground.MangaApplication
 import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.customview.VisibilityGroup
+import com.exzell.mangaplayground.databinding.ActivityReaderBinding
+import com.exzell.mangaplayground.databinding.ContentReaderBinding
 import com.exzell.mangaplayground.io.database.DBManga
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.viewmodels.ReaderViewModel
@@ -22,13 +25,11 @@ class ReadActivity : AppCompatActivity() {
 
     companion object {
         const val TAG: String = "manga"
-        const val OFFSCREEN_LIMIT = 4
     }
 
     private lateinit var mManga: DBManga
-    private lateinit var mPager: ReaderPager
-    private val mVisibilityGroup: VisibilityGroup by lazy { VisibilityGroup(findViewById(R.id.toolbar), findViewById(R.id.parent_control), decorView = window.decorView) }
-
+    private val mBinding: ContentReaderBinding by lazy { ContentReaderBinding.bind(findViewById(R.id.content_root)) }
+    private lateinit var mVisibilityGroup: VisibilityGroup
 
     private val mViewModel: ReaderViewModel by lazy{ ViewModelProvider(this, ViewModelProvider
             .AndroidViewModelFactory.getInstance(application)).get(ReaderViewModel::class.java) }
@@ -37,12 +38,14 @@ class ReadActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reader)
+        (application as MangaApplication).mAppComponent.injectRepo(mViewModel)
 
         setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+        mVisibilityGroup = VisibilityGroup(findViewById(R.id.toolbar), mBinding.contentControl.parentControl, decorView = window.decorView)
 
         val id = intent.getLongExtra(TAG, 0)
+
 
         mManga = mViewModel.getMangaWithChapterId(id)
 
@@ -52,8 +55,7 @@ class ReadActivity : AppCompatActivity() {
         mManga.chapters.sortBy { it.position }
 
 
-        mPager = findViewById(R.id.pager_reader)
-        mPager.apply {
+        mBinding.pagerReader.apply {
 
             setOnSingleTap {
                 mVisibilityGroup.apply()
@@ -69,21 +71,23 @@ class ReadActivity : AppCompatActivity() {
             offscreenPageLimit = 4
         }
 
-        findViewById<SeekBar>(R.id.seekbar_reader).setOnSeekBarChangeListener(SeekbarListener((mPager.adapter as ReaderAdapter)){
-            mPager.currentItem = it
+        mBinding.contentControl.seekbarReader.setOnSeekBarChangeListener(SeekbarListener((mBinding.pagerReader.adapter as ReaderAdapter)){
+            mBinding.pagerReader.currentItem = it
         })
 
-        findViewById<MaterialButton>(R.id.button_reader_previous).setOnClickListener{ onClickButton(it.id) }
+        mBinding.contentControl.buttonReaderPrevious.setOnClickListener{ onClickButton(it.id) }
 
-        findViewById<MaterialButton>(R.id.button_reader_next).setOnClickListener{ onClickButton(it.id)}
+        mBinding.contentControl.buttonReaderNext.setOnClickListener{ onClickButton(it.id)}
+
+        onChapterChange(currentChapter)
     }
 
     private fun onClickButton(id: Int) {
-        with((mPager.adapter as ReaderAdapter)) {
+        with((mBinding.pagerReader.adapter as ReaderAdapter)) {
 
-            if (id == R.id.button_reader_next) mNextChapter?.let { mPager.setCurrentItem(it.offset + it.lastReadingPosition, false) }
+            if (id == R.id.button_reader_next) mNextChapter?.let { mBinding.pagerReader.setCurrentItem(it.offset+it.lastReadingPosition, false) }
 
-            else mPrevChapter?.let { mPager.setCurrentItem(it.offset+it.lastReadingPosition, false) }
+            else mPrevChapter?.let { mBinding.pagerReader.setCurrentItem(it.offset+it.lastReadingPosition, false) }
         }
     }
 
@@ -97,15 +101,15 @@ class ReadActivity : AppCompatActivity() {
 
         chapter.lastReadingPosition = pos
 
-        findViewById<SeekBar>(R.id.seekbar_reader).apply { progress = (pos * max) / length }
+        mBinding.contentControl.seekbarReader.apply { progress = (pos * max) / length }
 
-        findViewById<MaterialTextView>(R.id.text_reader_current).apply { text = (pos+1).toString() }
+        mBinding.contentControl.textReaderCurrent.apply { text = (pos+1).toString() }
 
         onChapterChange(chapter)
     }
 
     private fun findChapter(pos: Int): Chapter?{
-        with((mPager.adapter as ReaderAdapter)){
+        with((mBinding.pagerReader.adapter as ReaderAdapter)){
 
             return when{
                 pos < mCurrentChapter.offset -> mPrevChapter
@@ -131,7 +135,7 @@ class ReadActivity : AppCompatActivity() {
             subtitle = newChapter.number
         }
 
-        findViewById<MaterialTextView>(R.id.text_reader_length).apply { text = newChapter.length.toString() }
+        mBinding.contentControl.textReaderLength.apply { text = newChapter.length.toString() }
     }
 
     override fun onStop() {
