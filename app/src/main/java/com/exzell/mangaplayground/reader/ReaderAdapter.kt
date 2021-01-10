@@ -1,11 +1,9 @@
 package com.exzell.mangaplayground.reader
 
-import android.database.DataSetObserver
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.utils.getDownloadFolder
@@ -39,7 +37,7 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
     override fun getItem(pos: Int): Fragment {
         val change = checkChapterOffset(pos)
 
-        return if(change) EmptyReaderFragment.getInstance(mCurrentChapter.number, mNextChapter?.number ?: "No New Chapter")
+        return if(change) EmptyPageFragment.getInstance(mCurrentChapter.number, mNextChapter?.number ?: "No New Chapter")
 
         else {
             val posOff = (if(mCurrentChapter.offset == 0) pos else pos - mCurrentChapter.offset)+1
