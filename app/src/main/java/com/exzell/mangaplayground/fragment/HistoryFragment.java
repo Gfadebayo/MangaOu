@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class HistoryFragment extends Fragment {
-    private final String TAG = "HistoryFragment";
     private BookmarkViewModel mViewModel;
     private GenericLoadingRecyclerViewBinding mBinding;
 

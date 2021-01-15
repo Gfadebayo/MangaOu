@@ -60,8 +60,8 @@ public class ReaderPager extends ViewPager {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        boolean ret = super.dispatchTouchEvent(ev);
-        ret = mGestureDetector.onTouchEvent(ev);
+        boolean ret = mGestureDetector.onTouchEvent(ev);
+        if(!ret) ret = super.dispatchTouchEvent(ev);
         return ret;
     }
 

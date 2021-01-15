@@ -56,18 +56,18 @@ abstract class DisposableFragment: Fragment(){
         mSwipeRefresh = swipe
     }
 
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//        mSwipeRefresh?.let{
-//            it.viewTreeObserver!!.addOnScrollChangedListener(mScrollChangedListener)
-//            it.setOnTouchListener { _, event ->
-//                Toast.makeText(requireContext(), "Swipe Refresh Touch called", Toast.LENGTH_SHORT).show()
-//                when (event.actionMasked){
-//                    MotionEvent.ACTION_MOVE -> it.isEnabled = activity!!.findViewById<View>(R.id.toolbar).y == 0f
-//                    MotionEvent.ACTION_UP -> it.isEnabled = true
-//                }
-//                true
-//            }
-//        }
-//    }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        mSwipeRefresh?.let{
+            it.viewTreeObserver!!.addOnScrollChangedListener(mScrollChangedListener)
+            it.setOnTouchListener { _, event ->
+                Toast.makeText(requireContext(), "Swipe Refresh Touch called", Toast.LENGTH_SHORT).show()
+                when (event.actionMasked){
+                    MotionEvent.ACTION_MOVE -> it.isEnabled = activity!!.findViewById<View>(R.id.toolbar).y == 0f
+                    MotionEvent.ACTION_UP -> it.isEnabled = true
+                }
+                true
+            }
+        }
+    }
 }

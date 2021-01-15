@@ -1,33 +1,30 @@
 package com.exzell.mangaplayground.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.SelectionTracker;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.DiffUtil.ItemCallback;
 import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.R;
+import com.exzell.mangaplayground.databinding.HeaderBinding;
+import com.exzell.mangaplayground.databinding.LayoutChapterBinding;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.selection.DetailsViewHolder;
-import com.exzell.mangaplayground.utils.BindingUtils;
-import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.textview.MaterialTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ViewHolder> {
+import static androidx.recyclerview.widget.RecyclerView.*;
+
+public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterViewHolder> {
     private static final ItemCallback<Chapter> DIFF_CALLBACK = new ItemCallback<Chapter>() {
         @Override
         public boolean areItemsTheSame(@NonNull Chapter oldItem, @NonNull Chapter newItem) {
@@ -39,10 +36,9 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ViewHold
             return oldItem.equals(newItem);
         }
     };
-    private final String TAG = "ChapterAdapter";
-    private final Context mContext;
+    private Context mContext;
     private View.OnClickListener listen;
-    private SelectionTracker mTracker;
+    private SelectionTracker<Long> mTracker;
 
     public ChapterAdapter(Context context, List<Chapter> chapters){
         super(DIFF_CALLBACK);
@@ -52,7 +48,7 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ViewHold
         setHasStableIds(true);
     }
 
-    public void addTracker(SelectionTracker track){
+    public void addTracker(SelectionTracker<Long> track){
         mTracker = track;
     }
 
@@ -62,58 +58,45 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ViewHold
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(mContext).inflate(R.layout.layout_chapter, parent, false);
-        return new ViewHolder(v);
+        return new ChapterViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Chapter chap = getCurrentList().get(position);
-        holder.itemView.setOnClickListener(listen);
+    public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
 
-        holder.mChapterTitle.setText(chap.getTitle());
-        holder.mChapterNumber.setText(chap.getNumber());
-        holder.mChapterLength.setText(String.valueOf(chap.getLength()));
+            Chapter chap = getCurrentList().get(position);
+            holder.itemView.setOnClickListener(listen);
+            holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
 
-//        BindingUtils.addThumbnail(holder.mChapterThumb, chap.getLink());
-        holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
+            ((ChapterViewHolder) holder).mBinding.textChapTitle.setText(chap.getTitle());
+            ((ChapterViewHolder) holder).mBinding.textChapNumber.setText(chap.getNumber());
+            ((ChapterViewHolder) holder).mBinding.textChapLength.setText(String.valueOf(chap.getLength()));
 
-        String date = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(new Date(chap.getReleaseDate()));
-        holder.mChapterRelease.setText(date);
+            String date = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(new Date(chap.getReleaseDate()));
+            ((ChapterViewHolder) holder).mBinding.textChapRelease.setText(date);
     }
 
     @Override
     public int getItemCount() {
-        return getCurrentList().isEmpty() ? 0 : getCurrentList().size();
+        return getCurrentList().size();
     }
 
     @Override
     public long getItemId(int position) {
-        long sum = getCurrentList().get(position).getId();
-
-        return position == 0 ? sum : Math.abs(sum*position);
+        return getCurrentList().get(position).getId();
     }
 
-    public class ViewHolder extends DetailsViewHolder {
-
-        public MaterialTextView mChapterTitle;
+    public class ChapterViewHolder extends DetailsViewHolder {
 
         private ItemDetailsLookup.ItemDetails<Long> mDetails;
-        private MaterialTextView mChapterLength;
-        private MaterialTextView mChapterRelease;
-        private MaterialTextView mChapterNumber;
-        private ShapeableImageView mChapterThumb;
 
-        public ViewHolder(View itemView) {
+        private LayoutChapterBinding mBinding;
+
+        public ChapterViewHolder(View itemView) {
             super(itemView);
-
-
-            mChapterTitle = itemView.findViewById(R.id.text_chap_title);
-            mChapterLength = itemView.findViewById(R.id.text_chap_length);
-            mChapterRelease = itemView.findViewById(R.id.text_chap_release);
-            mChapterNumber = itemView.findViewById(R.id.text_chap_number);
-            mChapterThumb = itemView.findViewById(R.id.image_chap_thumb);
+            mBinding = LayoutChapterBinding.bind(itemView);
 
             mDetails = new ItemDetailsLookup.ItemDetails<Long>() {
                 @Override

@@ -1,20 +1,17 @@
 package com.exzell.mangaplayground
 
-import android.app.Notification
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.exzell.mangaplayground.io.Repository
-import com.exzell.mangaplayground.io.database.DBManga
 import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.notification.Notifications
 import com.exzell.mangaplayground.utils.ChapterUtils
 import com.exzell.mangaplayground.utils.MangaUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import org.jsoup.Jsoup
 import javax.inject.Inject
@@ -27,7 +24,7 @@ import javax.inject.Inject
 class UpdateService: Service() {
 
     companion object{
-        const val MANGAS = "specific mangas"
+        const val UPDATE_MANGAS = "specific mangas"
         const val CREATE_MANGAS = "new mangas"
     }
 
@@ -53,11 +50,13 @@ class UpdateService: Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        if(intent?.hasExtra(CREATE_MANGAS) == true){
-            mUpdates.addAll(intent.getStringArrayListExtra(CREATE_MANGAS)!!.map { Manga(it) })
+        when {
+            intent?.hasExtra(CREATE_MANGAS) == true -> {
+                mUpdates.addAll(intent.getStringArrayListExtra(CREATE_MANGAS)!!.map { Manga(it) })
+            }
+            intent?.hasExtra(UPDATE_MANGAS) == true -> mUpdates.addAll(mRepo.getMangaWithLinks((intent.getLongArrayExtra(UPDATE_MANGAS))!!.toMutableList()))
+            else -> mUpdates.addAll(mRepo.bookmarkedMangaNotLive)
         }
-        else if(intent?.hasExtra(MANGAS) == true) mUpdates.addAll(mRepo.getMangaWithLinks((intent.getLongArrayExtra(MANGAS))!!.toMutableList()))
-        else mUpdates.addAll(mRepo.bookmarkedMangaNotLive)
 
         mUpdates.removeAll(mCompleted)
 
@@ -79,7 +78,7 @@ class UpdateService: Service() {
                         NotificationManagerCompat.from(this).notify(Notifications.BOOKMARK_NOTIFY_ID, mNotification.build())
                     }
                 }
-                .doOnComplete { stopService(intent) }.subscribe())
+                .doOnComplete { stopService(intent) }.onErrorComplete().subscribe())
 
         return super.onStartCommand(intent, flags, startId)
     }

@@ -1,14 +1,18 @@
 package com.exzell.mangaplayground.reader
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.exzell.mangaplayground.GlideApp
+import com.exzell.mangaplayground.GlideAppModule
 import com.exzell.mangaplayground.customview.ImageViewTarget
 import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.fragment.base.DisposableFragment
@@ -19,6 +23,7 @@ import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import java.io.File
 
+@SuppressLint("UseRequireInsteadOfGet")
 class ReaderFragment : DisposableFragment() {
 
     companion object INSTANCE {
@@ -71,6 +76,7 @@ class ReaderFragment : DisposableFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<View>(R.id.text_pager).setOnClickListener {
+            Toast.makeText(context, "Loading Image Failed", Toast.LENGTH_SHORT).show()
                 view.findViewById<View>(R.id.progress_pager).visibility = View.VISIBLE
                 view.findViewById<View>(R.id.text_pager).visibility = View.GONE
 
@@ -79,27 +85,29 @@ class ReaderFragment : DisposableFragment() {
             else displayImage(mImageLink)
         }
 
-
-            if (!assertFileExists()) addDisposable(mViewModel.getImageLink(mImagePageLink, { onNext(it) }, { onError() }))
-            else {displayImage(mImagePath)}
+        if (!assertFileExists()) addDisposable(mViewModel.getImageLink(mImagePageLink, { onNext(it) }, { onError() }))
+        else displayImage(mImagePath)
     }
 
     private fun onNext(link: String) {
-
-        mImageLink = ChapterUtils.fetchDownloadLink(Jsoup.parse(link))
-        mViewModel.getImageBytes(mImageLink, {displayImage(it)}, {onError()})
+        Thread{
+            mImageLink = ChapterUtils.fetchDownloadLink(Jsoup.parse(link))
+            mViewModel.getImageBytes(mImageLink, {displayImage(it)}, {onError()})
+        }.start()
     }
 
     private fun onError(){
+        if(!isAdded) return
+
         requireActivity().runOnUiThread{
+            Toast.makeText(context, "Loading Image Failed", Toast.LENGTH_SHORT).show()
             view!!.findViewById<View>(R.id.progress_pager).visibility = View.GONE
             view!!.findViewById<View>(R.id.text_pager).visibility = View.VISIBLE
         }
     }
 
     private fun displayImage(any: Any) {
-
-        Glide.with(this)
+        GlideApp.with(this)
                 .load(any)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(false)

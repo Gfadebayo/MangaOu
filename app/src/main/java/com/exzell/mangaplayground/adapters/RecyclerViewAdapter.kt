@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.exzell.mangaplayground.R
@@ -18,13 +19,13 @@ class RecyclerViewAdapter(val mViewAdapter: RecyclerView.Adapter<out RecyclerVie
                           val mContext: Context,
                           var mManager: RecyclerView.LayoutManager?): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-    lateinit var mRecyclerView: RecyclerView
-
     private var isProgressHidden = false
+
+    private val mPayload = "PROGRESS CHANGED"
 
     fun hideProgressBar(hide: Boolean){
         isProgressHidden = true
-        notifyItemChanged(0)
+        notifyItemChanged(0, mPayload)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,10 +35,17 @@ class RecyclerViewAdapter(val mViewAdapter: RecyclerView.Adapter<out RecyclerVie
     override fun getItemCount() = 1
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.mRecyclerView.adapter = mViewAdapter
-        if((holder.mRecyclerView.layoutManager != mManager))  mManager.let { holder.mRecyclerView.layoutManager = it }
+        onBindViewHolder(holder, position, mutableListOf())
+    }
 
-        holder.mBar.visibility = if(isProgressHidden) View.GONE else View.VISIBLE
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        holder.mBar.visibility = if (isProgressHidden) View.GONE else View.VISIBLE
+
+        if (payloads.isEmpty() || !payloads.contains(mPayload)) {
+            holder.mRecyclerView.adapter = mViewAdapter
+
+            if (holder.mRecyclerView.layoutManager != mManager) mManager.let { holder.mRecyclerView.layoutManager = it }
+        }
     }
 
     override fun getItemViewType(position: Int) = R.layout.generic_loading_recycler_view

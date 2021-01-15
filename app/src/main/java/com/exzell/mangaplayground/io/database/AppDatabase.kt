@@ -36,7 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
             return Room.databaseBuilder(context, AppDatabase::class.java, DB_NAME)
                     .addMigrations(Migrations.MIGRATION_1_9, Migrations.MIGRATION_9_10,
                             Migrations.MIGRATION_10_16, Migrations.MIGRATION_16_21, Migrations.MIGRATION_21_25,
-                            Migrations.MIGRATION_26_31, Migrations.MIGRATION_31_35)
+                            Migrations.MIGRATION_26_31, Migrations.MIGRATION_31_35, Migrations.MIGRATION_35_38)
                     .build()
         }
     }

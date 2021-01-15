@@ -65,7 +65,7 @@ class MangaViewModel(application: Application) : AndroidViewModel(application) {
                 .subscribe(onNext)
     }
 
-    fun bookmarkManga(manga: Manga) { mRepo.updateManga(manga) }
+    fun bookmarkManga(manga: Manga) { mRepo.updateMangaBookmark(manga) }
 
     fun updateChapter(chapter: List<Chapter>) { mRepo.updateChapters(chapter) }
 

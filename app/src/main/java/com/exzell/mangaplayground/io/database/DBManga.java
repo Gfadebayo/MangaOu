@@ -11,15 +11,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
 public class DBManga extends Manga {
 
     @Relation(parentColumn = "id", entityColumn = "manga_id")
     private List<Chapter> dbChapter;
-
-    public DBManga() {
-        super();
-    }
 
     @Override
     public List<Chapter> getChapters() {
@@ -28,12 +25,12 @@ public class DBManga extends Manga {
 
 
     public void setDbChapter(List<Chapter> dbChapter) {
-        if(dbChapter == null) dbChapter = new ArrayList<>();
         this.dbChapter = dbChapter;
     }
 
     public Chapter getLastChapter(){
-        return dbChapter.stream().sorted((o1, o2) ->
+        Chapter chapter = dbChapter.stream().filter(p -> p.getLastReadTime() > 0).sorted((o1, o2) ->
                 Long.compare(o1.getLastReadTime(), o2.getLastReadTime())).findAny().get();
+        return chapter;
     }
 }

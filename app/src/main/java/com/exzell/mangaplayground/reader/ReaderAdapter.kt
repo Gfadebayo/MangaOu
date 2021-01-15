@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.utils.getDownloadFolder
+import timber.log.Timber
 import java.io.File
 
 class ReaderAdapter(private val mActivity: FragmentActivity,
@@ -26,7 +27,6 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
     private set
 
     init {
-
         mPrevChapter = mManga.chapters.singleOrNull { it.version == mCurrentChapter.version && it.position == mCurrentChapter.position-1 }
 
         mNextChapter = mManga.chapters.singleOrNull { it.version == mCurrentChapter.version && it.position == mCurrentChapter.position+1 }
@@ -44,7 +44,7 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
             val link = makeLink(mCurrentChapter.link, posOff)
             val path = makePagePath(mFilePath, posOff)
 
-            Log.d("Reader", "Link is $link and Path is $path")
+            Timber.d("Link is $link and Path is $path")
 
 
             ReaderFragment.getInstance(link, path)

@@ -53,16 +53,16 @@ public class DownloadManager {
 
     @Inject
     public DownloadManager(Context context, Repository repo){
-        this.context = context;
-        this.repo = repo;
-        downloads = new HashMap<>();
-
-        listeners = new ArrayList<>();
-
-        repo.getLiveDownloads().observeForever(observer);
-
-        notification = new DownloadNotifier(context);
-        addListener(notification);
+//        this.context = context;
+//        this.repo = repo;
+//        downloads = new HashMap<>();
+//
+//        listeners = new ArrayList<>();
+//
+//        repo.getLiveDownloads().observeForever(observer);
+//
+//        notification = new DownloadNotifier(context);
+//        addListener(notification);
     }
 
     /**
