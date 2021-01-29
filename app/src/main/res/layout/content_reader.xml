@@ -4,14 +4,59 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <com.exzell.mangaplayground.reader.ReaderPager
         android:id="@+id/pager_reader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <include android:id="@+id/content_control"
-        layout="@layout/reader_control" />
+    <LinearLayout
+        android:id="@+id/parent_control"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:stateListAnimator="@animator/reader_control_state_animator">
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_reader_previous"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:src="@drawable/ic_skip_previous_black_24dp" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_reader_current"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            tools:text="12" />
+
+        <SeekBar
+            android:id="@+id/seekbar_reader"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:max="100" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_reader_length"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            tools:text="24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_reader_next"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:src="@drawable/ic_skip_next_black_24dp" />
+    </LinearLayout>
 </FrameLayout>

@@ -50,8 +50,8 @@ dependencies {
     //androidx
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.fragment:fragment:1.2.5'
-    implementation 'androidx.navigation:navigation-fragment:2.3.1'
-    implementation 'androidx.navigation:navigation-ui:2.3.1'
+    implementation 'androidx.navigation:navigation-fragment:2.3.3'
+    implementation 'androidx.navigation:navigation-ui:2.3.3'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
 
@@ -59,7 +59,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
-    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0-rc03'
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     implementation "androidx.recyclerview:recyclerview:1.2.0-beta01"
 
     implementation 'androidx.preference:preference:1.1.1'
@@ -101,6 +101,9 @@ dependencies {
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
+    implementation 'com.jakewharton:disklrucache:2.0.2'
+
+    implementation 'pokercc.android.ExpandableRecyclerView:expandableRecyclerView:0.8.5'
 
     def dagger_version = '2.30.1'
     implementation "com.google.dagger:dagger:$dagger_version"

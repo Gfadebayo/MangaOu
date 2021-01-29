@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -221,7 +220,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
             Intent intent = new Intent(requireContext(), ReadActivity.class);
 
-            intent.putExtra(ReadActivity.TAG, chap.getId());
+            intent.putExtra(ReadActivity.CHAPTER, chap.getId());
 
             startActivity(intent);
         };

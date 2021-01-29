@@ -47,7 +47,7 @@ class ReaderFragment : DisposableFragment() {
         }
     }
 
-    /** The link to the image */
+    /** The link to the image itself */
     private var mImageLink: String = ""
 
     /** The link to the page where the actual image link is */

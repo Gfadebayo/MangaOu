@@ -12,7 +12,7 @@ class VisibilityGroup(vararg view: View, val decorView: View? = null) {
 //TODO: Fix Visibility Group
     private fun show(){
         viewList.forEach {
-            it.visibility = View.VISIBLE
+            it.isSelected = false
         }
         decorView?.let{it.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)}
@@ -20,8 +20,7 @@ class VisibilityGroup(vararg view: View, val decorView: View? = null) {
 
     private fun hide(){
         viewList.forEach {
-            it.visibility = View.GONE
-            animate(it, false)
+            it.isSelected = true
         }
         decorView?.let {
             it.systemUiVisibility = (View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
@@ -38,9 +37,5 @@ class VisibilityGroup(vararg view: View, val decorView: View? = null) {
 
     fun clear(){
         viewList.clear()
-    }
-
-    private fun animate(view: View, show: Boolean){
-        AnimationUtils.loadAnimation(view.context, R.anim.enter_from_bottom)
     }
 }

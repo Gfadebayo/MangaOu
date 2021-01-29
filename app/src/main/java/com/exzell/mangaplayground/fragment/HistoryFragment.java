@@ -2,7 +2,6 @@ package com.exzell.mangaplayground.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
@@ -112,7 +110,7 @@ public class HistoryFragment extends Fragment {
 
                 Intent resumeIntent = new Intent(requireActivity(), ReadActivity.class);
 
-                resumeIntent.putExtra(ReadActivity.TAG, manga.getLastChapter().getId());
+                resumeIntent.putExtra(ReadActivity.CHAPTER, manga.getLastChapter().getId());
 
                 ContextCompat.startActivity(requireActivity(), resumeIntent, null);
             }else{
