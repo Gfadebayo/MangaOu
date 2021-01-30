@@ -50,6 +50,7 @@ class ReadActivity : AppCompatActivity() {
 
         val currentChapter = mManga.chapters.single { it.id == id }
 
+
         mManga.chapters.removeIf { it.version != currentChapter.version }
         mManga.chapters.sortBy { it.position }
 
@@ -67,11 +68,11 @@ class ReadActivity : AppCompatActivity() {
 
             setCurrentItem(currentChapter.offset+currentChapter.lastReadingPosition, false)
 
-//            offscreenPageLimit = 4
+            offscreenPageLimit = 4
         }
 
         mBinding.content.seekbarReader.setOnSeekBarChangeListener(SeekBarListener((mBinding.content.pagerReader.adapter as ReaderAdapter)){
-            mBinding.content.pagerReader.currentItem = it
+            mBinding.content.pagerReader.setCurrentItem(it, true)
         })
 
         mBinding.content.buttonReaderPrevious.setOnClickListener{ onClickButton(it.id) }

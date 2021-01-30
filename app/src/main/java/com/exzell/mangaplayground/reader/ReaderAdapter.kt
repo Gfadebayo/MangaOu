@@ -114,7 +114,6 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
             }
             else -> return false
         }
-
     }
 
     //Since the download db seems to be failing, we temporarily create the dir path ourselves here
@@ -123,10 +122,5 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
         val parentDir = mManga.title + "/" + chapter.version
 
         return getDownloadFolder(mActivity, parentDir, chapter.number)
-    }
-
-    interface OnChapterChangeListener {
-
-        fun onChapterChange(newChapter: Chapter)
     }
 }

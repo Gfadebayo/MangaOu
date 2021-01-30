@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * A Fragment class that helps in disposing of [io.reactivex.rxjava3.disposables.Disposable]
- * in order not to make things more complex, the class also handles the SwipeRefreshLayout issues
+ * in order not to make things look more complex, the class also handles the SwipeRefreshLayout issues
  */
 abstract class DisposableFragment: Fragment(){
 
@@ -40,7 +40,7 @@ abstract class DisposableFragment: Fragment(){
         }
         mToBeDisposed.clear()
 
-////
+//
 //        mSwipeRefresh?.let{
 //            it.viewTreeObserver!!.removeOnScrollChangedListener(mScrollChangedListener)
 //            it.setOnTouchListener(null)

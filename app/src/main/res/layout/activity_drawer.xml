@@ -8,7 +8,8 @@
     app:layout_behavior="@string/nav_app_bar_open_drawer_description"
     android:fitsSystemWindows="true">
 
-    <include layout="@layout/activity_main" />
+    <include android:id="@+id/activity"
+        layout="@layout/activity_main" />
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
