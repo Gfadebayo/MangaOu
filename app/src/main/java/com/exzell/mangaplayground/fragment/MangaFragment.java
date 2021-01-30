@@ -1,12 +1,12 @@
 package com.exzell.mangaplayground.fragment;
 
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -30,8 +30,6 @@ import com.exzell.mangaplayground.utils.ChapterUtils;
 import com.exzell.mangaplayground.utils.FileUtilsKt;
 
 import com.exzell.mangaplayground.viewmodels.MangaViewModel;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,6 @@ import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.functions.Consumer;
 
 public class MangaFragment extends SelectionFragment implements SwipeRefreshLayout.OnRefreshListener {
-    public static final String TAG = "MangaFragment";
 
     public static final String MANGA_LINK = "new manga";
 
@@ -75,6 +72,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         super.onViewCreated(view, savedInstanceState);
         mBinding = FragmentMangaBinding.bind(view);
         mBinding.setLifecycleOwner(this);
+        mBinding.swipeRefresh.setRefreshing(true);
         //Access the network to re-update manga information
         //if there's no internet connection, simply display the bookmarked manga
 
@@ -83,34 +81,29 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
         if (mManga != null) {
             onComplete();
-            if (doAutomaticUpdate) updateManga(true, link);
+            if (doAutomaticUpdate) updateManga(link);
 
-        } else updateManga(false, link);
+        } else updateManga(link);
 
         mBinding.swipeRefresh.setOnRefreshListener(this);
         setSwipeRefreshView(mBinding.swipeRefresh);
     }
 
-    private void updateManga(boolean displaySnackbar, String link){
+    private void updateManga(String link){
         if(isDoneFetching) return;
-
-        String up = "Updating Manga";
-        Snackbar bar = Snackbar.make(getView(), up, Snackbar.LENGTH_INDEFINITE)
-                .setBehavior(new BaseTransientBottomBar.Behavior());
-
-        if(displaySnackbar) bar.show();
 
         List<Chapter> oldChapters = new ArrayList<>();
         if(mManga != null) oldChapters.addAll(mManga.getChapters());
 
         Consumer<Manga> onNext = manga -> {
-            if(mManga != null) manga.setBookmark(mManga.isBookmark());
+            if(mManga != null){
+                manga.setId(mManga.getId());
+                manga.setBookmark(mManga.isBookmark());
+            }
             mManga = manga;
         };
 
         Action onComplete = () -> {
-            bar.dismiss();
-
             List<Chapter> updatedChaps = ChapterUtils.transferChapterInfo(mManga.getChapters(), oldChapters);
             mManga.setChapters(updatedChaps);
 
@@ -124,7 +117,8 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
     private void onComplete(){
 
-        mBinding.progressBar.setVisibility(View.GONE);
+        mBinding.swipeRefresh.setRefreshing(false);
+        mBinding.root.setVisibility(View.VISIBLE);
 
         mBinding.setManga(mManga);
 
@@ -134,12 +128,10 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         createTitleAdapter(config);
 
         mBinding.bookmark.setOnClickListener(v -> {
-
             mManga.setBookmark(!mManga.isBookmark());
             mViewModel.bookmarkManga(mManga);
 
             String book = mManga.isBookmark() ? "Manga bookmarked successfully" : "Manga removed from bookmark";
-
             Toast.makeText(requireActivity(), book, Toast.LENGTH_SHORT).show();
         });
 
@@ -175,13 +167,14 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         for (Chapter.Version ver : versions) {
             List<Chapter> versionChapters = mManga.getChapters().stream()
                     .filter(p -> p.getVersion().equals(ver)).collect(Collectors.toList());
+            String title = ver.getDispName() + "(" + versionChapters.size() + " Chapters" + ")";
 
             versionChapters.sort((o1, o2) -> Integer.compare(o2.getPosition(), o1.getPosition()));
 
             ChapterAdapter versionAdapter = new ChapterAdapter(requireActivity(), versionChapters);
             versionAdapter.setListener(showChapter());
 
-            String title = ver.getDispName() + "(" + versionChapters.size() + " Chapters" + ")";
+//
             TitleAdapter titleAdapter = new TitleAdapter(requireActivity(), title, versionAdapter);
 
             titleAdapter.setDrawableResource(R.drawable.ic_keyboard_arrow_down_black_24dp);
@@ -202,24 +195,23 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
     private View.OnClickListener onHeaderClicked(TitleAdapter adapter){
         return v -> {
+            boolean expand = true;
             if(mAdapter.getAdapters().contains(adapter.getBodyAdapter())){
                 mAdapter.removeAdapter(adapter.getBodyAdapter());
+                expand = false;
             }else {
                 int index = mAdapter.getAdapters().indexOf(adapter);
                 mAdapter.addAdapter(index+1, adapter.getBodyAdapter());
             }
 
-
-            ViewPropertyAnimator animate = v.findViewById(R.id.button_header).animate();
-            animate.cancel();
-            animate.rotationBy(180f).start();
+            ObjectAnimator.ofFloat(v.findViewById(R.id.button_header), "rotation", expand ? 180f : 0f).start();
         };
     }
 
     private View.OnClickListener showChapter(){
         return v -> {
 
-            ChapterAdapter.ViewHolder vh = (ChapterAdapter.ViewHolder) mBinding.recyclerChapters
+            ChapterAdapter.ChapterViewHolder vh = (ChapterAdapter.ChapterViewHolder) mBinding.recyclerChapters
                     .findContainingViewHolder(v);
 
             int index = vh.getBindingAdapterPosition();
@@ -228,7 +220,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
             Intent intent = new Intent(requireContext(), ReadActivity.class);
 
-            intent.putExtra(ReadActivity.TAG, chap.getId());
+            intent.putExtra(ReadActivity.CHAPTER, chap.getId());
 
             startActivity(intent);
         };
@@ -240,7 +232,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         List<Chapter> chosen = new ArrayList<>();
 
         getTracker().getSelection().forEach(c -> {
-            ChapterAdapter.ViewHolder hold = (ChapterAdapter.ViewHolder) mBinding.recyclerChapters.findViewHolderForItemId(c);
+            ChapterAdapter.ChapterViewHolder hold = (ChapterAdapter.ChapterViewHolder) mBinding.recyclerChapters.findViewHolderForItemId(c);
             int bindPos = hold.getBindingAdapterPosition();
 
             List<Chapter> chaps = ((ChapterAdapter) hold.getBindingAdapter()).getCurrentList();
@@ -272,7 +264,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
     @Override
     public void onRefresh() {
         isDoneFetching = false;
-        updateManga(true, mManga.getLink());
+        updateManga(mManga.getLink());
     }
 
     @Override

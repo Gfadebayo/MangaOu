@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Entity(tableName = "manga", indices = @Index(name = "manga_link_index", value = "link"))
 public class Manga{
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     private long id;
 
     private String title = "";
@@ -69,8 +69,6 @@ public class Manga{
     @Ignore
     public Manga(String link){
         this.link = link;
-
-        id = link.chars().sum();
     }
 
     public void setId(long id){this.id = id;}
@@ -144,7 +142,6 @@ public class Manga{
     }
 
     public long getId(){
-        if(id == 0) throw new IllegalStateException("ID has a value of 0 ie it has not been implemented");
         return id;
     }
 
@@ -210,7 +207,12 @@ public class Manga{
 
     @Override
     public int hashCode() {
-        return (int) id;
+        int result = 23;
+        int hash = link.hashCode()
+                + author.hashCode()
+                + title.hashCode();
+
+        return 37 * result + hash;
     }
 
     @Override

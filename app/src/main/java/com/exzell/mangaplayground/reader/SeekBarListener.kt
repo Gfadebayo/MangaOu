@@ -6,11 +6,12 @@ import com.exzell.mangaplayground.models.Chapter
 import kotlin.math.abs
 
 /**
- * A wrapper class around the Seekbar listener interface for the seekbar use in the reader
- * Before the progress is changed, the current chapter is stored and used
- * instead of directly getting the chapter from the adapter as it can change due to the offscreen page limit
+ * A wrapper class around the Seekbar listener interface for the seekbar used in the reader.
+ * Before the progress is changed, the current chapter is stored and used instead of directly
+ * getting the chapter from the adapter since the current chapter the adapter is working with
+ * can change due to the offscreen page limit set.
  */
-class SeekbarListener(val mAdapter: ReaderAdapter, private val onProgressResolved: (Int) -> Unit): SeekBar.OnSeekBarChangeListener {
+class SeekBarListener(val mAdapter: ReaderAdapter, private val onProgressResolved: (Int) -> Unit): SeekBar.OnSeekBarChangeListener {
 
     private var mSeekChapter: Chapter? = null
 
@@ -22,7 +23,7 @@ class SeekbarListener(val mAdapter: ReaderAdapter, private val onProgressResolve
             var value = abs((progress * it.length - 1) / seekBar!!.max) % it.length
 
 
-            value = value + it.offset
+            value += it.offset
 
             onProgressResolved.invoke(value)
         }

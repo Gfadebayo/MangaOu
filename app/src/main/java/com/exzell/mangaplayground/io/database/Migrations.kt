@@ -5,7 +5,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 object Migrations {
 
-    const val CURRENT_VERSION: Int = 35
+    const val CURRENT_VERSION: Int = 38
 
     @JvmField
     val MIGRATION_1_9 = object : Migration(1, 9) {
@@ -146,6 +146,26 @@ object Migrations {
 
             database.execSQL("CREATE INDEX chapter_manga_id_index ON chapter(manga_id)")
 
+        }
+    }
+
+    @JvmField
+    val MIGRATION_35_38 = object: Migration(35, 38) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+
+            database.execSQL("CREATE TABLE man (id INTEGER NOT NULL, title TEXT, " +
+                    "link TEXT, thumbnailLink TEXT, author TEXT, artist TEXT, summary TEXT, " +
+                    " rating REAL NOT NULL, genres TEXT, votes INTEGER NOT NULL, views TEXT, " +
+                    "popularity TEXT, type TEXT, status TEXT, _release INTEGER NOT NULL, " +
+                    "bookmark INTEGER NOT NULL, PRIMARY KEY(id))")
+
+            database.execSQL("INSERT INTO man SELECT * FROM manga")
+
+            database.execSQL("DROP TABLE manga")
+
+            database.execSQL("ALTER TABLE man RENAME TO manga")
+
+            database.execSQL("CREATE INDEX manga_link_index ON manga(link)")
         }
     }
 }

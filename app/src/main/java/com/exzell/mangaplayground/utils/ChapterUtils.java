@@ -72,7 +72,7 @@ public class ChapterUtils {
 
 
         return Observable.range(0, allLinks.size()).map(i -> {
-            Chapter chap = new Chapter(manga.getId());
+            Chapter chap = new Chapter();
             chap.setVersion(version);
 
 

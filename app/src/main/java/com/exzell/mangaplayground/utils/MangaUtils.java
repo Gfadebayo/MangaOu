@@ -2,6 +2,8 @@ package com.exzell.mangaplayground.utils;
 
 import android.util.Log;
 
+import androidx.room.util.StringUtil;
+
 import com.exzell.mangaplayground.BuildConfig;
 import com.exzell.mangaplayground.advancedsearch.Genre;
 import com.exzell.mangaplayground.advancedsearch.Type;
@@ -32,8 +34,8 @@ public class MangaUtils {
 
         parseMangaSection(mangaHtml.body(), manga);
 
-        long id = ((manga.getThumbnailLink().hashCode() + manga.getLink().hashCode()) * 23);
-        manga.setId(id);
+//        long id = ((manga.getThumbnailLink().hashCode() + manga.getLink().hashCode()) * 23);
+//        manga.setId(id);
     }
 
     /**
@@ -201,7 +203,7 @@ public class MangaUtils {
         String votes = Stream.of(spltRate[1].trim().split("\\s+")).skip(1).filter(s -> !s.isEmpty() && Character.isDigit(s.charAt(0))).findFirst().get();
 //TODO: 10 / 10 out of 10 total votes gives an error...Fix it
 
-        manga.setRating(Double.valueOf(rat) * 0.5);
+        manga.setRating(Double.parseDouble(rat) * 0.5);
         manga.setVotes(Integer.parseInt(votes));
 
 //        Log.i(TAG, "Rating of: " + getRating.get(0) + "Votes of: " + getRating.get(1));
@@ -217,6 +219,7 @@ public class MangaUtils {
 
         manga.setPopularity(popular);
         manga.setViews(views);
+
 
         //TODO: its possible a manga has ? popularity which limits our array to just 1 value
     }

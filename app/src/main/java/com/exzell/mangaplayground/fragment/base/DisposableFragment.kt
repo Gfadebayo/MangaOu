@@ -13,7 +13,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 
 /**
  * A Fragment class that helps in disposing of [io.reactivex.rxjava3.disposables.Disposable]
- * in order not to make things more complex, the class also handles the SwipeRefreshLayout issues
+ * in order not to make things look more complex, the class also handles the SwipeRefreshLayout issues
  */
 abstract class DisposableFragment: Fragment(){
 
@@ -40,7 +40,7 @@ abstract class DisposableFragment: Fragment(){
         }
         mToBeDisposed.clear()
 
-////
+//
 //        mSwipeRefresh?.let{
 //            it.viewTreeObserver!!.removeOnScrollChangedListener(mScrollChangedListener)
 //            it.setOnTouchListener(null)
@@ -56,18 +56,18 @@ abstract class DisposableFragment: Fragment(){
         mSwipeRefresh = swipe
     }
 
-//    override fun onActivityCreated(savedInstanceState: Bundle?) {
-//        super.onActivityCreated(savedInstanceState)
-//        mSwipeRefresh?.let{
-//            it.viewTreeObserver!!.addOnScrollChangedListener(mScrollChangedListener)
-//            it.setOnTouchListener { _, event ->
-//                Toast.makeText(requireContext(), "Swipe Refresh Touch called", Toast.LENGTH_SHORT).show()
-//                when (event.actionMasked){
-//                    MotionEvent.ACTION_MOVE -> it.isEnabled = activity!!.findViewById<View>(R.id.toolbar).y == 0f
-//                    MotionEvent.ACTION_UP -> it.isEnabled = true
-//                }
-//                true
-//            }
-//        }
-//    }
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        mSwipeRefresh?.let{
+            it.viewTreeObserver!!.addOnScrollChangedListener(mScrollChangedListener)
+            it.setOnTouchListener { _, event ->
+                Toast.makeText(requireContext(), "Swipe Refresh Touch called", Toast.LENGTH_SHORT).show()
+                when (event.actionMasked){
+                    MotionEvent.ACTION_MOVE -> it.isEnabled = activity!!.findViewById<View>(R.id.toolbar).y == 0f
+                    MotionEvent.ACTION_UP -> it.isEnabled = true
+                }
+                true
+            }
+        }
+    }
 }

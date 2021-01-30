@@ -1,14 +1,13 @@
 package com.exzell.mangaplayground.reader
 
-import android.database.DataSetObserver
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.utils.getDownloadFolder
+import timber.log.Timber
 import java.io.File
 
 class ReaderAdapter(private val mActivity: FragmentActivity,
@@ -28,7 +27,6 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
     private set
 
     init {
-
         mPrevChapter = mManga.chapters.singleOrNull { it.version == mCurrentChapter.version && it.position == mCurrentChapter.position-1 }
 
         mNextChapter = mManga.chapters.singleOrNull { it.version == mCurrentChapter.version && it.position == mCurrentChapter.position+1 }
@@ -39,14 +37,14 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
     override fun getItem(pos: Int): Fragment {
         val change = checkChapterOffset(pos)
 
-        return if(change) EmptyReaderFragment.getInstance(mCurrentChapter.number, mNextChapter?.number ?: "No New Chapter")
+        return if(change) EmptyPageFragment.getInstance(mCurrentChapter.number, mNextChapter?.number ?: "No New Chapter")
 
         else {
             val posOff = (if(mCurrentChapter.offset == 0) pos else pos - mCurrentChapter.offset)+1
             val link = makeLink(mCurrentChapter.link, posOff)
             val path = makePagePath(mFilePath, posOff)
 
-            Log.d("Reader", "Link is $link and Path is $path")
+            Timber.d("Link is $link and Path is $path")
 
 
             ReaderFragment.getInstance(link, path)
@@ -116,7 +114,6 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
             }
             else -> return false
         }
-
     }
 
     //Since the download db seems to be failing, we temporarily create the dir path ourselves here
@@ -125,10 +122,5 @@ class ReaderAdapter(private val mActivity: FragmentActivity,
         val parentDir = mManga.title + "/" + chapter.version
 
         return getDownloadFolder(mActivity, parentDir, chapter.number)
-    }
-
-    interface OnChapterChangeListener {
-
-        fun onChapterChange(newChapter: Chapter)
     }
 }

@@ -68,6 +68,7 @@ public class Repository {
         mMangaDao = db.getMangaDao();
         mChapterDao = db.getChapterDao();
         mDownloadDao = db.getDownloadDao();
+
     }
 
     public Call<ResponseBody> advancedSearch(Map<String, String> queries){
@@ -110,17 +111,31 @@ public class Repository {
 
 
     //Database calls
-    @Transaction
+
+    /**
+     * Takes care of inserting the mangas into the DB. After the manga id is gotten from the DB,
+     * it is set into its manga instance, so be sure not to replace the instances passed to this method
+     */
     public void insertManga(Manga... manga){
         mExecutor.getDiskExecutor().submit((() -> {
-            mMangaDao.insertMangas(Arrays.asList(manga));
+            for(Manga man : manga){
+                long id = mMangaDao.insertMangas(man);
+                man.getChapters().forEach(chap -> chap.setMangaId(id));
+                man.setId(id);
+            }
 
             mChapterDao.insertChapters(Arrays.stream(manga).flatMap(man -> man.getChapters()
                     .stream()).collect(Collectors.toList()));
         }));
     }
 
-    @Transaction
+    public void updateMangaBookmark(Manga manga){
+        mExecutor.getDiskExecutor().submit(() -> {
+           mMangaDao.updateMangas(Collections.singletonList(manga));
+           mMangaDao.changeBookmark(manga.isBookmark() ? 1 : 0, manga.getLink());
+        });
+    }
+
     public void updateManga(Manga... manga){
         mExecutor.getDiskExecutor().submit(() -> {
             mMangaDao.updateMangas(Arrays.asList(manga));
@@ -191,15 +206,12 @@ public class Repository {
     }
 
     public List<DBManga> lastReadMangas(long time){
-        List<DBManga> mangas = new ArrayList<>();
-
         try {
-            mangas = mExecutor.getDiskExecutor().submit(() -> mMangaDao.getMangaLastChapter(time)).get();
+            return mExecutor.getDiskExecutor().submit(() -> mMangaDao.getMangaLastChapter(time)).get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
+            return Collections.emptyList();
         }
-
-        return mangas;
     }
 
     public void updateChapters(List<Chapter> chapter) {

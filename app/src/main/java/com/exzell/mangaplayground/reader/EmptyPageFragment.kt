@@ -7,20 +7,20 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.exzell.mangaplayground.R
 
-class EmptyReaderFragment: Fragment() {
+class EmptyPageFragment: Fragment() {
 
     companion object{
         private const val CURRENT_CHAP = "current chapter"
         private const val NEXT_CHAP = "next chapter"
 
-        fun getInstance(current: String, next: String): EmptyReaderFragment {
+        fun getInstance(current: String, next: String): EmptyPageFragment {
 
             val bund = Bundle(2).apply {
                 putString(CURRENT_CHAP, current)
                 putString(NEXT_CHAP, next)
             }
 
-            return EmptyReaderFragment().apply {
+            return EmptyPageFragment().apply {
                 arguments = bund
             }
         }

@@ -32,7 +32,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
     private static final DiffUtil.ItemCallback<Manga> DIFF_CALLBACK = new DiffUtil.ItemCallback<Manga>() {
         @Override
-        public boolean areItemsTheSame(@NonNull Manga oldItem, @NonNull Manga newItem) { return oldItem.getId() == newItem.getId(); }
+        public boolean areItemsTheSame(@NonNull Manga oldItem, @NonNull Manga newItem) { return oldItem.getLink().hashCode() == newItem.getLink().hashCode(); }
 
         @Override
         public boolean areContentsTheSame(@NonNull Manga oldItem, @NonNull Manga newItem) { return oldItem.equals(newItem); }
@@ -104,7 +104,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
     @Override
     public long getItemId(int position) {
-        return getCurrentList().get(position).getId();
+        return getCurrentList().get(position).hashCode();
     }
 
     public void addMangas(List<? extends Manga> mangas){

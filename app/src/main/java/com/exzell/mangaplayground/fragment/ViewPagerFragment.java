@@ -6,11 +6,9 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -27,7 +25,6 @@ import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import timber.log.Timber;
 
@@ -106,7 +103,7 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
 
         if(item.getItemId() == R.id.cab_refresh){
             Bundle bund = new Bundle(1);
-            bund.putLongArray(UpdateService.MANGAS, mangas.stream().mapToLong(Manga::getId).toArray());
+            bund.putLongArray(UpdateService.UPDATE_MANGAS, mangas.stream().mapToLong(Manga::getId).toArray());
 
             Intent bookmark = new Intent(requireActivity(), UpdateService.class);
             bookmark.putExtras(bund);

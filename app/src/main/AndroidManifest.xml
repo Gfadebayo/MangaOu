@@ -40,7 +40,8 @@
         </activity>
 
         <activity android:name=".reader.ReadActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:hardwareAccelerated="true"/>
 
         <service android:name=".download.DownloadService" />
         <service android:name=".UpdateService" />

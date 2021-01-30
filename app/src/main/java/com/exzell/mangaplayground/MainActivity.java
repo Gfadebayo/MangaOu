@@ -17,6 +17,7 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import com.exzell.mangaplayground.databinding.ActivityDrawerBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -31,26 +32,24 @@ import timber.log.Timber;
 public class MainActivity extends AppCompatActivity {
 
     private float mAppbarElevation = 0;
+    private ActivityDrawerBinding mBinding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_drawer);
+        mBinding = ActivityDrawerBinding.inflate(getLayoutInflater());
+        setContentView(mBinding.getRoot());
 
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mBinding.activity.toolbar);
 
-        NavigationView navView = findViewById(R.id.nav_view);
-
-        DrawerLayout drawer = findViewById(R.id.drawer);
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         AppBarConfiguration configBar = new AppBarConfiguration.Builder(R.id.nav_bookamrk)
-                .setOpenableLayout(drawer).build();
+                .setOpenableLayout(mBinding.drawer).build();
 
-        NavigationUI.setupWithNavController(toolbar, navController, configBar);
-        setupNavViewWithNavController(drawer, navView, navController);
+        NavigationUI.setupWithNavController(mBinding.activity.toolbar, navController, configBar);
+        setupNavViewWithNavController(mBinding.drawer, mBinding.navView, navController);
 
-        setLayoutBehaviour(navController, toolbar);
+        setLayoutBehaviour(navController);
 
         if(getIntent().getAction().equals(Intent.ACTION_VIEW) && getIntent().hasCategory(Intent.CATEGORY_BROWSABLE)){
             String link = getIntent().getData().getPath();
@@ -71,24 +70,20 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Set how we want the toolbar to be when we navigate to {@link com.exzell.mangaplayground.fragment.MangaFragment}
      */
-    private void setLayoutBehaviour(NavController controller, MaterialToolbar toolbar){
-        AppBarLayout barLayout  = findViewById(R.id.toolbar_layout);
-        mAppbarElevation = barLayout.getElevation();
+    private void setLayoutBehaviour(NavController controller){
 
         controller.addOnDestinationChangedListener((control, dest, args) -> {
+
+            mBinding.activity.toolbarLayout.setY(0);
+
             if(dest.getId() == R.id.frag_manga){
-                toolbar.setTitle(null);
-                barLayout.setElevation(0);
-                barLayout.setBackground(null);
+                mBinding.activity.toolbar.setTitle(null);
             }else{
                 int color = getResources().getColor(R.color.primary, null);
-                barLayout.setElevation(mAppbarElevation);
-                barLayout.setBackgroundColor(color);
+                mBinding.activity.toolbarLayout.setBackgroundColor(color);
             }
 
-            if(dest.getId() == R.id.nav_search){
-                findViewById(R.id.fab).setVisibility(View.VISIBLE);
-            }else findViewById(R.id.fab).setVisibility(View.GONE);
+            mBinding.activity.fab.setVisibility(dest.getId() == R.id.nav_search ? View.VISIBLE : View.GONE);
         });
     }
 
