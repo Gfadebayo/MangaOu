@@ -9,6 +9,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -31,7 +32,6 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
-    private float mAppbarElevation = 0;
     private ActivityDrawerBinding mBinding;
 
     @Override
@@ -73,11 +73,11 @@ public class MainActivity extends AppCompatActivity {
     private void setLayoutBehaviour(NavController controller){
 
         controller.addOnDestinationChangedListener((control, dest, args) -> {
-
-            mBinding.activity.toolbarLayout.setY(0);
+            mBinding.activity.toolbarLayout.setExpanded(true, false);
 
             if(dest.getId() == R.id.frag_manga){
                 mBinding.activity.toolbar.setTitle(null);
+                mBinding.activity.toolbarLayout.setBackground(null);
             }else{
                 int color = getResources().getColor(R.color.primary, null);
                 mBinding.activity.toolbarLayout.setBackgroundColor(color);
@@ -113,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (Arrays.asList(permissions).isEmpty()) return;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onLowMemory() {
+        Timber.d("Warning!! Low memory");
     }
 }
 

@@ -28,7 +28,7 @@ import io.reactivex.rxjava3.functions.Consumer;
 
 public class EmptyFragment extends SelectionFragment {
 
-    public static final String TAG = "EmptyFragment";
+    public static final String LINK = "EmptyFragment";
     public static final String TITLE = "page title";
     private HomeViewModel mViewModel;
     private String mLink;
@@ -45,7 +45,7 @@ public class EmptyFragment extends SelectionFragment {
                 .mAppComponent.injectRepo(mViewModel);
 
         setMenuResource(R.menu.cab_menu);
-        mLink = getArguments().getString(TAG);
+        mLink = getArguments().getString(LINK);
 
         mViewModel.initHandler(mLink);
 

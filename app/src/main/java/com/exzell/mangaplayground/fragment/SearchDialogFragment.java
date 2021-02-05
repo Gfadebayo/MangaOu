@@ -21,6 +21,7 @@ import com.exzell.mangaplayground.adapters.TitleAdapter;
 import com.exzell.mangaplayground.adapters.ViewMultiplierAdapter;
 import com.exzell.mangaplayground.advancedsearch.Genre;
 import com.exzell.mangaplayground.advancedsearch.Type;
+import com.exzell.mangaplayground.databinding.DialogSearchBinding;
 import com.exzell.mangaplayground.viewmodels.SearchViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
@@ -37,9 +38,9 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 public class SearchDialogFragment extends BottomSheetDialogFragment {
 
     private SearchViewModel mViewModel;
-    private RecyclerView mRecyclerView;
     private ConcatAdapter mAdapter;
     private OnSearchClickedListener mListener;
+    private DialogSearchBinding mBinding;
 
     public static SearchDialogFragment getInstance(){return new SearchDialogFragment();}
 
@@ -55,7 +56,8 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_search, container, false);
+        mBinding = DialogSearchBinding.inflate(inflater);
+        return mBinding.getRoot();
     }
 
     @Override
@@ -65,8 +67,6 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
         String[] names = {"Status", "Type", "Genre"};
 
         setDefaultValues(view);
-
-        mRecyclerView = view.findViewById(R.id.recycler_search);
 
         Arrays.stream(names).forEach(s -> {
             ViewMultiplierAdapter multiAdapter = createMultiAdapter(s);
@@ -79,34 +79,33 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
             else mAdapter.addAdapter(ta);
         });
 
-        mRecyclerView.setAdapter(mAdapter);
+        mBinding.recyclerSearch.setAdapter(mAdapter);
 
 
-        view.findViewById(R.id.button_search).setOnClickListener(v -> {
+        mBinding.buttonSearch.setOnClickListener(v -> {
             mListener.onSearchClicked();
             dismiss();
         });
 
-        view.findViewById(R.id.button_reset).setOnClickListener(v -> {
+        mBinding.buttonReset.setOnClickListener(v -> {
             mViewModel.resetValues();
-            mListener.onSearchClicked();
-            dismiss();
+//            mListener.onSearchClicked();
+//            dismiss();
         });
     }
 
     private View.OnClickListener onHeaderClicked(TitleAdapter adapter){
         return v -> {
+            boolean select = false;
             if(mAdapter.getAdapters().contains(adapter.getBodyAdapter())){
                 mAdapter.removeAdapter(adapter.getBodyAdapter());
             }else {
                 int index = mAdapter.getAdapters().indexOf(adapter);
                 mAdapter.addAdapter(index+1, adapter.getBodyAdapter());
+                select = true;
             }
 
-
-            ViewPropertyAnimator animate = v.findViewById(R.id.button_header).animate();
-            animate.cancel();
-            animate.rotationBy(180f).start();
+            v.findViewById(R.id.button_header).setSelected(select);
         };
     }
 

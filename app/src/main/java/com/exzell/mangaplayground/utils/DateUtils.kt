@@ -1,17 +1,23 @@
 package com.exzell.mangaplayground.utils
 
-import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
 
-object DateUtils {
-    fun translateTime(weirdTime: String?): Long {
-        val timeBuild = StringBuilder(weirdTime!!)
+fun Calendar.resetCalendar(millis: Long? = null): Calendar{
+    millis?.let { setTimeInMillis(it)}
+    set(Calendar.MINUTE, 0)
+    set(Calendar.HOUR_OF_DAY, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+    return this
+}
+
+    fun String.translateTime(): Long {
+        val timeBuild = StringBuilder(this)
         var time = System.currentTimeMillis()
         while (!timeBuild.toString().isEmpty() && timeBuild.toString().trim { it <= ' ' } != "ago") {
             time = parseDate(timeBuild, time)
         }
-        val date = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(Date(time))
         return time
     }
 
@@ -45,9 +51,8 @@ object DateUtils {
         startIndex = if (startIndex == -1) 0 else startIndex
         val timeStr = time.substring(startIndex, endIndex).trim { it <= ' ' }
         val timeInSec = if (Character.isDigit(timeStr[0])) timeStr.toInt() else 1
-        oldTime = oldTime - timeInSec * multiplierToSecond * 1000
+        oldTime -= timeInSec * multiplierToSecond * 1000
         val nextSpaceIndex = time.indexOf(" ", endIndex)
         if (nextSpaceIndex != -1) time.delete(startIndex, nextSpaceIndex + 1) else time.delete(startIndex, time.length)
         return oldTime
     }
-}

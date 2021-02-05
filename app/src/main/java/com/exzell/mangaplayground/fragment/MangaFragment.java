@@ -117,7 +117,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
     private void onComplete(){
 
-        mBinding.swipeRefresh.setRefreshing(false);
+        if(isDoneFetching) mBinding.swipeRefresh.setRefreshing(false);
         mBinding.root.setVisibility(View.VISIBLE);
 
         mBinding.setManga(mManga);
@@ -145,8 +145,6 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 //                mAdapter.notifyItemChanged(chapIndex);
             });
         }));
-
-        mBinding.swipeRefresh.setRefreshing(false);
     }
 
     private void clearConcatAdapter(){

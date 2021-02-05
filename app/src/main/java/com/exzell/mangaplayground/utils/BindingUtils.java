@@ -1,26 +1,16 @@
 package com.exzell.mangaplayground.utils;
 
-import android.content.res.ColorStateList;
-import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Html;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
-import android.widget.RatingBar;
 
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -30,24 +20,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.advancedsearch.Genre;
-import com.exzell.mangaplayground.advancedsearch.Type;
 import com.exzell.mangaplayground.fragment.EmptyFragment;
-import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Manga;
-import com.exzell.mangaplayground.viewmodels.SearchViewModel;
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.radiobutton.MaterialRadioButton;
-import com.google.android.material.textview.MaterialTextView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import timber.log.Timber;
 
@@ -153,7 +131,7 @@ public class BindingUtils {
             ch.setOnClickListener(v -> {
                 Bundle bund = new Bundle(2);
 
-                bund.putString(EmptyFragment.TAG, g.link);
+                bund.putString(EmptyFragment.LINK, g.link);
                 bund.putString(EmptyFragment.TITLE, g.dispName);
 
                 con.navigate(R.id.nav_empty, bund);

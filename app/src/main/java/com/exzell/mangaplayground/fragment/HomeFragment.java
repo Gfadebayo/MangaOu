@@ -4,11 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -25,17 +23,13 @@ import com.exzell.mangaplayground.adapters.RecyclerViewAdapter;
 import com.exzell.mangaplayground.adapters.TitleAdapter;
 import com.exzell.mangaplayground.databinding.FragmentHomeBinding;
 import com.exzell.mangaplayground.fragment.base.DisposableFragment;
-import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.viewmodels.HomeViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-
-import timber.log.Timber;
 
 public class HomeFragment extends DisposableFragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -120,7 +114,7 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
 
             Bundle linkBund = new Bundle(2);
 
-            linkBund.putString(EmptyFragment.TAG, link);
+            linkBund.putString(EmptyFragment.LINK, link);
             linkBund.putString(EmptyFragment.TITLE, title);
             control.navigate(R.id.action_nav_home_to_nav_empty, linkBund);
         }

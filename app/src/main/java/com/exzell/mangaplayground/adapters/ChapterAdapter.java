@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.DiffUtil.ItemCallback;
 import androidx.recyclerview.widget.ListAdapter;
 
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.databinding.HeaderBinding;
 import com.exzell.mangaplayground.databinding.LayoutChapterBinding;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.selection.DetailsViewHolder;
@@ -21,8 +20,6 @@ import com.exzell.mangaplayground.selection.DetailsViewHolder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import static androidx.recyclerview.widget.RecyclerView.*;
 
 public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterViewHolder> {
     private static final ItemCallback<Chapter> DIFF_CALLBACK = new ItemCallback<Chapter>() {
@@ -40,7 +37,7 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
     private View.OnClickListener listen;
     private SelectionTracker<Long> mTracker;
 
-    public ChapterAdapter(Context context, List<Chapter> chapters){
+    public ChapterAdapter(Context context, List<Chapter> chapters) {
         super(DIFF_CALLBACK);
         submitList(chapters);
 
@@ -48,11 +45,11 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
         setHasStableIds(true);
     }
 
-    public void addTracker(SelectionTracker<Long> track){
+    public void addTracker(SelectionTracker<Long> track) {
         mTracker = track;
     }
 
-    public void setListener(View.OnClickListener l){
+    public void setListener(View.OnClickListener l) {
         listen = l;
     }
 
@@ -66,16 +63,16 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
     @Override
     public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
 
-            Chapter chap = getCurrentList().get(position);
-            holder.itemView.setOnClickListener(listen);
-            holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
+        Chapter chap = getCurrentList().get(position);
+        holder.itemView.setOnClickListener(listen);
+        holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
 
-            ((ChapterViewHolder) holder).mBinding.textChapTitle.setText(chap.getTitle());
-            ((ChapterViewHolder) holder).mBinding.textChapNumber.setText(chap.getNumber());
-            ((ChapterViewHolder) holder).mBinding.textChapLength.setText(String.valueOf(chap.getLength()));
+        holder.mBinding.textChapTitle.setText(chap.getTitle());
+        holder.mBinding.textChapNumber.setText(chap.getNumber());
+        holder.mBinding.textChapLength.setText(String.valueOf(chap.getLength()));
 
-            String date = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(new Date(chap.getReleaseDate()));
-            ((ChapterViewHolder) holder).mBinding.textChapRelease.setText(date);
+        String date = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(new Date(chap.getReleaseDate()));
+        holder.mBinding.textChapRelease.setText(date);
     }
 
     @Override
@@ -113,7 +110,7 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
         }
 
         @Override
-        public ItemDetailsLookup.ItemDetails getDetails() {
+        public ItemDetailsLookup.ItemDetails<Long> getDetails() {
             return mDetails;
         }
     }
