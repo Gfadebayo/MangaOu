@@ -25,7 +25,6 @@ import java.util.List;
 public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHolder> {
 
     private final Context mContext;
-    private List<DBManga> mMangas;
 
     private View.OnClickListener mResumeClicked;
     private View.OnClickListener mDeleteClicked;
@@ -34,31 +33,23 @@ public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHold
     private static final DiffUtil.ItemCallback<DBManga> CALLBACK = new DiffUtil.ItemCallback<DBManga>() {
         @Override
         public boolean areItemsTheSame(@NonNull DBManga oldItem, @NonNull DBManga newItem) {
-            return oldItem.getLastReadTime() == newItem.getLastReadTime();
+            return oldItem.getLastChapter().getId() == newItem.getLastChapter().getId();
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull DBManga oldItem, @NonNull DBManga newItem) {
-            return oldItem.equals(newItem);
+            return oldItem.getLastChapter().equals(newItem.getLastChapter());
         }
     };
 
     public HistoryAdapter(Context context, List<DBManga> mangas) {
         super(CALLBACK);
         mContext = context;
-        mMangas = mangas;
+        submitList(mangas);
     }
 
     public void setMangas(List<DBManga> mangas){
         submitList(mangas);
-        /*int difference = mMangas.size() - mangas.size();
-
-        mMangas = mangas;
-        notifyItemRangeChanged(0, mangas.size());
-
-        if(difference > 0){
-            notifyItemRangeRemoved(mangas.size(), difference);
-        }*/
     }
 
     public void setOnClickListener(@NotNull View.OnClickListener listener) {
@@ -79,7 +70,7 @@ public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DBManga man = mMangas.get(position);
+        DBManga man = getCurrentList().get(position);
 
         holder.mTitle.setText(man.getTitle());
         holder.mChapter.setText(man.getLastChapter().getTitle());
@@ -90,11 +81,11 @@ public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mMangas.size();
+        return getCurrentList().size();
     }
 
     public List<DBManga> getMangas() {
-        return mMangas;
+        return getCurrentList();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{

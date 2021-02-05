@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.navigation.Navigation
@@ -22,7 +21,6 @@ import com.exzell.mangaplayground.utils.resetCalendar
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel
 import timber.log.Timber
 import java.util.*
-import java.util.stream.IntStream
 
 class HistoryFragment : Fragment() {
     private var mViewModel: BookmarkViewModel? = null
@@ -35,7 +33,7 @@ class HistoryFragment : Fragment() {
         (requireActivity().application as MangaApplication).mAppComponent.injectRepo(mViewModel!!)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mBinding = GenericLoadingRecyclerViewBinding.inflate(layoutInflater)
         return mBinding!!.root
     }
@@ -49,42 +47,43 @@ class HistoryFragment : Fragment() {
 
     private fun setHistory(timestamps: List<Long>, adapter: ConcatAdapter?) {
 
-
         val titleAdapters: List<TitleAdapter> = adapter?.let {
             adapter.adapters.filterIsInstance<TitleAdapter>()
         } ?: emptyList()
 
         Thread {
 
-                val times = timestamps.map { Calendar.getInstance().resetCalendar(it).timeInMillis }.distinct()
-                //To be used to remove mangas that have already been added to the adapter
-                val foundMangas = arrayListOf<Long>()
-                val today = Calendar.getInstance().resetCalendar().timeInMillis
-                val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
+            val times = timestamps.map { Calendar.getInstance().resetCalendar(it).timeInMillis }.distinct()
+            //To be used to remove mangas that have already been added to the adapter
+            val foundMangas = arrayListOf<Long>()
+            val today = Calendar.getInstance().resetCalendar().timeInMillis
+            val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
 
             //Trim the Concat Adapter of unneeded adapters
-            if(times.size < titleAdapters.size){
-                Timber.d("Trimming adapter")
-                val diff = titleAdapters.size - times.size
-                for (i in 0 until diff){
-                    val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
-                    adapter!!.removeAdapter(titleAdapter)
-                    adapter.removeAdapter(titleAdapter.bodyAdapter)
+            requireActivity().runOnUiThread {
+                if (times.size < titleAdapters.size) {
+                    Timber.d("Trimming adapter")
+                    val diff = titleAdapters.size - times.size
+                    for (i in 0 until diff) {
+                        val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
+                        adapter!!.removeAdapter(titleAdapter)
+                        adapter.removeAdapter(titleAdapter.bodyAdapter)
+                    }
                 }
             }
 
             Timber.d("Number of time is $times")
-                times.forEach { time: Long ->
-                    val day = Calendar.getInstance().resetCalendar(time).timeInMillis
+            times.forEach { time: Long ->
+                val day = Calendar.getInstance().resetCalendar(time).timeInMillis
 
-                    val historyManga = mViewModel!!.getHistoryManga(time).filter { !foundMangas.contains(it.id) }
+                val historyManga = mViewModel!!.getHistoryManga(time).filter { !foundMangas.contains(it.id) }
 
-                    if (historyManga.isNotEmpty()) {
-                        val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
-                        val days = todayInDays - dayInDays
-                        val dayTitle = mViewModel!!.getDayTitle(days.toInt())
+                if (historyManga.isNotEmpty()) {
+                    val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
+                    val days = todayInDays - dayInDays
+                    val dayTitle = mViewModel!!.getDayTitle(days.toInt())
 
-                        if(isAdded)
+                    if (isAdded)
                         requireActivity().runOnUiThread {
                             //Its possible the concat adapter already has the adapters so we should just update them
                             val index = times.indexOf(time)
@@ -108,7 +107,6 @@ class HistoryFragment : Fragment() {
                             }
                         }
                         Timber.d("History mangas found are $historyManga")
-                        Timber.d("Found mangas are $foundMangas")
                         foundMangas.addAll(historyManga.map { it.id })
                     }
                 }
@@ -139,7 +137,6 @@ class HistoryFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         mBinding!!.recyclerLoad.adapter = null
-//        mViewModel!!.times.removeObserver(this)
         mBinding = null
     }
 }

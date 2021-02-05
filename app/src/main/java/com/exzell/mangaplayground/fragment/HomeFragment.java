@@ -92,14 +92,15 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         return (manga, which) -> {
             List<? extends RecyclerView.Adapter<? extends RecyclerView.ViewHolder>> adapters = ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters();
 
-            requireActivity().runOnUiThread(() -> {
-                MangaListAdapter adapter = (MangaListAdapter) ((RecyclerViewAdapter) adapters.get(which)).getMViewAdapter();
+            if (isAdded())
+                requireActivity().runOnUiThread(() -> {
+                    MangaListAdapter adapter = (MangaListAdapter) ((RecyclerViewAdapter) adapters.get(which)).getMViewAdapter();
 
-                adapter.submitList(null);
-                adapter.submitList(new ArrayList<>(manga));
+                    adapter.submitList(null);
+                    adapter.submitList(new ArrayList<>(manga));
 
-                ((RecyclerViewAdapter) adapters.get(which)).hideProgressBar(true);
-            });
+                    ((RecyclerViewAdapter) adapters.get(which)).hideProgressBar(true);
+                });
         };
     }
 
