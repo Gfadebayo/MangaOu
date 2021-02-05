@@ -9,7 +9,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -20,8 +19,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.exzell.mangaplayground.databinding.ActivityDrawerBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.MaterialToolbar;
+
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Arrays;

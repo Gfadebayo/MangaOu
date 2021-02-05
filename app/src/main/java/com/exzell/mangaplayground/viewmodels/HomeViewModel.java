@@ -85,12 +85,14 @@ public class HomeViewModel extends AndroidViewModel {
     public void queryDb(BiConsumer<List<? extends Manga>, Integer> consumer, int bookmarkIndex, int downloadIndex, LifecycleOwner o){
 
         mRepo.getBookmarkedManga().observe(o, dbMangas -> {
+            Collections.shuffle(dbMangas);
             List<DBManga> trim = dbMangas.stream().limit(5).collect(Collectors.toList());
 
             consumer.accept(trim, bookmarkIndex);
         });
 
         mRepo.getDownloadedMangas().observe(o, dbMangas -> {
+            Collections.shuffle(dbMangas);
             List<DBManga> trim = dbMangas.stream().limit(5).collect(Collectors.toList());
 
             consumer.accept(trim, downloadIndex);
@@ -216,7 +218,7 @@ public class HomeViewModel extends AndroidViewModel {
     }
 
     public void initHandler(String startLink){
-        if(mHandle.contains(KEY_LINK)) setNextLink(startLink);
+        if(!mHandle.contains(KEY_LINK)) setNextLink(startLink);
         if(!mHandle.contains(KEY_MANGAS)) mHandle.set(KEY_MANGAS, new ArrayList<Manga>());
     }
 }

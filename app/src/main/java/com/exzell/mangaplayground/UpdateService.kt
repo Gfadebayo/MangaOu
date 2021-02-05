@@ -57,8 +57,11 @@ class UpdateService: Service() {
             intent?.hasExtra(UPDATE_MANGAS) == true -> mUpdates.addAll(mRepo.getMangaWithLinks((intent.getLongArrayExtra(UPDATE_MANGAS))!!.toMutableList()))
             else -> mUpdates.addAll(mRepo.bookmarkedMangaNotLive)
         }
-
+        mUpdates.distinct()
         mUpdates.removeAll(mCompleted)
+
+        /*TODO: Try to fix this using a boolean to check if the service is already running so instead
+            we just add to it the same way we add more downloads to existing ones*/
 
         mDisposer.add(Observable.fromIterable(mUpdates).subscribeOn(Schedulers.io())
                 .flatMap { createObservable(it) }
@@ -70,7 +73,7 @@ class UpdateService: Service() {
                         it.isBookmark = true
                         mRepo.insertManga(it)
                     }
-                    else mRepo.updateManga(it)
+                    else mRepo.updateManga(true, it)
 
                     if(intent?.hasExtra(CREATE_MANGAS) == false) {
                         mNotification.setContentText(it.title)
@@ -99,7 +102,7 @@ class UpdateService: Service() {
 
     private fun transferUserInfo(old: Manga, new: Manga){
         new.isBookmark = old.isBookmark
-
+        new.id = old.id
         new.chapters = ChapterUtils.transferChapterInfo(new.chapters, old.chapters)
     }
 
