@@ -1,12 +1,19 @@
 package com.exzell.mangaplayground;
 
+import com.exzell.mangaplayground.utils.DateUtilsKt;
+
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -24,18 +31,58 @@ public class ExampleUnitTest {
     }
 
     @Test
+    public void testDateFormat(){
+
+        Calendar todayExact = DateUtilsKt.resetCalendar(Calendar.getInstance(), null);
+        System.out.printf("The date is %s \n", todayExact.getTime().toString());
+
+        todayExact.add(Calendar.DAY_OF_MONTH, -4);
+        System.out.printf("The date is %s \n", todayExact.getTime().toString());
+
+        System.out.println(SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(todayExact.getTime()));
+    }
+
+    @Test
     public void testDate(){
-        Calendar dar = Calendar.getInstance();
-        dar.setTimeInMillis(System.currentTimeMillis());
+
+        Calendar todayCalen = Calendar.getInstance();
+        todayCalen.setTimeInMillis(System.currentTimeMillis());
+        todayCalen.set(Calendar.MINUTE, 0);
+        todayCalen.set(Calendar.HOUR, 0);
+        todayCalen.set(Calendar.SECOND, 0);
+        todayCalen.set(Calendar.MILLISECOND, 0);
+
+        long today = todayCalen.getTimeInMillis();
+
+        Calendar yester = Calendar.getInstance();
+        yester.setTime(Date.valueOf("2021-01-30"));
+        long yesterday = yester.getTimeInMillis();
+
+        long todayInDays = Math.floorDiv(today , (1000*60*60*24));
+        long yesterdayInDays = Math.floorDiv(yesterday, (1000*60*60*24));
+
+        long diff = todayInDays - yesterdayInDays;
+
+        Calendar in = Calendar.getInstance();
+        System.out.printf("The current calendar is %s \n", in.getTime().toString());
+        in.setTimeInMillis(System.currentTimeMillis());
+
+
+        in.set(Calendar.MINUTE, 0);
+        in.set(Calendar.HOUR, 0);
+        in.set(Calendar.SECOND, 0);
+        in.set(Calendar.MILLISECOND, 0);
+
+        System.out.printf("The current calendar after zeroing everything is %s", in.getTime().toString());
 
         Calendar testDar = randomDay();
         testDar.set(2020, 9, 13);
 
-        System.out.println("The date used is " + testDar.getTime().toString() + " current date is " + dar.getTime().toString());
+        System.out.println("The date used is " + testDar.getTime().toString() + " current date is " + in.getTime().toString());
 
 
         System.out.print("The difference in time is: ");
-        System.out.println(formatDay((int) (Math.abs(dar.getTime().getTime() - testDar.getTime().getTime()) / (1000*60*60*24))));
+        System.out.println(formatDay((int) (Math.abs(in.getTime().getTime() - testDar.getTime().getTime()) / (1000*60*60*24))));
     }
 
     public Calendar randomDay(){
