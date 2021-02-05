@@ -14,6 +14,7 @@ import com.exzell.mangaplayground.io.database.DBManga
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.viewmodels.ReaderViewModel
 import com.google.android.material.appbar.MaterialToolbar
+import kotlin.math.max
 
 class ReadActivity : AppCompatActivity() {
 
@@ -95,7 +96,7 @@ class ReadActivity : AppCompatActivity() {
         if(chapter == null || (newPosition == chapter.offset+chapter.length)) return
 
         val pos = (newPosition - chapter.offset) % chapter.length
-        val length = chapter.length-1
+        val length = max(1, chapter.length-1)
 
         if(pos > length) return
 
@@ -123,7 +124,7 @@ class ReadActivity : AppCompatActivity() {
 
     private fun onChapterChange(newChapter: Chapter) {
 
-        newChapter.lastReadTime = mViewModel.today()
+        newChapter.lastReadTime = System.currentTimeMillis()
 
         if(newChapter.lastReadingPosition == newChapter.length-1) {
             newChapter.isCompleted = true

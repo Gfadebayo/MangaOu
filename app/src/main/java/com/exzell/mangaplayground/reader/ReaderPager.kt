@@ -6,6 +6,7 @@ import android.view.GestureDetector
 import androidx.viewpager.widget.ViewPager
 import android.view.MotionEvent
 import androidx.core.view.GestureDetectorCompat
+import timber.log.Timber
 
 class ReaderPager(context: Context, attrs: AttributeSet?) : ViewPager(context, attrs) {
 
@@ -33,10 +34,15 @@ class ReaderPager(context: Context, attrs: AttributeSet?) : ViewPager(context, a
         override fun onSingleTapConfirmed(e: MotionEvent?) = onSingleTap?.invoke(e!!) ?: false
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        val parentTouch = mGestureDetector.onTouchEvent(ev)
-        val childTouch = super.dispatchTouchEvent(ev)
-        return parentTouch || childTouch
+    override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
+        Timber.d("Gesture detector reached with event $ev")
+        super.onInterceptTouchEvent(ev)
+        return true
+    }
+
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        mGestureDetector.onTouchEvent(ev)
+        return super.onTouchEvent(ev)
     }
 
     override fun onDetachedFromWindow() {
