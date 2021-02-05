@@ -29,8 +29,10 @@ public class DBManga extends Manga {
     }
 
     public Chapter getLastChapter(){
-        Chapter chapter = dbChapter.stream().filter(p -> p.getLastReadTime() > 0).sorted((o1, o2) ->
-                Long.compare(o1.getLastReadTime(), o2.getLastReadTime())).findAny().get();
-        return chapter;
+        return dbChapter.stream().max((o1, o2) -> Long.compare(o1.getLastReadTime(), o2.getLastReadTime())).get();
+    }
+
+    public long getLastReadTime(){
+        return getLastChapter().getLastReadTime();
     }
 }

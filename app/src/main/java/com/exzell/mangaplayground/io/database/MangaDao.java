@@ -25,9 +25,6 @@ public interface MangaDao {
     @Update
     void updateMangas(List<Manga> mangas);
 
-    @Query("UPDATE manga SET bookmark =:bookmark WHERE link =:link")
-    void changeBookmark(int bookmark, String link);
-
     @Transaction
     @Query("SELECT * FROM manga")
     List<DBManga> getMangas();
@@ -45,10 +42,6 @@ public interface MangaDao {
     LiveData<List<DBManga>> downloads();
 
     @Transaction
-    @Query("SELECT DISTINCT manga.* FROM manga, chapter ON chapter.manga_id=manga.id AND chapter.last_read_time =:time")
-    List<DBManga> getMangaLastChapter(long time);
-
-    @Transaction
     @Query("SELECT * FROM manga WHERE id =:mangaId")
     DBManga getMangaFromId(long mangaId);
 
@@ -57,6 +50,10 @@ public interface MangaDao {
     DBManga getMangaFromLink(String link);
 
     @Transaction
-    @Query("SELECT manga.* FROM manga, chapter ON manga.id=chapter.manga_id AND chapter.id =:id")
-    DBManga getMangaFromChapter(long id);
+    @Query("SELECT manga.* FROM manga, chapter ON manga.id=chapter.manga_id AND chapter.id =:chapter_id")
+    DBManga getMangaFromChapter(long chapter_id);
+
+    @Transaction
+    @Query("SELECT DISTINCT manga.* FROM manga, chapter ON manga.id=chapter.manga_id AND chapter.last_read_time >=:read_time ORDER BY chapter.last_read_time DESC")
+    List<DBManga> getMangaFromChapterTime(long read_time);
 }

@@ -129,18 +129,11 @@ public class Repository {
         }));
     }
 
-    public void updateMangaBookmark(Manga manga){
-        mExecutor.getDiskExecutor().submit(() -> {
-           mMangaDao.updateMangas(Collections.singletonList(manga));
-           mMangaDao.changeBookmark(manga.isBookmark() ? 1 : 0, manga.getLink());
-        });
-    }
-
-    public void updateManga(Manga... manga){
+    public void updateManga(boolean andChapters, Manga... manga){
         mExecutor.getDiskExecutor().submit(() -> {
             mMangaDao.updateMangas(Arrays.asList(manga));
-            mChapterDao.insertChapters(Arrays.stream(manga).flatMap(man -> man.getChapters()
-                    .stream()).collect(Collectors.toList()));
+            if(andChapters) mChapterDao.insertChapters(Arrays.stream(manga)
+                    .flatMap(man -> man.getChapters().stream()).collect(Collectors.toList()));
         });
     }
 
@@ -194,20 +187,19 @@ public class Repository {
         }
     }
 
-    public List<Long> allDate(){
-        List<Long> dates = new ArrayList<>();
+    /**Returns the timestamp for every manga with atleast 1 chapter with a read time greater than 0*/
+    public LiveData<List<Long>> allMangaTime(){
         try {
-            dates = mExecutor.getDiskExecutor().submit(() -> mChapterDao.allTime()).get();
+            return mExecutor.getDiskExecutor().submit(() -> mChapterDao.allMangaTime()).get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
+            return null;
         }
-
-        return dates;
     }
 
     public List<DBManga> lastReadMangas(long time){
         try {
-            return mExecutor.getDiskExecutor().submit(() -> mMangaDao.getMangaLastChapter(time)).get();
+            return mExecutor.getDiskExecutor().submit(() -> mMangaDao.getMangaFromChapterTime(time)).get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
             return Collections.emptyList();
@@ -275,12 +267,6 @@ public class Repository {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public void resetTime(Chapter chapter){
-        mExecutor.getDiskExecutor().submit(() -> {
-           mChapterDao.resetTime(chapter.getId());
-        });
     }
 
     @NotNull
