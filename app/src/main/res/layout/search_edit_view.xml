@@ -147,7 +147,4 @@
             android:layout_marginStart="8dp"
             android:layout_weight="1" />
     </LinearLayout>
-
-
-
 </LinearLayout>

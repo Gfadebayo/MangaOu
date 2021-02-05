@@ -20,4 +20,7 @@ Enter Monkey D. Luffy, a 17-year-old boy who defies the standard definition of a
     <string name="bookmark">Bookmark</string>
     <string name="mark_as_read">Mark as read</string>
     <string name="author">Author</string>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
+    <string name="days_ago">Days ago</string>
 </resources>

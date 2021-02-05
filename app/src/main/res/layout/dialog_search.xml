@@ -54,7 +54,8 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <include layout="@layout/search_edit_view" />
+            <include android:id="@+id/search_views"
+                layout="@layout/search_edit_view" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_search"
