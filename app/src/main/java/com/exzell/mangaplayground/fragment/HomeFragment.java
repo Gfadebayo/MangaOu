@@ -84,7 +84,7 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         onRefresh();
 
         mBinding.swipeRefresh.setOnRefreshListener(this);
-        setSwipeRefreshView(mBinding.swipeRefresh);
+        setSwipeRefreshView(mBinding.swipeRefresh, mBinding.recyclerHome);
     }
 
     private BiConsumer<List<? extends Manga>, Integer> consumer() {
@@ -128,7 +128,7 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         mViewModel.parseHome(consumer, 1, 3);
         mViewModel.queryDb(consumer, 5, 7, this);
 
-        ((SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh)).setRefreshing(false);
+        mBinding.swipeRefresh.setRefreshing(false);
     }
 
     @Override

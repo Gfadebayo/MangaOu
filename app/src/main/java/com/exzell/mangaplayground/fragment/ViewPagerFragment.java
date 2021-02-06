@@ -87,7 +87,7 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         adapter.setTracker(getTracker());
 
         ((SwipeRefreshLayout) view.findViewById(R.id.load_refresh)).setOnRefreshListener(this);
-        setSwipeRefreshView((SwipeRefreshLayout) view.findViewById(R.id.load_refresh));
+        setSwipeRefreshView(view.findViewById(R.id.load_refresh), mRecyclerView);
     }
 
     @Override

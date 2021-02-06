@@ -17,18 +17,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.exzell.mangaplayground.MangaApplication;
-import com.exzell.mangaplayground.reader.ReadActivity;
-import com.exzell.mangaplayground.download.Download;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.ChapterAdapter;
 import com.exzell.mangaplayground.adapters.TitleAdapter;
 import com.exzell.mangaplayground.databinding.FragmentMangaBinding;
+import com.exzell.mangaplayground.download.Download;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Manga;
+import com.exzell.mangaplayground.reader.ReadActivity;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.utils.ChapterUtils;
 import com.exzell.mangaplayground.utils.FileUtilsKt;
-
 import com.exzell.mangaplayground.viewmodels.MangaViewModel;
 
 import java.util.ArrayList;
@@ -86,7 +85,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         } else updateManga(link);
 
         mBinding.swipeRefresh.setOnRefreshListener(this);
-        setSwipeRefreshView(mBinding.swipeRefresh);
+        setSwipeRefreshView(mBinding.swipeRefresh, mBinding.scrollView);
     }
 
     private void updateManga(String link){
