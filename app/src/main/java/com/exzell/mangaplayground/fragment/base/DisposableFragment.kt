@@ -59,6 +59,9 @@ abstract class DisposableFragment : Fragment() {
         }
         mSwipeRefresh = null
 
+        if (mChild is RecyclerView) (mChild as RecyclerView).removeOnScrollListener(mRecyclerScrollListener)
+        mChild = null
+
 
         super.onDestroyView()
     }

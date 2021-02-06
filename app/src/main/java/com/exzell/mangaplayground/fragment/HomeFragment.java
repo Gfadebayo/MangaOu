@@ -135,5 +135,6 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
     public void onDestroyView() {
         super.onDestroyView();
         mBinding.swipeRefresh.setOnRefreshListener(null);
+        mBinding = null;
     }
 }

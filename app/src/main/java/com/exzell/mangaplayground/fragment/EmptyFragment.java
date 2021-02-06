@@ -11,11 +11,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
+import com.exzell.mangaplayground.databinding.SwiperefreshLoadingRecyclerViewBinding;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.HomeViewModel;
@@ -32,8 +32,8 @@ public class EmptyFragment extends SelectionFragment {
     public static final String TITLE = "page title";
     private HomeViewModel mViewModel;
     private String mLink;
-    private RecyclerView mRecyclerView;
     private MangaListAdapter mAdapter;
+    private SwiperefreshLoadingRecyclerViewBinding mBinding;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,22 +56,22 @@ public class EmptyFragment extends SelectionFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.swiperefresh_loading_recycler_view, container, false);
+        mBinding = SwiperefreshLoadingRecyclerViewBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        mRecyclerView = view.findViewById(R.id.recycler_load);
 
         GridLayoutManager manager = new GridLayoutManager(requireActivity(), 3);
-        mRecyclerView.setLayoutManager(manager);
+        mBinding.recyclerLoad.setLayoutManager(manager);
 
         mAdapter = new MangaListAdapter(requireActivity(), new ArrayList<>(), R.layout.list_manga_home);
-        mRecyclerView.setAdapter(mAdapter);
+        mBinding.recyclerLoad.setAdapter(mAdapter);
 
-        createTracker(mRecyclerView);
+        createTracker(mBinding.recyclerLoad);
         mAdapter.setTracker(getTracker());
 
 
@@ -82,7 +82,8 @@ public class EmptyFragment extends SelectionFragment {
 
     private Consumer<List<Manga>> onSuccess(){
         return mangas -> {
-            getView().findViewById(R.id.progress_load).setVisibility(View.GONE);
+
+            mBinding.progressLoad.setVisibility(View.GONE);
             mAdapter.addMangas(mangas);
 
             addDisposable(mViewModel.goToLink(mViewModel.getNextLink(), onSuccess()));
@@ -97,8 +98,8 @@ public class EmptyFragment extends SelectionFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mRecyclerView.setAdapter(null);
+        mBinding.recyclerLoad.setAdapter(null);
         mAdapter = null;
-        mRecyclerView = null;
+        mBinding = null;
     }
 }

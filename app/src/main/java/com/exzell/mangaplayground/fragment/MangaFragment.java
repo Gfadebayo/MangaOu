@@ -268,5 +268,6 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
     public void onDestroyView() {
         super.onDestroyView();
         mAdapter = null;
+        mBinding = null;
     }
 }
