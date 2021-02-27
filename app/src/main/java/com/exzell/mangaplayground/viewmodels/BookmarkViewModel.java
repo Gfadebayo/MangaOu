@@ -2,32 +2,24 @@ package com.exzell.mangaplayground.viewmodels;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.UpdateService;
 import com.exzell.mangaplayground.io.Repository;
 import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Manga;
+import com.exzell.mangaplayground.utils.DateUtilsKt;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-
-import com.exzell.mangaplayground.utils.DateUtilsKt;
 
 public class BookmarkViewModel extends AndroidViewModel {
 
@@ -58,7 +50,7 @@ public class BookmarkViewModel extends AndroidViewModel {
         else if(day < 30){
             return day + " " + mContext.getString(R.string.days_ago);
         }else{
-            Calendar todayExact = DateUtilsKt.resetCalendar(Calendar.getInstance(), null);
+            Calendar todayExact = DateUtilsKt.reset(Calendar.getInstance(), null);
             todayExact.add(Calendar.DAY_OF_MONTH, day * -1);
 
             return SimpleDateFormat.getDateInstance().format(todayExact.getTime());

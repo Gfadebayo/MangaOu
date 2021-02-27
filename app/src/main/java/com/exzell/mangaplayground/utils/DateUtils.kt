@@ -1,10 +1,10 @@
 package com.exzell.mangaplayground.utils
 
-import java.text.SimpleDateFormat
 import java.util.*
 
-fun Calendar.resetCalendar(millis: Long? = null): Calendar{
-    millis?.let { setTimeInMillis(it)}
+/** Turns the calendar back to 00:00 */
+fun Calendar.reset(millis: Long? = null): Calendar {
+    millis?.let { setTimeInMillis(it) }
     set(Calendar.MINUTE, 0)
     set(Calendar.HOUR_OF_DAY, 0)
     set(Calendar.SECOND, 0)

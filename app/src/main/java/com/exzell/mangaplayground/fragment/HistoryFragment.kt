@@ -17,9 +17,8 @@ import com.exzell.mangaplayground.adapters.HistoryAdapter
 import com.exzell.mangaplayground.adapters.TitleAdapter
 import com.exzell.mangaplayground.databinding.GenericLoadingRecyclerViewBinding
 import com.exzell.mangaplayground.reader.ReadActivity
-import com.exzell.mangaplayground.utils.resetCalendar
+import com.exzell.mangaplayground.utils.reset
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel
-import timber.log.Timber
 import java.util.*
 
 class HistoryFragment : Fragment() {
@@ -53,30 +52,20 @@ class HistoryFragment : Fragment() {
 
         Thread {
 
-            val times = timestamps.map { Calendar.getInstance().resetCalendar(it).timeInMillis }.distinct()
-            //To be used to remove mangas that have already been added to the adapter
-            val foundMangas = arrayListOf<Long>()
-            val today = Calendar.getInstance().resetCalendar().timeInMillis
-            val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
+            val times = timestamps.map { Calendar.getInstance().reset(it).timeInMillis }.distinct()
 
-            //Trim the Concat Adapter of unneeded adapters
-            requireActivity().runOnUiThread {
-                if (times.size < titleAdapters.size) {
-                    Timber.d("Trimming adapter")
-                    val diff = titleAdapters.size - times.size
-                    for (i in 0 until diff) {
-                        val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
-                        adapter!!.removeAdapter(titleAdapter)
-                        adapter.removeAdapter(titleAdapter.bodyAdapter)
-                    }
-                }
+            //resetting the mangas time with the calendar extension should also work
+            val historyMangas = mViewModel!!.getHistoryManga(times.minOrNull()!!).groupBy {
+                times.find { time -> it.lastReadTime >= time }
             }
 
-            Timber.d("Number of time is $times")
-            times.forEach { time: Long ->
-                val day = Calendar.getInstance().resetCalendar(time).timeInMillis
+            val today = Calendar.getInstance().reset().timeInMillis
+            val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
 
-                val historyManga = mViewModel!!.getHistoryManga(time).filter { !foundMangas.contains(it.id) }
+            historyMangas.keys.forEach { time ->
+                val day = Calendar.getInstance().reset(time!!).timeInMillis
+
+                val historyManga = historyMangas.getOrDefault(time, emptyList())
 
                 if (historyManga.isNotEmpty()) {
                     val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
@@ -106,10 +95,20 @@ class HistoryFragment : Fragment() {
                                 }
                             }
                         }
-                        Timber.d("History mangas found are $historyManga")
-                        foundMangas.addAll(historyManga.map { it.id })
+                }
+            }
+
+            //Trim the Concat Adapter of unneeded adapters
+            requireActivity().runOnUiThread {
+                if (times.size < titleAdapters.size) {
+                    val diff = titleAdapters.size - times.size
+                    for (i in 0 until diff) {
+                        val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
+                        adapter!!.removeAdapter(titleAdapter)
+                        adapter.removeAdapter(titleAdapter.bodyAdapter)
                     }
                 }
+            }
         }.start()
     }
 
