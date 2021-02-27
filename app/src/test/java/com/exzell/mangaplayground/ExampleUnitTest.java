@@ -4,20 +4,12 @@ import com.exzell.mangaplayground.utils.DateUtilsKt;
 
 import org.junit.Test;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.junit.Assert.*;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -33,7 +25,7 @@ public class ExampleUnitTest {
     @Test
     public void testDateFormat(){
 
-        Calendar todayExact = DateUtilsKt.resetCalendar(Calendar.getInstance(), null);
+        Calendar todayExact = DateUtilsKt.reset(Calendar.getInstance(), null);
         System.out.printf("The date is %s \n", todayExact.getTime().toString());
 
         todayExact.add(Calendar.DAY_OF_MONTH, -4);
