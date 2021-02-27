@@ -6,23 +6,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewPropertyAnimator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.MenuRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.exzell.mangaplayground.customview.BottomCab;
 import com.exzell.mangaplayground.R;
+import com.exzell.mangaplayground.customview.BottomCab;
 import com.exzell.mangaplayground.fragment.base.DisposableFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -137,7 +133,7 @@ public abstract class SelectionFragment extends DisposableFragment {
         @Override
         public ItemDetails getItemDetails(@NonNull MotionEvent e) {
             View pointer = mRv.findChildViewUnder(e.getX(), e.getY());
-            RecyclerView.ViewHolder holder = mRv.findContainingViewHolder(pointer);
+            RecyclerView.ViewHolder holder = pointer != null ? mRv.findContainingViewHolder(pointer) : null;
 
             /*if(holder instanceof TitleAdapter.BodyViewHolder){
                 View bodyView = ((TitleAdapter.BodyViewHolder) holder).mRecyclerView.findChildViewUnder(e.getX(), e.getY());
