@@ -12,14 +12,10 @@
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_nav_home_to_frag_manga"
-            app:destination="@id/frag_manga"
-            app:popEnterAnim="@anim/fragment_fade_enter"
-            app:popExitAnim="@anim/fragment_close_exit" />
+            app:destination="@id/frag_manga" />
         <action
             android:id="@+id/action_nav_home_to_nav_empty"
-            app:destination="@id/nav_empty"
-            app:popEnterAnim="@anim/fragment_fade_enter"
-            app:popExitAnim="@anim/fragment_fade_exit" />
+            app:destination="@id/nav_empty" />
         <action
             android:id="@+id/action_nav_home_to_nav_history"
             app:destination="@id/nav_history" />
@@ -48,9 +44,7 @@
         tools:layout="@layout/fragment_bookmark" >
         <action
             android:id="@+id/action_nav_history_to_frag_manga"
-            app:destination="@id/frag_manga"
-            app:popEnterAnim="@anim/fragment_fade_enter"
-            app:popExitAnim="@anim/fragment_close_exit" />
+            app:destination="@id/frag_manga" />
     </fragment>
 
     <fragment
