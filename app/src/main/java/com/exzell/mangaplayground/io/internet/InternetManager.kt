@@ -4,7 +4,8 @@ import android.content.Context
 import com.exzell.mangaplayground.BuildConfig
 import dagger.Module
 import dagger.Provides
-import okhttp3.*
+import okhttp3.Cache
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import java.util.concurrent.TimeUnit
@@ -16,29 +17,23 @@ object InternetManager {
     const val mBaseUrl = "https://mangapark.net/"
 
     @JvmField
-    val mClient = createClient(false, null)
+    val mClient: OkHttpClient = OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true).build()
 
     @JvmStatic
     @Singleton
     @Provides
     fun getApi(context: Context): Retrofit{
 
-        val client = createClient(true, context)
+        val client = mClient.newBuilder().cache(createCache(context)).build()
 
         return Retrofit.Builder()
                 .baseUrl(mBaseUrl)
                 .client(client)
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
                 .build()
-    }
-
-    private fun createClient(withCache: Boolean, context: Context?): OkHttpClient{
-        return OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.MINUTES)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .cache(if(withCache) createCache(context!!) else null)
-                .retryOnConnectionFailure(true).build()
-
     }
 
     private fun createCache(context: Context): Cache {
