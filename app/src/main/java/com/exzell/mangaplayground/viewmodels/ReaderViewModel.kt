@@ -63,7 +63,7 @@ class ReaderViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun getMangaWithChapterId(id: Long): DBManga{
-        return mRepo.getMangaForChapter(id)
+        return mRepo.getMangaForChapter(id)!!
     }
 
     fun updateManga(manga: Manga){
