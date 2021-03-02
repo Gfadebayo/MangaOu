@@ -87,20 +87,20 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         setSwipeRefreshView(mBinding.swipeRefresh, mBinding.recyclerHome);
     }
 
-    private BiConsumer<List<? extends Manga>, Integer> consumer() {
+    private BiConsumer<List<Manga>, Integer> consumer() {
 
         return (manga, which) -> {
-            List<? extends RecyclerView.Adapter<? extends RecyclerView.ViewHolder>> adapters = ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters();
+            if (isAdded()) {
+                List<? extends RecyclerView.Adapter<? extends RecyclerView.ViewHolder>> adapters = ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters();
 
-            if (isAdded())
-                requireActivity().runOnUiThread(() -> {
-                    MangaListAdapter adapter = (MangaListAdapter) ((RecyclerViewAdapter) adapters.get(which)).getMViewAdapter();
 
-                    adapter.submitList(null);
-                    adapter.submitList(new ArrayList<>(manga));
+                MangaListAdapter adapter = (MangaListAdapter) ((RecyclerViewAdapter) adapters.get(which)).getMViewAdapter();
 
-                    ((RecyclerViewAdapter) adapters.get(which)).hideProgressBar(true);
-                });
+                adapter.submitList(null);
+                adapter.submitList(new ArrayList<>(manga));
+
+                ((RecyclerViewAdapter) adapters.get(which)).hideProgressBar(true);
+            }
         };
     }
 
@@ -124,9 +124,9 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
     @Override
     public void onRefresh() {
 
-        BiConsumer<List<? extends Manga>, Integer> consumer = consumer();
+        BiConsumer<List<Manga>, Integer> consumer = consumer();
         mViewModel.parseHome(consumer, 1, 3);
-        mViewModel.queryDb(consumer, 5, 7, this);
+        mViewModel.queryDb(consumer, 5, 7);
 
         mBinding.swipeRefresh.setRefreshing(false);
     }

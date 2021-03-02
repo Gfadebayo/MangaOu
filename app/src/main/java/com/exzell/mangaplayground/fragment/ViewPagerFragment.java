@@ -12,28 +12,28 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.UpdateService;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
+import com.exzell.mangaplayground.databinding.SwiperefreshLoadingRecyclerViewBinding;
 import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel;
 
 import java.util.ArrayList;
-
-import timber.log.Timber;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class ViewPagerFragment extends SelectionFragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String BUNDLE_KEY = "for which";
     private boolean forBookmark;
 
     private BookmarkViewModel mViewModel;
-    private RecyclerView mRecyclerView;
+    private SwiperefreshLoadingRecyclerViewBinding mBinding;
 
     public static ViewPagerFragment getInstance(int which){
         Bundle b = new Bundle(1);
@@ -62,32 +62,32 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.swiperefresh_loading_recycler_view, container, false);
+        mBinding = SwiperefreshLoadingRecyclerViewBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.progress_load).setVisibility(View.GONE);
-        mRecyclerView = view.findViewById(R.id.recycler_load);
+        mBinding.progressLoad.setVisibility(View.GONE);
 
         GridLayoutManager manager = new GridLayoutManager(requireActivity(), 3);
-        mRecyclerView.setLayoutManager(manager);
+        mBinding.recyclerLoad.setLayoutManager(manager);
 
         MangaListAdapter adapter = new MangaListAdapter(requireActivity(), new ArrayList<>(), R.layout.list_manga_home);
-        mRecyclerView.setAdapter(adapter);
+        mBinding.recyclerLoad.setAdapter(adapter);
 
-        Timber.i("View Created reached");
-        mViewModel.getBookmarks(forBookmark).observe(getViewLifecycleOwner(), dbMangas -> {
-            Timber.i("Mangas finally gotten");
-            adapter.submitList(new ArrayList<>(dbMangas));
-        });
+        mViewModel.getBookmarks(forBookmark, consume(adapter));
 
-        createTracker(mRecyclerView);
+        createTracker(mBinding.recyclerLoad);
         adapter.setTracker(getTracker());
 
-        ((SwipeRefreshLayout) view.findViewById(R.id.load_refresh)).setOnRefreshListener(this);
-        setSwipeRefreshView(view.findViewById(R.id.load_refresh), mRecyclerView);
+        mBinding.loadRefresh.setOnRefreshListener(this);
+        setSwipeRefreshView(mBinding.loadRefresh, mBinding.recyclerLoad);
+    }
+
+    private Consumer<List<DBManga>> consume(MangaListAdapter adapter) {
+        return dbMangas -> adapter.submitList(new ArrayList<>(dbMangas));
     }
 
     @Override
@@ -95,9 +95,9 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         ArrayList<DBManga> mangas = new ArrayList<>(getTracker().getSelection().size());
 
         getTracker().getSelection().forEach(c -> {
-            MangaListAdapter.ViewHolder viewHolder = (MangaListAdapter.ViewHolder) mRecyclerView.findViewHolderForItemId(c);
+            MangaListAdapter.ViewHolder viewHolder = (MangaListAdapter.ViewHolder) mBinding.recyclerLoad.findViewHolderForItemId(c);
 
-            mangas.add((DBManga) ((MangaListAdapter) mRecyclerView.getAdapter())
+            mangas.add((DBManga) ((MangaListAdapter) mBinding.recyclerLoad.getAdapter())
                     .getCurrentList().get(viewHolder.getBindingAdapterPosition()));
         });
 
@@ -127,8 +127,8 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ((SwipeRefreshLayout) getView().findViewById(R.id.load_refresh)).setOnRefreshListener(null);
-        mRecyclerView.setAdapter(null);
-        mRecyclerView = null;
+        mBinding.loadRefresh.setOnRefreshListener(null);
+        mBinding.recyclerLoad.setAdapter(null);
+        mBinding = null;
     }
 }
