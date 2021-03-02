@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.customview.BottomCab;
 import com.exzell.mangaplayground.fragment.base.DisposableFragment;
-import com.google.android.material.appbar.MaterialToolbar;
 
 public abstract class SelectionFragment extends DisposableFragment {
     public static final String SELECTION_ID = "selection view";
@@ -30,13 +29,12 @@ public abstract class SelectionFragment extends DisposableFragment {
     private ActionMode.Callback mActionCallback;
 
     private int mMenuRes;
-    private MaterialToolbar mToolbar;
 
     @Override
     @CallSuper
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onActivityCreated(@org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         mCab = requireActivity().findViewById(R.id.bottom_cab);
-        mToolbar = requireActivity().findViewById(R.id.toolbar);
     }
 
     protected void createTracker(RecyclerView recyclerView){
@@ -121,7 +119,6 @@ public abstract class SelectionFragment extends DisposableFragment {
         mTracker = null;
         if(mActionMode != null) mActionMode.finish();
         mCab = null;
-        mToolbar = null;
     }
 
     public class DetailsLookup extends ItemDetailsLookup{
