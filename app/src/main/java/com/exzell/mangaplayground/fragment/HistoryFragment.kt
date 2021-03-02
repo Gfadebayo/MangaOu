@@ -16,6 +16,7 @@ import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.adapters.HistoryAdapter
 import com.exzell.mangaplayground.adapters.TitleAdapter
 import com.exzell.mangaplayground.databinding.GenericLoadingRecyclerViewBinding
+import com.exzell.mangaplayground.io.database.DBManga
 import com.exzell.mangaplayground.reader.ReadActivity
 import com.exzell.mangaplayground.utils.reset
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel
@@ -27,7 +28,6 @@ class HistoryFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        retainInstance = true
         mViewModel = ViewModelProvider(this, AndroidViewModelFactory(requireActivity().application)).get(BookmarkViewModel::class.java)
         (requireActivity().application as MangaApplication).mAppComponent.injectRepo(mViewModel!!)
     }
@@ -41,29 +41,23 @@ class HistoryFragment : Fragment() {
         mBinding!!.progressLoad.visibility = View.GONE
         mBinding!!.recyclerLoad.adapter = ConcatAdapter()
 
-        mViewModel!!.times.observe(viewLifecycleOwner, {setHistory(it!!, mBinding!!.recyclerLoad.adapter as ConcatAdapter?)})
+        mViewModel!!.getTimes {
+            setHistory(it, mBinding!!.recyclerLoad.adapter as ConcatAdapter)
+        }
     }
 
-    private fun setHistory(timestamps: List<Long>, adapter: ConcatAdapter?) {
+    private fun setHistory(historyMangas: Map<Long, List<DBManga>>, adapter: ConcatAdapter) {
+        requireActivity().runOnUiThread {
 
-        val titleAdapters: List<TitleAdapter> = adapter?.let {
-            adapter.adapters.filterIsInstance<TitleAdapter>()
-        } ?: emptyList()
-
-        Thread {
-
-            val times = timestamps.map { Calendar.getInstance().reset(it).timeInMillis }.distinct()
-
-            //resetting the mangas time with the calendar extension should also work
-            val historyMangas = mViewModel!!.getHistoryManga(times.minOrNull()!!).groupBy {
-                times.find { time -> it.lastReadTime >= time }
+            val titleAdapters: List<TitleAdapter> = adapter.let {
+                adapter.adapters.filterIsInstance<TitleAdapter>()
             }
 
             val today = Calendar.getInstance().reset().timeInMillis
             val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
 
             historyMangas.keys.forEach { time ->
-                val day = Calendar.getInstance().reset(time!!).timeInMillis
+                val day = Calendar.getInstance().reset(time).timeInMillis
 
                 val historyManga = historyMangas.getOrDefault(time, emptyList())
 
@@ -75,17 +69,17 @@ class HistoryFragment : Fragment() {
                     if (isAdded)
                         requireActivity().runOnUiThread {
                             //Its possible the concat adapter already has the adapters so we should just update them
-                            val index = times.indexOf(time)
+                            val index = historyMangas.keys.indexOf(time)
 
-                            with(adapter!!) {
-                                if(index < titleAdapters.size){
-                                        titleAdapters[index].apply {
-                                            title = dayTitle
-                                            (bodyAdapter as HistoryAdapter).apply {
-                                                mangas = historyManga
-                                            }
+                            with(adapter) {
+                                if (index < titleAdapters.size) {
+                                    titleAdapters[index].apply {
+                                        title = dayTitle
+                                        (bodyAdapter as HistoryAdapter).apply {
+                                            mangas = historyManga
                                         }
-                                }else {
+                                    }
+                                } else {
                                     val hAdapter = HistoryAdapter(requireActivity(), historyManga)
                                     val tAdapter = TitleAdapter(requireActivity(), dayTitle, hAdapter)
                                     hAdapter.setOnClickListener(onBodyClicked())
@@ -99,17 +93,15 @@ class HistoryFragment : Fragment() {
             }
 
             //Trim the Concat Adapter of unneeded adapters
-            requireActivity().runOnUiThread {
-                if (times.size < titleAdapters.size) {
-                    val diff = titleAdapters.size - times.size
-                    for (i in 0 until diff) {
-                        val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
-                        adapter!!.removeAdapter(titleAdapter)
-                        adapter.removeAdapter(titleAdapter.bodyAdapter)
-                    }
+            if (historyMangas.size < titleAdapters.size) {
+                val diff = titleAdapters.size - historyMangas.size
+                for (i in 0 until diff) {
+                    val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
+                    adapter.removeAdapter(titleAdapter)
+                    adapter.removeAdapter(titleAdapter.bodyAdapter)
                 }
             }
-        }.start()
+        }
     }
 
     private fun onButtonClicked(): View.OnClickListener {
