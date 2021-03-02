@@ -78,7 +78,7 @@ public class ChapterUtils {
 
             String chapterNumber = allLinks.get(i).text();
             chap.setNumber(chapterNumber);
-            chap.setReleaseDate(DateUtils.translateTime(allTime[i]));
+            chap.setReleaseDate(DateUtilsKt.translateTime(allTime[i]));
             chap.setLink(allLinks.get(i).attr("href"));
             chap.setNewChap(newChapNum.contains(chapterNumber));
 

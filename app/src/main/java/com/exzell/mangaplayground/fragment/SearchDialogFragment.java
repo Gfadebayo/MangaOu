@@ -6,7 +6,6 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -14,13 +13,13 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ConcatAdapter;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.TitleAdapter;
 import com.exzell.mangaplayground.adapters.ViewMultiplierAdapter;
 import com.exzell.mangaplayground.advancedsearch.Genre;
 import com.exzell.mangaplayground.advancedsearch.Type;
+import com.exzell.mangaplayground.databinding.DialogSearchBinding;
 import com.exzell.mangaplayground.viewmodels.SearchViewModel;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
@@ -37,9 +36,9 @@ import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 public class SearchDialogFragment extends BottomSheetDialogFragment {
 
     private SearchViewModel mViewModel;
-    private RecyclerView mRecyclerView;
     private ConcatAdapter mAdapter;
     private OnSearchClickedListener mListener;
+    private DialogSearchBinding mBinding;
 
     public static SearchDialogFragment getInstance(){return new SearchDialogFragment();}
 
@@ -55,7 +54,8 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.dialog_search, container, false);
+        mBinding = DialogSearchBinding.inflate(inflater);
+        return mBinding.getRoot();
     }
 
     @Override
@@ -65,8 +65,6 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
         String[] names = {"Status", "Type", "Genre"};
 
         setDefaultValues(view);
-
-        mRecyclerView = view.findViewById(R.id.recycler_search);
 
         Arrays.stream(names).forEach(s -> {
             ViewMultiplierAdapter multiAdapter = createMultiAdapter(s);
@@ -79,34 +77,33 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
             else mAdapter.addAdapter(ta);
         });
 
-        mRecyclerView.setAdapter(mAdapter);
+        mBinding.recyclerSearch.setAdapter(mAdapter);
 
 
-        view.findViewById(R.id.button_search).setOnClickListener(v -> {
+        mBinding.buttonSearch.setOnClickListener(v -> {
             mListener.onSearchClicked();
             dismiss();
         });
 
-        view.findViewById(R.id.button_reset).setOnClickListener(v -> {
+        mBinding.buttonReset.setOnClickListener(v -> {
             mViewModel.resetValues();
-            mListener.onSearchClicked();
-            dismiss();
+//            mListener.onSearchClicked();
+//            dismiss();
         });
     }
 
     private View.OnClickListener onHeaderClicked(TitleAdapter adapter){
         return v -> {
+            boolean select = false;
             if(mAdapter.getAdapters().contains(adapter.getBodyAdapter())){
                 mAdapter.removeAdapter(adapter.getBodyAdapter());
             }else {
                 int index = mAdapter.getAdapters().indexOf(adapter);
                 mAdapter.addAdapter(index+1, adapter.getBodyAdapter());
+                select = true;
             }
 
-
-            ViewPropertyAnimator animate = v.findViewById(R.id.button_header).animate();
-            animate.cancel();
-            animate.rotationBy(180f).start();
+            v.findViewById(R.id.button_header).setSelected(select);
         };
     }
 
@@ -144,28 +141,28 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
 
     private void setDefaultValues(View root){
 
-        EditText editTitle = root.findViewById(R.id.edit_search_title);
+        EditText editTitle = mBinding.searchViews.editSearchTitle;
         editTitle.setText(mViewModel.getName(false));
         editTitle.addTextChangedListener(setTextChangeListener(editTitle));
 
-        EditText editAuthor = root.findViewById(R.id.edit_search_auth);
+        EditText editAuthor = mBinding.searchViews.editSearchAuth;
         editAuthor.setText(mViewModel.getName(true));
         editAuthor.addTextChangedListener(setTextChangeListener(editAuthor));
 
 
-        PowerSpinnerView containAuthSpinner = root.findViewById(R.id.spin_auth_contain);
+        PowerSpinnerView containAuthSpinner = mBinding.searchViews.spinAuthContain.getRoot();
         containAuthSpinner.setItems(R.array.contain_values);
         containAuthSpinner.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>)
                 (i, s) -> mViewModel.setContainValue(true, s.toLowerCase()));
 
 
-        PowerSpinnerView containTitleSpinner = root.findViewById(R.id.spin_title_contain);
+        PowerSpinnerView containTitleSpinner = mBinding.searchViews.spinTitleContain.getRoot();
         containTitleSpinner.setItems(R.array.contain_values);
         containTitleSpinner.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>)
                 (i, s) -> mViewModel.setContainValue(false, s.toLowerCase()));
 
 
-        PowerSpinnerView relSpinner = root.findViewById(R.id.spin_release);
+        PowerSpinnerView relSpinner = mBinding.searchViews.spinRelease.getRoot();
         relSpinner.setSpinnerOutsideTouchListener((v, m) -> relSpinner.dismiss());
         relSpinner.setItems(SearchViewModel.releaseData);
         if(mViewModel.getRelease() != -1) relSpinner.selectItemByIndex(SearchViewModel.releaseData.indexOf(String.valueOf(mViewModel.getRelease())));
@@ -173,7 +170,7 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
                 -> mViewModel.setRelease(Integer.parseInt(integer)));
 
 
-        PowerSpinnerView chapSpinner = root.findViewById(R.id.spin_chapter);
+        PowerSpinnerView chapSpinner = mBinding.searchViews.spinChapter.getRoot();
         chapSpinner.setItems(R.array.chapter_values);
         chapSpinner.setSpinnerOutsideTouchListener(((v, m) -> chapSpinner.dismiss()));
         if(mViewModel.getChapters() != -1) chapSpinner.selectItemByIndex(SearchViewModel.chapterData.indexOf(mViewModel.getChapters()));
@@ -183,7 +180,7 @@ public class SearchDialogFragment extends BottomSheetDialogFragment {
         });
 
 
-        MaterialRatingBar bar = root.findViewById(R.id.rating_rating);
+        MaterialRatingBar bar = mBinding.searchViews.ratingRating;
         bar.setRating(mViewModel.getRating());
         bar.setOnRatingChangeListener((ratingBar, rating) -> mViewModel.setRating((int) rating));
     }

@@ -4,11 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -25,17 +23,13 @@ import com.exzell.mangaplayground.adapters.RecyclerViewAdapter;
 import com.exzell.mangaplayground.adapters.TitleAdapter;
 import com.exzell.mangaplayground.databinding.FragmentHomeBinding;
 import com.exzell.mangaplayground.fragment.base.DisposableFragment;
-import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.viewmodels.HomeViewModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-
-import timber.log.Timber;
 
 public class HomeFragment extends DisposableFragment implements SwipeRefreshLayout.OnRefreshListener {
 
@@ -90,22 +84,23 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         onRefresh();
 
         mBinding.swipeRefresh.setOnRefreshListener(this);
-        setSwipeRefreshView(mBinding.swipeRefresh);
+        setSwipeRefreshView(mBinding.swipeRefresh, mBinding.recyclerHome);
     }
 
-    private BiConsumer<List<? extends Manga>, Integer> consumer() {
+    private BiConsumer<List<Manga>, Integer> consumer() {
 
         return (manga, which) -> {
-            List<? extends RecyclerView.Adapter<? extends RecyclerView.ViewHolder>> adapters = ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters();
+            if (isAdded()) {
+                List<? extends RecyclerView.Adapter<? extends RecyclerView.ViewHolder>> adapters = ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters();
 
-            requireActivity().runOnUiThread(() -> {
+
                 MangaListAdapter adapter = (MangaListAdapter) ((RecyclerViewAdapter) adapters.get(which)).getMViewAdapter();
 
                 adapter.submitList(null);
                 adapter.submitList(new ArrayList<>(manga));
 
                 ((RecyclerViewAdapter) adapters.get(which)).hideProgressBar(true);
-            });
+            }
         };
     }
 
@@ -120,7 +115,7 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
 
             Bundle linkBund = new Bundle(2);
 
-            linkBund.putString(EmptyFragment.TAG, link);
+            linkBund.putString(EmptyFragment.LINK, link);
             linkBund.putString(EmptyFragment.TITLE, title);
             control.navigate(R.id.action_nav_home_to_nav_empty, linkBund);
         }
@@ -129,16 +124,17 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
     @Override
     public void onRefresh() {
 
-        BiConsumer<List<? extends Manga>, Integer> consumer = consumer();
+        BiConsumer<List<Manga>, Integer> consumer = consumer();
         mViewModel.parseHome(consumer, 1, 3);
-        mViewModel.queryDb(consumer, 5, 7, this);
+        mViewModel.queryDb(consumer, 5, 7);
 
-        ((SwipeRefreshLayout) getView().findViewById(R.id.swipe_refresh)).setRefreshing(false);
+        mBinding.swipeRefresh.setRefreshing(false);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         mBinding.swipeRefresh.setOnRefreshListener(null);
+        mBinding = null;
     }
 }

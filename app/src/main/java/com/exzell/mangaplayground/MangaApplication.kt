@@ -25,8 +25,8 @@ class MangaApplication: Application() {
 
         createChannels(this)
 
-//        AppWatcher.config = AppWatcher.config.copy(enabled = false)
-//        LeakCanary.config = LeakCanary.config.copy(dumpHeap = false)
-//        LeakCanary.showLeakDisplayActivityLauncherIcon(false)
+        AppWatcher.config = AppWatcher.config.copy(enabled = false)
+        LeakCanary.config = LeakCanary.config.copy(dumpHeap = false)
+        LeakCanary.showLeakDisplayActivityLauncherIcon(false)
     }
 }

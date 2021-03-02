@@ -2,24 +2,19 @@ package com.exzell.mangaplayground.reader
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.exzell.mangaplayground.GlideApp
-import com.exzell.mangaplayground.GlideAppModule
-import com.exzell.mangaplayground.customview.ImageViewTarget
 import com.exzell.mangaplayground.R
+import com.exzell.mangaplayground.customview.ImageViewTarget
+import com.exzell.mangaplayground.databinding.ReaderDisplayBinding
 import com.exzell.mangaplayground.fragment.base.DisposableFragment
 import com.exzell.mangaplayground.utils.ChapterUtils
 import com.exzell.mangaplayground.viewmodels.ReaderViewModel
-import io.reactivex.rxjava3.functions.Consumer
-import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import java.io.File
 
@@ -57,6 +52,8 @@ class ReaderFragment : DisposableFragment() {
 
     private val mTarget: ImageViewTarget by lazy { ImageViewTarget(view!!.findViewById(R.id.image_pager), view!!.findViewById(R.id.text_pager), view!!.findViewById(R.id.progress_pager)) }
 
+    private lateinit var mBinding: ReaderDisplayBinding
+
     private val mViewModel: ReaderViewModel by lazy {
         ViewModelProvider(requireActivity(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)).get(ReaderViewModel::class.java)
@@ -71,17 +68,21 @@ class ReaderFragment : DisposableFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.reader_display, container, false)
+        mBinding = ReaderDisplayBinding.inflate(inflater)
+        return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.findViewById<View>(R.id.text_pager).setOnClickListener {
+
+        mBinding.textPager.setOnClickListener {
             Toast.makeText(context, "Loading Image Failed", Toast.LENGTH_SHORT).show()
-                view.findViewById<View>(R.id.progress_pager).visibility = View.VISIBLE
-                view.findViewById<View>(R.id.text_pager).visibility = View.GONE
+            mBinding.progressPager.visibility = View.VISIBLE
+            mBinding.textPager.visibility = View.GONE
+
+            mBinding.root.requestDisallowInterceptTouchEvent(false)
 
             //Its possible the connection broke during the actual image loading, not when fetching the html
-            if(mImageLink.isEmpty()) addDisposable(mViewModel.getImageLink(mImagePageLink, {onNext(it)}, {onError()}))
+            if (mImageLink.isEmpty()) addDisposable(mViewModel.getImageLink(mImagePageLink, { onNext(it) }, { onError() }))
             else displayImage(mImageLink)
         }
 
@@ -90,19 +91,22 @@ class ReaderFragment : DisposableFragment() {
     }
 
     private fun onNext(link: String) {
-        Thread{
+        Thread {
             mImageLink = ChapterUtils.fetchDownloadLink(Jsoup.parse(link))
-            mViewModel.getImageBytes(mImageLink, {displayImage(it)}, {onError()})
+            mViewModel.getImageBytes(mImageLink, { displayImage(it) }, { onError() })
         }.start()
     }
 
-    private fun onError(){
-        if(!isAdded) return
+    private fun onError() {
+        if (!isAdded) return
 
-        requireActivity().runOnUiThread{
+        requireActivity().runOnUiThread {
             Toast.makeText(context, "Loading Image Failed", Toast.LENGTH_SHORT).show()
-            view!!.findViewById<View>(R.id.progress_pager).visibility = View.GONE
-            view!!.findViewById<View>(R.id.text_pager).visibility = View.VISIBLE
+            mBinding.progressPager.visibility = View.GONE
+            mBinding.textPager.visibility = View.VISIBLE
+
+            //Use this to block the pager gesture detector from triggering
+//            mBinding.root.requestDisallowInterceptTouchEvent(true)
         }
     }
 
@@ -112,7 +116,7 @@ class ReaderFragment : DisposableFragment() {
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .skipMemoryCache(false)
                 .into(mTarget)
-                .request!!.apply { if(!isRunning) begin()}
+                .request!!.apply { if (!isRunning) begin() }
     }
 
     private fun assertFileExists(): Boolean {

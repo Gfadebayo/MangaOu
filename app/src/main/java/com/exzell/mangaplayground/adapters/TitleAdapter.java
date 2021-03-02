@@ -30,11 +30,21 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
     private View.OnClickListener mParentListener = null;
     private int mDrawableRes;
 
-    public TitleAdapter(Context context, String titles, RecyclerView.Adapter<? extends RecyclerView.ViewHolder> bodyAdapter){
+    public TitleAdapter(Context context, String title, RecyclerView.Adapter<? extends RecyclerView.ViewHolder> bodyAdapter){
         mContext = context;
-        this.mTitle = titles;
+        this.mTitle = title;
         mBodyAdapter = bodyAdapter;
         setHasStableIds(true);
+    }
+
+    public void setTitle(String title){
+        if(title.equals(mTitle)) return;
+        mTitle = title;
+        notifyItemChanged(0);
+    }
+
+    public String getTitle(){
+        return mTitle;
     }
 
     @NonNull

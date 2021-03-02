@@ -1,42 +1,63 @@
 package com.exzell.mangaplayground.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.Request;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.io.database.DBManga;
-import com.exzell.mangaplayground.reader.ReadActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
-public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
+public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHolder> {
 
     private final Context mContext;
-    private List<DBManga> mMangas;
 
     private View.OnClickListener mResumeClicked;
     private View.OnClickListener mDeleteClicked;
+    private View.OnClickListener mClickListener;
+
+    private static final DiffUtil.ItemCallback<DBManga> CALLBACK = new DiffUtil.ItemCallback<DBManga>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull DBManga oldItem, @NonNull DBManga newItem) {
+            return oldItem.getLastChapter().getId() == newItem.getLastChapter().getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull DBManga oldItem, @NonNull DBManga newItem) {
+            return oldItem.getLastChapter().equals(newItem.getLastChapter());
+        }
+    };
 
     public HistoryAdapter(Context context, List<DBManga> mangas) {
+        super(CALLBACK);
         mContext = context;
-        mMangas = mangas;
+        submitList(mangas);
+    }
+
+    public void setMangas(List<DBManga> mangas){
+        submitList(mangas);
+    }
+
+    public void setOnClickListener(@NotNull View.OnClickListener listener) {
+        mClickListener = listener;
     }
 
     public void setOnButtonsClickedListener(View.OnClickListener onResume, View.OnClickListener onDelete){
         mResumeClicked = onResume;
-
         mDeleteClicked = onDelete;
     }
 
@@ -49,7 +70,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        DBManga man = mMangas.get(position);
+        DBManga man = getCurrentList().get(position);
 
         holder.mTitle.setText(man.getTitle());
         holder.mChapter.setText(man.getLastChapter().getTitle());
@@ -60,11 +81,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mMangas.size();
+        return getCurrentList().size();
     }
 
     public List<DBManga> getMangas() {
-        return mMangas;
+        return getCurrentList();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
@@ -82,6 +103,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             mChapter = itemView.findViewById(R.id.text_chapter_history);
             mResume = itemView.findViewById(R.id.button_resume);
             mDelete = itemView.findViewById(R.id.button_delete);
+
+            itemView.setOnClickListener(mClickListener);
 
             mResume.setOnClickListener(mResumeClicked);
 

@@ -19,8 +19,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.exzell.mangaplayground.databinding.ActivityDrawerBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.appbar.MaterialToolbar;
+
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Arrays;
@@ -31,7 +30,6 @@ import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
-    private float mAppbarElevation = 0;
     private ActivityDrawerBinding mBinding;
 
     @Override
@@ -73,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
     private void setLayoutBehaviour(NavController controller){
 
         controller.addOnDestinationChangedListener((control, dest, args) -> {
-
-            mBinding.activity.toolbarLayout.setY(0);
+            mBinding.activity.toolbarLayout.setExpanded(true, false);
 
             if(dest.getId() == R.id.frag_manga){
                 mBinding.activity.toolbar.setTitle(null);
+                mBinding.activity.toolbarLayout.setBackground(null);
             }else{
                 int color = getResources().getColor(R.color.primary, null);
                 mBinding.activity.toolbarLayout.setBackgroundColor(color);
@@ -113,6 +111,11 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (Arrays.asList(permissions).isEmpty()) return;
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onLowMemory() {
+        Timber.d("Warning!! Low memory");
     }
 }
 
