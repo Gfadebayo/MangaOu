@@ -6,7 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.io.database.DBManga
+import com.exzell.mangaplayground.io.database.createManga
 import com.exzell.mangaplayground.models.Chapter
+import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.utils.reset
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -23,16 +25,22 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
     @Inject
     var mRepo: Repository? = null
     private val mContext = application.applicationContext
+    private val mMangas = mutableListOf<DBManga>()
+
 
     /**
      * Bookmarks gives either the bookmarked(true) mangas or downloaded(false) mangas.
      */
-    fun getBookmarks(forBookmarks: Boolean, consumer: Consumer<List<DBManga>>) {
+    fun getBookmarks(forBookmarks: Boolean, consumer: Consumer<List<Manga>>) {
         viewModelScope.launch {
 
             withContext(Dispatchers.IO) {
-                if (forBookmarks) mRepo!!.getBookmarkedManga()
-                else mRepo!!.getDownloadedMangas()
+                if (forBookmarks) mRepo!!.getBookmarkedManga().map {
+                    it.map { info -> info.createManga() }
+                }
+                else mRepo!!.getDownloadedMangas().map {
+                    it.map { info -> info.createManga() }
+                }
             }.collect {
                 consumer.accept(it)
             }
@@ -47,7 +55,7 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
                     val times = timestamps.map { Calendar.getInstance().reset(it).timeInMillis }.distinct()
 
                     //resetting the mangas time with the calendar extension should also work
-                    getHistoryManga(times.minOrNull()!!).groupBy {
+                    mRepo!!.lastReadMangas(times.minOrNull()!!).map { it.createManga() }.groupBy {
 //                            times.find { time -> it.lastReadTime >= time }!!
                         Calendar.getInstance().reset(it.lastReadTime).timeInMillis
                     }
@@ -58,27 +66,22 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun getDayTitle(day: Int): String =
-            when {
-                day == 0 -> mContext.getString(R.string.today)
-                day == 1 -> mContext.getString(R.string.yesterday)
-                day < 30 -> {
-                    day.toString() + " " + mContext.getString(R.string.days_ago)
-                }
-                else -> {
-                    val todayExact = Calendar.getInstance().reset(null)
-                    todayExact.add(Calendar.DAY_OF_MONTH, day * -1)
-                    SimpleDateFormat.getDateInstance().format(todayExact.time)
-                }
-            }
-
-    fun deleteBookmarks(mangas: List<DBManga>) {
-        mangas.forEach { m: DBManga -> m.isBookmark = false }
-        mRepo!!.updateManga(false, *mangas.toTypedArray())
+    fun getDayTitle(day: Int): String = when {
+        day == 0 -> mContext.getString(R.string.today)
+        day == 1 -> mContext.getString(R.string.yesterday)
+        day < 30 -> {
+            day.toString() + " " + mContext.getString(R.string.days_ago)
+        }
+        else -> {
+            val todayExact = Calendar.getInstance().reset(null)
+            todayExact.add(Calendar.DAY_OF_MONTH, day * -1)
+            SimpleDateFormat.getDateInstance().format(todayExact.time)
+        }
     }
 
-    fun getHistoryManga(time: Long): List<DBManga> {
-        return mRepo!!.lastReadMangas(time)
+    fun deleteBookmarks(mangas: List<Manga>) {
+        mangas.forEach { m: Manga -> m.isBookmark = false }
+        mRepo!!.updateManga(false, *mangas.toTypedArray())
     }
 
     fun removeFromHistory(lastChapter: Chapter) {

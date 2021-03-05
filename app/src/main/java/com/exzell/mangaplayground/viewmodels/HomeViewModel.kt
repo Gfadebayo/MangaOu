@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.exzell.mangaplayground.io.Repository
+import com.exzell.mangaplayground.io.database.createManga
 import com.exzell.mangaplayground.models.Manga
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
@@ -15,6 +16,7 @@ import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -128,14 +130,18 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
         viewModelScope.launch {
 
             withContext(Dispatchers.IO) {
-                mRepo!!.getBookmarkedManga()
+                mRepo!!.getBookmarkedManga().map {
+                    it.map { info -> info.createManga() }
+                }
             }.collect {
                 consumer.accept(it.shuffled().take(5), bookmarkIndex)
             }
 
 
             withContext(Dispatchers.IO) {
-                mRepo!!.getDownloadedMangas()
+                mRepo!!.getDownloadedMangas().map {
+                    it.map { info -> info.createManga() }
+                }
             }.collect {
                 consumer.accept(it.shuffled().take(5), downloadIndex)
             }

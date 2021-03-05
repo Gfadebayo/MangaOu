@@ -110,7 +110,7 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         }
     }
 
-    fun getMangaWithLink(link: String?): Manga? {
+    fun getMangaWithLink(link: String): Manga? {
         return try {
             mExecutor.diskExecutor.submit(Callable<Manga> { mMangaDao.getMangaFromLink(link) }).get()
         } catch (e: ExecutionException) {
@@ -122,33 +122,21 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         }
     }
 
-    //    public List<Manga> getMangas(){
-    //        List<Manga> manga = new ArrayList<>();
-    //
-    //        try {
-    //            return mExecutor.getDiskExecutor().submit(() -> mMangaDao.getMangas()).get();
-    //        } catch (ExecutionException | InterruptedException e) {
-    //            e.printStackTrace();
-    //            return Collections.emptyList();
-    //        }
-    //    }
-    fun getBookmarkedMangaNotLive(): List<DBManga> {
-        return try {
-            mExecutor.diskExecutor.submit(Callable { mMangaDao.notLiveBookmarks() }).get()
-        } catch (e: ExecutionException) {
-            e.printStackTrace()
-            emptyList()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-            emptyList()
-        }
+    fun getBookmarkedMangaNotLive(): List<DBManga> = try {
+        mExecutor.diskExecutor.submit(Callable { mMangaDao.notLiveBookmarks() }).get()
+    } catch (e: ExecutionException) {
+        e.printStackTrace()
+        emptyList()
+    } catch (e: InterruptedException) {
+        e.printStackTrace()
+        emptyList()
     }
 
-    fun getBookmarkedManga(): Flow<List<DBManga>> {
+    fun getBookmarkedManga(): Flow<List<BookmarkInfo>> {
         return mMangaDao.bookmarks()
     }
 
-    fun getDownloadedMangas(): Flow<List<DBManga>> {
+    fun getDownloadedMangas(): Flow<List<BookmarkInfo>> {
         return mMangaDao.downloads()
     }
 
@@ -164,9 +152,9 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         }
     }
 
-    fun lastReadMangas(time: Long): List<DBManga> {
+    fun lastReadMangas(time: Long): List<HistoryInfo> {
         return try {
-            mExecutor.diskExecutor.submit(Callable { mMangaDao.getMangaFromChapterTime(time) }).get()
+            mExecutor.diskExecutor.submit(Callable { mMangaDao.lastReadInfo(time).distinctBy { it.id } }).get()
         } catch (e: ExecutionException) {
             e.printStackTrace()
             emptyList()
