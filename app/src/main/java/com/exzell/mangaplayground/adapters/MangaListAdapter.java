@@ -23,7 +23,6 @@ import com.exzell.mangaplayground.databinding.ListMangaHomeBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.DetailsViewHolder;
-import com.mikepenz.iconics.IconicsDrawable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +69,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Manga manga = getCurrentList().isEmpty() ? null : getCurrentList().get(position);
+        Manga manga = getCurrentList().get(position);
 
         if(holder.mBinding != null) {
             holder.mBinding.setManga(manga);
@@ -85,11 +84,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
     }
 
     private void setColor(ImageView v){
-        IconicsDrawable draw = new IconicsDrawable(mContext, "faw_info");
-        int color = mContext.getResources().getColor(R.color.accent, null);
-        draw.color(color).sizeDp(24);
-        v.setImageDrawable(draw);
-
+        v.setImageResource(R.drawable.ic_outline_info_24);
     }
 
     @Override
