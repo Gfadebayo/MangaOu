@@ -73,7 +73,7 @@ public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHold
         DBManga man = getCurrentList().get(position);
 
         holder.mTitle.setText(man.getTitle());
-        holder.mChapter.setText(man.getLastChapter().getTitle());
+        holder.mChapter.setText(man.getLastChapter().getNumber());
 
         Request request = Glide.with(mContext).load(man.getThumbnailLink()).into(holder.mImage).getRequest();
         if(!request.isRunning()) request.begin();
