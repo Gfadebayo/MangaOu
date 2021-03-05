@@ -1,19 +1,9 @@
 package com.exzell.mangaplayground.selection;
 
-import android.util.Log;
-import android.util.LongSparseArray;
-import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemKeyProvider;
-import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.exzell.mangaplayground.adapters.TitleAdapter;
-
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class StableStringKeyProvider extends ItemKeyProvider<Long> {
     public static final String TAG = "Key Provider";
@@ -96,7 +86,7 @@ public class StableStringKeyProvider extends ItemKeyProvider<Long> {
 //        return position;
 
         RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForItemId(key);
-        return vh.getAbsoluteAdapterPosition();
+        return vh != null ? vh.getAbsoluteAdapterPosition() : RecyclerView.NO_POSITION;
     }
 
 //    private TitleAdapter.BodyViewHolder getBodyViewHolderId(long key){
