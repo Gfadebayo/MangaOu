@@ -42,32 +42,33 @@ class HistoryFragment : Fragment() {
         mBinding!!.recyclerLoad.adapter = ConcatAdapter()
 
         mViewModel!!.getTimes {
-            setHistory(it, mBinding!!.recyclerLoad.adapter as ConcatAdapter)
+            setHistory(it)
         }
     }
 
-    private fun setHistory(historyMangas: Map<Long, List<DBManga>>, adapter: ConcatAdapter) {
+    private fun setHistory(historyMangas: Map<Long, List<DBManga>>) {
         requireActivity().runOnUiThread {
+            mBinding?.let {
+                val adapter: ConcatAdapter = mBinding!!.recyclerLoad.adapter as ConcatAdapter
 
-            val titleAdapters: List<TitleAdapter> = adapter.let {
-                adapter.adapters.filterIsInstance<TitleAdapter>()
-            }
+                val titleAdapters: List<TitleAdapter> = adapter.let {
+                    adapter.adapters.filterIsInstance<TitleAdapter>()
+                }
 
-            val today = Calendar.getInstance().reset().timeInMillis
-            val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
+                val today = Calendar.getInstance().reset().timeInMillis
+                val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
 
-            historyMangas.keys.forEach { time ->
-                val day = Calendar.getInstance().reset(time).timeInMillis
+                historyMangas.keys.forEach { time ->
+                    val day = Calendar.getInstance().reset(time).timeInMillis
 
-                val historyManga = historyMangas.getOrDefault(time, emptyList())
+                    val historyManga = historyMangas.getOrDefault(time, emptyList())
 
-                if (historyManga.isNotEmpty()) {
-                    val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
-                    val days = todayInDays - dayInDays
-                    val dayTitle = mViewModel!!.getDayTitle(days.toInt())
+                    if (historyManga.isNotEmpty()) {
+                        val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
+                        val days = todayInDays - dayInDays
+                        val dayTitle = mViewModel!!.getDayTitle(days.toInt())
 
-                    if (isAdded)
-                        requireActivity().runOnUiThread {
+                        if (isAdded) {
                             //Its possible the concat adapter already has the adapters so we should just update them
                             val index = historyMangas.keys.indexOf(time)
 
@@ -89,16 +90,17 @@ class HistoryFragment : Fragment() {
                                 }
                             }
                         }
+                    }
                 }
-            }
 
-            //Trim the Concat Adapter of unneeded adapters
-            if (historyMangas.size < titleAdapters.size) {
-                val diff = titleAdapters.size - historyMangas.size
-                for (i in 0 until diff) {
-                    val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
-                    adapter.removeAdapter(titleAdapter)
-                    adapter.removeAdapter(titleAdapter.bodyAdapter)
+                //Trim the Concat Adapter of unneeded adapters
+                if (historyMangas.size < titleAdapters.size) {
+                    val diff = titleAdapters.size - historyMangas.size
+                    for (i in 0 until diff) {
+                        val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
+                        adapter.removeAdapter(titleAdapter)
+                        adapter.removeAdapter(titleAdapter.bodyAdapter)
+                    }
                 }
             }
         }
@@ -122,7 +124,7 @@ class HistoryFragment : Fragment() {
         val viewHolder = mBinding!!.recyclerLoad.findContainingViewHolder(it) as HistoryAdapter.ViewHolder?
         val manga = (viewHolder!!.bindingAdapter as HistoryAdapter?)!!.mangas[viewHolder.bindingAdapterPosition]
 
-        Navigation.findNavController(it).navigate(R.id.action_nav_history_to_frag_manga, Bundle(1).apply { putString(MangaFragment.MANGA_LINK, manga.link)})
+        Navigation.findNavController(it).navigate(R.id.action_nav_history_to_frag_manga, Bundle(1).apply { putString(MangaFragment.MANGA_LINK, manga.link) })
     }
 
     override fun onDestroyView() {

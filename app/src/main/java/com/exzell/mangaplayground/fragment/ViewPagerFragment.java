@@ -19,7 +19,6 @@ import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.UpdateService;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
 import com.exzell.mangaplayground.databinding.SwiperefreshLoadingRecyclerViewBinding;
-import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel;
@@ -47,7 +46,6 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
         setMenuResource(R.menu.cab_menu);
 
         forBookmark = getArguments().getInt(BUNDLE_KEY) == BookmarkFragment.BOOKMARK_BOOKMARK;
@@ -86,18 +84,18 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         setSwipeRefreshView(mBinding.loadRefresh, mBinding.recyclerLoad);
     }
 
-    private Consumer<List<DBManga>> consume(MangaListAdapter adapter) {
-        return dbMangas -> adapter.submitList(new ArrayList<>(dbMangas));
+    private Consumer<List<Manga>> consume(MangaListAdapter adapter) {
+        return dbMangas -> adapter.submitList(dbMangas);
     }
 
     @Override
     public boolean onActionItemClicked(MenuItem item) {
-        ArrayList<DBManga> mangas = new ArrayList<>(getTracker().getSelection().size());
+        ArrayList<Manga> mangas = new ArrayList<>(getTracker().getSelection().size());
 
         getTracker().getSelection().forEach(c -> {
             MangaListAdapter.ViewHolder viewHolder = (MangaListAdapter.ViewHolder) mBinding.recyclerLoad.findViewHolderForItemId(c);
 
-            mangas.add((DBManga) ((MangaListAdapter) mBinding.recyclerLoad.getAdapter())
+            mangas.add(((MangaListAdapter) mBinding.recyclerLoad.getAdapter())
                     .getCurrentList().get(viewHolder.getBindingAdapterPosition()));
         });
 
