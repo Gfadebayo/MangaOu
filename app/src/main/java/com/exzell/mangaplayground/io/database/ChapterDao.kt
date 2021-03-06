@@ -12,6 +12,9 @@ interface ChapterDao {
     @Update
     fun updateChapters(chapters: List<Chapter>)
 
+    @Update(entity = Chapter::class)
+    fun updateChaptersTime(chapters: List<ChapterTimeUpdate>)
+
     @Delete
     fun deleteChapters(chapters: List<Chapter>)
 

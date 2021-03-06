@@ -110,6 +110,12 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         }
     }
 
+    fun updateManga(vararg infos: BookmarkInfo) {
+        mExecutor.diskExecutor.submit {
+            mMangaDao.updateMangasPart(listOf(*infos))
+        }
+    }
+
     fun getMangaWithLink(link: String): Manga? {
         return try {
             mExecutor.diskExecutor.submit(Callable<Manga> { mMangaDao.getMangaFromLink(link) }).get()
@@ -179,6 +185,10 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
     //Calls to ChapterDao
     fun updateChapters(chapter: List<Chapter>) {
         mExecutor.diskExecutor.submit { mChapterDao.updateChapters(chapter) }
+    }
+
+    fun updateChapterTime(chapters: List<ChapterTimeUpdate>) {
+        mExecutor.diskExecutor.submit { mChapterDao.updateChaptersTime(chapters) }
     }
 
     /**

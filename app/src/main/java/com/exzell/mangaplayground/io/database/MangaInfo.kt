@@ -1,16 +1,21 @@
 package com.exzell.mangaplayground.io.database
 
 import androidx.room.ColumnInfo
+import androidx.room.Entity
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 
 /**
  * A manga class that goes straight to the point and only fetches members it needs
  */
+@Entity
 data class BookmarkInfo(val id: Long,
                         val title: String,
                         val link: String,
-                        val thumbnailLink: String)
+                        val thumbnailLink: String,
+                        var bookmark: Boolean = true) {
+
+}
 
 data class HistoryInfo(val id: Long,
                        val title: String,
@@ -25,6 +30,8 @@ fun BookmarkInfo.createManga() = Manga(link).apply {
     title = this@createManga.title
     id = this@createManga.id
 }
+
+fun Manga.toBookmarkInfo() = BookmarkInfo(id, title, link, thumbnailLink)
 
 /**
  * DBManga is used as it already caters for last chapter

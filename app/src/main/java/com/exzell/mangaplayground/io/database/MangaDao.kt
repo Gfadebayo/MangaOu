@@ -15,18 +15,21 @@ interface MangaDao {
     @Update
     fun updateMangas(mangas: List<Manga>)
 
+    @Update(entity = Manga::class)
+    fun updateMangasPart(mangas: List<BookmarkInfo>)
+
     @Query("SELECT * FROM manga")
     @Transaction
     fun getMangas(): List<DBManga>
 
-    @Query("SELECT id, title, link, thumbnailLink FROM manga WHERE bookmark=1")
+    @Query("SELECT id, title, link, thumbnailLink, bookmark FROM manga WHERE bookmark=1")
     fun bookmarks(): Flow<List<BookmarkInfo>>
 
     @Transaction
     @Query("SELECT * FROM manga WHERE bookmark=1")
     fun notLiveBookmarks(): List<DBManga>
 
-    @Query("SELECT link, id, title, thumbnailLink FROM manga WHERE id IN (SELECT chapter.manga_id FROM chapter, download ON chapter.id=download.chapter_id AND download.state IS 'DOWNLOADED')")
+    @Query("SELECT link, id, title, thumbnailLink, bookmark FROM manga WHERE id IN (SELECT chapter.manga_id FROM chapter, download ON chapter.id=download.chapter_id AND download.state IS 'DOWNLOADED')")
     fun downloads(): Flow<List<BookmarkInfo>>
 
     @Transaction

@@ -5,8 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.io.Repository
-import com.exzell.mangaplayground.io.database.DBManga
-import com.exzell.mangaplayground.io.database.createManga
+import com.exzell.mangaplayground.io.database.*
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.utils.reset
@@ -80,13 +79,15 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun deleteBookmarks(mangas: List<Manga>) {
-        mangas.forEach { m: Manga -> m.isBookmark = false }
-        mRepo!!.updateManga(false, *mangas.toTypedArray())
+        val bookmarkInfos = mangas.map { it.toBookmarkInfo() }
+        bookmarkInfos.forEach { info: BookmarkInfo -> info.bookmark = false }
+
+        mRepo!!.updateManga(*bookmarkInfos.toTypedArray())
     }
 
     fun removeFromHistory(lastChapter: Chapter) {
-        lastChapter.lastReadTime = 0
-        mRepo!!.updateChapters(listOf(lastChapter))
+//        lastChapter.lastReadTime = 0
+        mRepo!!.updateChapterTime(listOf(ChapterTimeUpdate(0, lastChapter.id)))
     }
 
 }
