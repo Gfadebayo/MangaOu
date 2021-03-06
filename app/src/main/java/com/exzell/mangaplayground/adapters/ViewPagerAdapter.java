@@ -7,12 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.exzell.mangaplayground.fragment.BookmarkFragment;
-import com.exzell.mangaplayground.io.database.DBManga;
 import com.exzell.mangaplayground.fragment.ViewPagerFragment;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
     private final Context mContext;
