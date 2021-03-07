@@ -54,8 +54,8 @@ class UpdateService: Service() {
             intent?.hasExtra(CREATE_MANGAS) == true -> {
                 mUpdates.addAll(intent.getStringArrayListExtra(CREATE_MANGAS)!!.map { Manga(it) })
             }
-            intent?.hasExtra(UPDATE_MANGAS) == true -> mUpdates.addAll(mRepo.getMangaWithLinks((intent.getLongArrayExtra(UPDATE_MANGAS))!!.toMutableList()))
-            else -> mUpdates.addAll(mRepo.bookmarkedMangaNotLive)
+            intent?.hasExtra(UPDATE_MANGAS) == true -> mUpdates.addAll(mRepo.getMangaWithIds((intent.getLongArrayExtra(UPDATE_MANGAS))!!.toMutableList()))
+            else -> mUpdates.addAll(mRepo.getBookmarkedMangaNotLive())
         }
         mUpdates.distinct()
         mUpdates.removeAll(mCompleted)

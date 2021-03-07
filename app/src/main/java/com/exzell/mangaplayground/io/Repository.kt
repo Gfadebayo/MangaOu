@@ -15,7 +15,6 @@ import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
@@ -95,18 +94,19 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
                 man.chapters.forEach(Consumer { chap: Chapter -> chap.mangaId = id })
                 man.id = id
             }
-            mChapterDao.insertChapters(Arrays.stream(manga).flatMap { man: Manga ->
-                man.chapters
-                        .stream()
-            }.collect(Collectors.toList()))
+            mChapterDao.insertChapters(manga.flatMap {
+                it.chapters
+            })
         }
     }
 
     fun updateManga(andChapters: Boolean, vararg manga: Manga) {
         mExecutor.diskExecutor.submit {
             mMangaDao.updateMangas(listOf(*manga))
-            if (andChapters) mChapterDao.insertChapters(Arrays.stream(manga)
-                    .flatMap { man: Manga -> man.chapters.stream() }.collect(Collectors.toList()))
+
+            if (andChapters) mChapterDao.insertChapters(manga.flatMap {
+                it.chapters.onEach { chap -> chap.mangaId = it.id }
+            })
         }
     }
 
