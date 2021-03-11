@@ -5,20 +5,13 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.selection.ItemDetailsLookup;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.io.database.Migrations;
-import com.exzell.mangaplayground.selection.DetailsViewHolder;
 import com.google.android.material.textview.MaterialTextView;
 
 public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHolder> {
@@ -61,9 +54,6 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
         else holder.mButton.setImageDrawable(mDrawable);
 
         holder.mText.setText(mTitle);
-
-        holder.itemView.setOnClickListener(mParentListener);
-        holder.mButton.setOnClickListener(mListener);
     }
 
     @Override
@@ -111,6 +101,9 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
             super(itemView);
             mText = itemView.findViewById(R.id.text_header);
             mButton = itemView.findViewById(R.id.button_header);
+
+            itemView.setOnClickListener(mParentListener);
+            mButton.setOnClickListener(mListener);
         }
     }
 }

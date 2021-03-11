@@ -48,7 +48,6 @@ class HistoryFragment : Fragment() {
 
     private fun setHistory(historyMangas: Map<Long, List<DBManga>>) {
         requireActivity().runOnUiThread {
-            mBinding?.let {
                 val adapter: ConcatAdapter = mBinding!!.recyclerLoad.adapter as ConcatAdapter
 
                 val titleAdapters: List<TitleAdapter> = adapter.let {
@@ -102,7 +101,6 @@ class HistoryFragment : Fragment() {
                         adapter.removeAdapter(titleAdapter.bodyAdapter)
                     }
                 }
-            }
         }
     }
 

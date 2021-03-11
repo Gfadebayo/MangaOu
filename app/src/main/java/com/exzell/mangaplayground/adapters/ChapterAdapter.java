@@ -17,6 +17,7 @@ import com.exzell.mangaplayground.databinding.LayoutChapterBinding;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.selection.DetailsViewHolder;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -34,8 +35,9 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
         }
     };
     private Context mContext;
-    private View.OnClickListener listen;
+    private View.OnClickListener mListener;
     private SelectionTracker<Long> mTracker;
+    private DateFormat mDateFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT);
 
     public ChapterAdapter(Context context, List<Chapter> chapters) {
         super(DIFF_CALLBACK);
@@ -50,7 +52,7 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
     }
 
     public void setListener(View.OnClickListener l) {
-        listen = l;
+        mListener = l;
     }
 
     @NonNull
@@ -64,14 +66,13 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
     public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
 
         Chapter chap = getCurrentList().get(position);
-        holder.itemView.setOnClickListener(listen);
         holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
 
         holder.mBinding.textChapTitle.setText(chap.getTitle());
         holder.mBinding.textChapNumber.setText(chap.getNumber());
         holder.mBinding.textChapLength.setText(String.valueOf(chap.getLength()));
 
-        String date = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT).format(new Date(chap.getReleaseDate()));
+        String date = mDateFormatter.format(new Date(chap.getReleaseDate()));
         holder.mBinding.textChapRelease.setText(date);
     }
 
@@ -107,6 +108,8 @@ public class ChapterAdapter extends ListAdapter<Chapter, ChapterAdapter.ChapterV
                     return getItemId();
                 }
             };
+
+            itemView.setOnClickListener(mListener);
         }
 
         @Override
