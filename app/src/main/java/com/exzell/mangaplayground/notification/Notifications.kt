@@ -1,7 +1,6 @@
 package com.exzell.mangaplayground.notification
 
 import android.app.NotificationChannel
-import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
@@ -22,7 +21,7 @@ object Notifications {
     const val BOOKMARK_NOTIFY_ID = -19
     const val BOOKMARK_ID = "bookmark update"
 
-    const val BOOKMARK_NEW_CHAPTER_GROUP_ID = "latest chapters"
+    const val BOOKMARK_NEW_CHAPTER_ID = "latest chapters"
 
 
     fun createChannels(context: Context) {
@@ -33,11 +32,8 @@ object Notifications {
                     NotificationChannel(DOWNLOAD_PROGRESS_ID, context.getString(R.string.downloader), NotificationManager.IMPORTANCE_LOW),
                     NotificationChannel(DOWNLOAD_COMPLETE_ID, context.getString(R.string.download_complete), NotificationManager.IMPORTANCE_LOW),
                     NotificationChannel(DOWNLOAD_ERROR_ID, context.getString(R.string.download_error), NotificationManager.IMPORTANCE_LOW),
-                    NotificationChannel(BOOKMARK_ID, context.getString(R.string.bookmark_update), NotificationManager.IMPORTANCE_LOW)))
-
-            it.createNotificationChannelGroups(listOf(
-                    NotificationChannelGroup(BOOKMARK_NEW_CHAPTER_GROUP_ID, context.getString(R.string.latest_chapters))
-            ))
+                    NotificationChannel(BOOKMARK_ID, context.getString(R.string.bookmark_update), NotificationManager.IMPORTANCE_LOW),
+                    NotificationChannel(BOOKMARK_NEW_CHAPTER_ID, context.getString(R.string.latest_chapters), NotificationManager.IMPORTANCE_LOW)))
         }
     }
 }
