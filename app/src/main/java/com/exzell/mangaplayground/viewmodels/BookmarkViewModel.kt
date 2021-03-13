@@ -49,7 +49,7 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
     fun getTimes(consumer: Consumer<Map<Long, List<DBManga>>>) {
         viewModelScope.launch {
 
-            launch(Dispatchers.IO) {
+            withContext(Dispatchers.IO) {
                 mRepo!!.allMangaTime().map { timestamps ->
                     val times = timestamps.map { Calendar.getInstance().reset(it).timeInMillis }.distinct()
 
@@ -58,18 +58,18 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
 //                            times.find { time -> it.lastReadTime >= time }!!
                         Calendar.getInstance().reset(it.lastReadTime).timeInMillis
                     }
-                }.collect {
-                    consumer.accept(it)
                 }
+            }.collect {
+                consumer.accept(it)
             }
         }
     }
 
     fun getDayTitle(day: Int): String = when {
-        day == 0 -> mContext.getString(R.string.today)
-        day == 1 -> mContext.getString(R.string.yesterday)
+        day == 0 -> mContext.getString(R.string.date_today)
+        day == 1 -> mContext.getString(R.string.date_yesterday)
         day < 30 -> {
-            day.toString() + " " + mContext.getString(R.string.days_ago)
+            day.toString() + " " + mContext.getString(R.string.date_days_ago)
         }
         else -> {
             val todayExact = Calendar.getInstance().reset(null)
@@ -87,7 +87,7 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
 
     fun removeFromHistory(lastChapter: Chapter) {
 //        lastChapter.lastReadTime = 0
-        mRepo!!.updateChapterTime(listOf(ChapterTimeUpdate(0, lastChapter.id)))
+        mRepo!!.updateChapterTime(listOf(ChapterTimeUpdate(lastChapter.id, 0)))
     }
 
 }
