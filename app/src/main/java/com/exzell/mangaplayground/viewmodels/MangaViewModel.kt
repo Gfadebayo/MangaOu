@@ -10,73 +10,86 @@ import com.exzell.mangaplayground.download.DownloadManager
 import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
-import com.exzell.mangaplayground.utils.ChapterUtils
-import com.exzell.mangaplayground.utils.MangaUtils
 import com.exzell.mangaplayground.utils.isConnectedToNetwork
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import com.exzell.mangaplayground.utils.toManga
+import com.exzell.mangaplayground.utils.transferInfo
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.functions.Action
-import io.reactivex.rxjava3.functions.Consumer
-import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jsoup.Jsoup
 import javax.inject.Inject
 
-class MangaViewModel(application: Application) : AndroidViewModel(application) {
+class MangaViewModel(application: Application, private val mLink: String) : AndroidViewModel(application) {
 
     private val mContext: Context = application.applicationContext
 
-    @Inject lateinit var mRepo: Repository
+    @Inject
+    lateinit var mRepo: Repository
 
-    @Inject lateinit var mDownloadManager: DownloadManager
+    @Inject
+    lateinit var mDownloadManager: DownloadManager
 
-    fun getDbManga(link: String): Manga? {
-        return mRepo.getMangaWithLink(link)
+    var isDoneFetching = false
+        private set
+
+    @get:JvmName("getManga")
+    var mManga: Manga? = null
+        private set
+
+    fun fetchMangaInfo() {
+        mManga = mRepo.getMangaWithLink(mLink)
     }
 
-    fun fetchMangaInfo(mangaLink: String, onNext: Consumer<Manga>, onComplete: Action): Disposable? {
+    /**
+     * Updates the manga remotely and calls onComplete passing true when successful
+     * or false when there is an error
+     */
+    fun updateManga(onComplete: (Boolean) -> Unit): Disposable? {
         if (!mContext.isConnectedToNetwork()) {
-            try {
-                onComplete.run()
-            } catch (throwable: Throwable) {
-                throwable.printStackTrace()
-            }
-
+            onComplete(false)
             return null
         }
 
-        return mRepo.moveTo(mangaLink).subscribeOn(Schedulers.io())
-                .map {
-                    val mangaDoc = Jsoup.parse(it.string())
-                    it.close()
+        val onNext = { manga: Manga ->
+            mManga?.transferInfo(manga)
+            mManga = manga
+        }
 
-                    val manga = Manga(mangaLink)
-                    MangaUtils.addMangaDetails(mangaDoc, manga)
-                    ChapterUtils.createChapterWithObservable(mangaDoc, manga)
-
-                    manga
-
-                }.observeOn(AndroidSchedulers.mainThread())
-                .doOnComplete(onComplete)
-                .onErrorComplete()
-                .subscribe(onNext)
+        return mRepo.moveTo(mLink)
+                .doOnError { onComplete(false) }
+                .toManga(mLink)
+                .doOnNext(onNext)
+                .doOnComplete {
+                    onComplete(true)
+                    updateDB(mManga!!)
+                    isDoneFetching = true
+                }
+                .subscribe()
     }
 
-    fun bookmarkManga(manga: Manga) { mRepo.updateManga(false, manga) }
+    /** Switches the manga bookmark to the opposite value whenever called **/
+    fun alterBookmark(): Boolean = mManga?.let {
+        it.isBookmark = !it.isBookmark
+        mRepo.updateManga(false, it)
 
-    fun updateChapter(chapter: List<Chapter>) { mRepo.updateChapters(chapter) }
+        it.isBookmark
+    }!!
+
+    fun updateChapter(chapter: List<Chapter>) {
+        mRepo.updateChapters(chapter)
+    }
 
     fun queueDownloads(downs: List<Download>) {
         mRepo.insertDownloads(downs)
         mDownloadManager.startDownloadService()
     }
 
-    fun updateDB(manga: Manga) { mRepo.insertManga(manga) }
+    fun updateDB(manga: Manga) {
+        mRepo.insertManga(manga)
+    }
 
-    fun getDownloads(o : LifecycleOwner, consumer: java.util.function.Consumer<List<Download>>) {
+    fun getDownloads(o: LifecycleOwner, consumer: java.util.function.Consumer<List<Download>>) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 mRepo.getDownloads()
@@ -84,5 +97,10 @@ class MangaViewModel(application: Application) : AndroidViewModel(application) {
                 consumer.accept(it)
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        mManga = null
     }
 }
