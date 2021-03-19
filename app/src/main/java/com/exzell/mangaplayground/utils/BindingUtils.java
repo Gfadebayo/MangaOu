@@ -1,23 +1,16 @@
 package com.exzell.mangaplayground.utils;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.Request;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.advancedsearch.Genre;
 import com.exzell.mangaplayground.fragment.EmptyFragment;
@@ -27,37 +20,31 @@ import com.google.android.material.chip.ChipGroup;
 
 import java.util.stream.IntStream;
 
-import timber.log.Timber;
-
 public class BindingUtils {
-    public static final String TAG = "BindingUtils";
 
     //Used in fragment_manga, list_manga
     @BindingAdapter("thumbnail")
     public static void addThumbnail(ImageView v, String link){
-        new Handler().post(() -> {
 
-            Request req = Glide.with(v)
-                    .load(link)
-                    .placeholder(R.drawable.ic_done_all_black_24dp)
-                    .skipMemoryCache(true)
-                    .listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+        Request req = Glide.with(v)
+                .load(link)
+                .placeholder(R.drawable.ic_done_all_black_24dp)
+                /*.listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
 
-                            Timber.i("Failed to get Image");
-                            return false;
-                        }
+                        Timber.i("Failed to get Image");
+                        return false;
+                    }
 
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .into(v)
-                    .getRequest();
-            if(!req.isRunning()) req.begin();
-        });
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        return false;
+                    }
+                })*/
+                .into(v)
+                .getRequest();
+        if (!req.isRunning()) req.begin();
     }
 
     //The 5 below are all used in dialog_search
