@@ -13,7 +13,7 @@ import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.customview.ImageViewTarget
 import com.exzell.mangaplayground.databinding.ReaderDisplayBinding
 import com.exzell.mangaplayground.fragment.base.DisposableFragment
-import com.exzell.mangaplayground.utils.ChapterUtils
+import com.exzell.mangaplayground.utils.fetchDownloadLink
 import com.exzell.mangaplayground.viewmodels.ReaderViewModel
 import org.jsoup.Jsoup
 import java.io.File
@@ -92,7 +92,7 @@ class ReaderFragment : DisposableFragment() {
 
     private fun onNext(link: String) {
         Thread {
-            mImageLink = ChapterUtils.fetchDownloadLink(Jsoup.parse(link))
+            mImageLink = fetchDownloadLink(Jsoup.parse(link))
             mViewModel.getImageBytes(mImageLink, { displayImage(it) }, { onError() })
         }.start()
     }

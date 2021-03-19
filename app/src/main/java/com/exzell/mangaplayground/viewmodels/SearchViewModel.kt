@@ -1,37 +1,30 @@
 package com.exzell.mangaplayground.viewmodels
 
 import android.app.Application
-import android.content.Context
-import android.os.Handler
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-
-import com.exzell.mangaplayground.adapters.MangaListAdapter
 import com.exzell.mangaplayground.advancedsearch.MangaSearch
 import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.models.Manga
-import com.exzell.mangaplayground.utils.MangaUtils
-
+import com.exzell.mangaplayground.utils.createSearchManga
+import com.exzell.mangaplayground.utils.toManga
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
+import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-
-import java.io.IOException
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.function.Consumer
-import java.util.stream.Collectors
-import java.util.stream.IntStream
-import java.util.stream.Stream
-
-import javax.inject.Inject
-
-import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import timber.log.Timber
+import java.io.IOException
+import java.util.*
+import java.util.function.Consumer
+import java.util.stream.Collectors
+import java.util.stream.IntStream
+import java.util.stream.Stream
+import javax.inject.Inject
 
 class SearchViewModel(application: Application, private val mHandle: SavedStateHandle) : AndroidViewModel(application) {
 
@@ -121,7 +114,7 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
                         } else
                             setNextSearchLink(null)
 
-                        val searchManga = MangaUtils.createSearchManga(html)
+                        val searchManga = html.createSearchManga(currentSearchResults.size)
                         mCurrentSearchResults.addAll(searchManga)
                         onMangaRetrieved.accept(searchManga)
                         Timber.w(next)
@@ -238,10 +231,27 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
         mCurrentSearchResults.clear()
     }
 
+    fun createAndBookmarkManga(mangaLinks: ArrayList<String>, onError: () -> Unit) {
+        Observable.fromIterable(mangaLinks).flatMap {
+            mRepo.moveTo(it)
+                    .subscribeOn(Schedulers.io())
+                    .toManga(it)
+                    .onErrorComplete {
+                        onError.invoke()
+                        true
+                    }.doOnNext { it.isBookmark = true }
+        }
+                .toList()
+                .subscribe { mangas -> mRepo.insertManga(*mangas.toTypedArray()) }
+    }
+
     companion object {
 
-        @JvmField val statusData = Stream.of(MangaSearch.STATUS_COMPLETED, MangaSearch.STATUS_ONGOING).map{ it.toUpperCase() }.collect(Collectors.toList())
-        @JvmField val chapterData = Stream.of(1, 5, 10, 20, 30, 40, 50, 100, 200).collect(Collectors.toList())
-        @JvmField val releaseData = IntStream.rangeClosed(1946, 2017).boxed().map { it.toString() }.collect(Collectors.toList())
+        @JvmField
+        val statusData = Stream.of(MangaSearch.STATUS_COMPLETED, MangaSearch.STATUS_ONGOING).map { it.toUpperCase() }.collect(Collectors.toList())
+        @JvmField
+        val chapterData = Stream.of(1, 5, 10, 20, 30, 40, 50, 100, 200).collect(Collectors.toList())
+        @JvmField
+        val releaseData = IntStream.rangeClosed(1946, 2017).boxed().map { it.toString() }.collect(Collectors.toList())
     }
 }

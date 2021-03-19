@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">MangaOu</string>
-    <string name="popular_updates"><i>Popular Updates</i></string>
+    <string name="popular_updates">Popular Updates</string>
     <string name="latest_updates">Latest Updates</string>
     <string name="ongoing">Ongoing</string>
     <string name="completed">Completed</string>
@@ -20,7 +20,12 @@ Enter Monkey D. Luffy, a 17-year-old boy who defies the standard definition of a
     <string name="bookmark">Bookmark</string>
     <string name="mark_as_read">Mark as read</string>
     <string name="author">Author</string>
-    <string name="today">Today</string>
-    <string name="yesterday">Yesterday</string>
-    <string name="days_ago">Days ago</string>
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="date_days_ago">Days ago</string>
+    <string name="latest_chapters">Latest Chapters</string>
+    <string name="downloader">Downloader</string>
+    <string name="download_complete">Download Complete</string>
+    <string name="download_error">Download Error</string>
+    <string name="bookmark_update">Bookmark Update</string>
 </resources>

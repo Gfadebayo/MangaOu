@@ -1,6 +1,5 @@
 package com.exzell.mangaplayground.viewmodels
 
-import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
@@ -17,7 +16,6 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
@@ -29,7 +27,6 @@ import java.util.stream.Collectors
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-@SuppressLint("StaticFieldLeak")
 class HomeViewModel(application: Application, private val mHandle: SavedStateHandle) : AndroidViewModel(application) {
 
     @JvmField
@@ -150,14 +147,14 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
 
     //Used in empty fragment instead of creating another viewmodel just for it
     fun goToLink(link: String, next: Consumer<List<Manga>?>): Disposable {
-        return mRepo!!.moveTo(link).subscribeOn(Schedulers.io())
+        return mRepo!!.moveTo(link)
                 .observeOn(Schedulers.computation())
-                .map<List<Manga>> { res: ResponseBody ->
-                    val response = res.string()
-                    res.close()
+                .map {
+                    val response = it.string()
+                    it.close()
                     Timber.i(link)
                     val mangas: MutableList<Manga> = ArrayList()
-                    if (!response.isEmpty()) {
+                    if (response.isNotEmpty()) {
                         val doc = Jsoup.parse(response)
                         if (doc.hasClass("col-12 no-match")) return@map mangas
                         val mangaHtml = doc.select("a[class=cover]")

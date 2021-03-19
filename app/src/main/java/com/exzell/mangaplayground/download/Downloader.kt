@@ -4,10 +4,9 @@ import android.content.Context
 import android.util.Log
 import android.webkit.MimeTypeMap
 import com.exzell.mangaplayground.BuildConfig
-import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.io.internet.InternetManager
+import com.exzell.mangaplayground.utils.fetchDownloadLink
 import com.exzell.mangaplayground.utils.isConnectedToNetwork
-import com.exzell.mangaplayground.utils.ChapterUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -127,7 +126,7 @@ class Downloader(val mManager: DownloadManager, val context: Context): DownloadC
             val html = response.body()?.string()
             response.close()
 
-            val link = ChapterUtils.fetchDownloadLink(Jsoup.parse(html))
+            val link = fetchDownloadLink(Jsoup.parse(html))
 
             downloadAndWriteImages(link, page)
 

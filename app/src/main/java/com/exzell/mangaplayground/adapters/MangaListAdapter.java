@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.selection.ItemDetailsLookup;
 import androidx.recyclerview.selection.SelectionTracker;
@@ -23,6 +22,7 @@ import com.exzell.mangaplayground.databinding.ListMangaHomeBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.DetailsViewHolder;
+import com.exzell.mangaplayground.utils.BindingUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +76,10 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
         }else if(holder.mHomeBinding != null) {
 
-            holder.mHomeBinding.setManga(manga);
-            if(mShowMoreInfo) setColor(holder.mHomeBinding.buttonMore);
+            holder.mHomeBinding.textMangaTitle.setText(manga.getTitle());
+
+            BindingUtils.addThumbnail(holder.mHomeBinding.imageManga, manga.getThumbnailLink());
+            if (mShowMoreInfo) setColor(holder.mHomeBinding.buttonMore);
         }
 
         if(mTracker != null) holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
@@ -129,8 +131,8 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         public ViewHolder(@NonNull View itemView, int type) {
             super(itemView);
 
-            if(type == R.layout.list_manga) mBinding =  DataBindingUtil.bind(itemView);
-            else mHomeBinding = DataBindingUtil.bind(itemView);
+            if (type == R.layout.list_manga) mBinding = ListMangaBinding.bind(itemView);
+            else mHomeBinding = ListMangaHomeBinding.bind(itemView);
 
 
             itemView.setOnClickListener(v -> {
@@ -158,7 +160,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
 
         @Override
-        public ItemDetailsLookup.ItemDetails getDetails() {
+        public ItemDetailsLookup.ItemDetails<Long> getDetails() {
             return mDetails;
         }
     }

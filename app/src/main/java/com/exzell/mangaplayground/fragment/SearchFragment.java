@@ -1,28 +1,19 @@
 package com.exzell.mangaplayground.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.ActionMode;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.exzell.mangaplayground.MangaApplication;
-import com.exzell.mangaplayground.UpdateService;
-import com.exzell.mangaplayground.advancedsearch.MangaSearch;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.adapters.MangaListAdapter;
 import com.exzell.mangaplayground.advancedsearch.Order;
@@ -30,12 +21,8 @@ import com.exzell.mangaplayground.databinding.FragmentSearchBinding;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.SearchViewModel;
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
-import com.skydoves.powerspinner.OnSpinnerOutsideTouchListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
-import com.tiper.MaterialSpinner;
-
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import timber.log.Timber;
+import kotlin.Unit;
 
 public class SearchFragment extends SelectionFragment implements SearchDialogFragment.OnSearchClickedListener{
     private SearchViewModel mViewModel;
@@ -129,10 +116,11 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
             mangaLinks.add(manga.getLink());
         });
 
-        Intent createMangaIntent = new Intent(requireContext(), UpdateService.class);
+        mViewModel.createAndBookmarkManga(mangaLinks, () -> {
+            Toast.makeText(requireActivity(), "The mangas could not be added", Toast.LENGTH_SHORT).show();
+            return Unit.INSTANCE;
+        });
 
-        createMangaIntent.putStringArrayListExtra(UpdateService.CREATE_MANGAS, mangaLinks);
-        requireActivity().startService(createMangaIntent);
         return true;
     }
 

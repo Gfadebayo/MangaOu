@@ -22,7 +22,7 @@ fun Calendar.reset(millis: Long? = null): Calendar {
     }
 
     private fun parseDate(time: StringBuilder, oldTime: Long): Long {
-        var oldTime = oldTime
+        var oldTimeMod = oldTime
         var endIndex = 0
         var startIndex: Int
         var multiplierToSecond: Long = 1
@@ -51,7 +51,7 @@ fun Calendar.reset(millis: Long? = null): Calendar {
         startIndex = if (startIndex == -1) 0 else startIndex
         val timeStr = time.substring(startIndex, endIndex).trim { it <= ' ' }
         val timeInSec = if (Character.isDigit(timeStr[0])) timeStr.toInt() else 1
-        oldTime -= timeInSec * multiplierToSecond * 1000
+        oldTimeMod -= timeInSec * multiplierToSecond * 1000
         val nextSpaceIndex = time.indexOf(" ", endIndex)
         if (nextSpaceIndex != -1) time.delete(startIndex, nextSpaceIndex + 1) else time.delete(startIndex, time.length)
         return oldTime
