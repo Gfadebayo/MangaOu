@@ -3,10 +3,9 @@ package com.exzell.mangaplayground.advancedsearch;
 public enum Genre {
 
     ACTION("action", "Action"),
-    ADVENTURE("adventure", "Adventure"),
     ADAPTATION("adaptation", "Adaptation"),
-    KOMA("4-koma", "4 Koma"),
     ADULT("adult", "Adult"),
+    ADVENTURE("adventure", "Adventure"),
     ALIENS("aliens", "Aliens"),
     ANIMALS("animals", "Animals"),
     ANTHOLOGY("anthology", "Anthology"),
@@ -20,8 +19,8 @@ public enum Genre {
     DOUJINSHI("doujinshi", "Doujinshi"),
     DRAMA("drama", "Drama"),
     ECCHI("ecchi", "Ecchi"),
-    FAN_COLOUR("fan-colored", "Fan Colored"),
     FANTASY("fantasy", "Fantasy"),
+    FAN_COLOUR("fan-colored", "Fan Colored"),
     FOOD("food", "Food"),
     FULL_COLOR("full-color", "Full Color"),
     GAME("game", "Game"),
@@ -38,6 +37,7 @@ public enum Genre {
     ISEKAI("isekai", "Isekai"),
     JOSEI("josei", "Josei"),
     KIDS("kids", "Kids"),
+    KOMA("4-koma", "4 Koma"),
     LOLI("loli", "Loli"),
     LOLICON("lolicon", "Lolicon"),
     LONGSTRIP("long-strip", "Long Strip"),
@@ -50,8 +50,8 @@ public enum Genre {
     MECHA("mecha", "Mecha"),
     MEDICAL("medical", "Medical"),
     MILITARY("military", "Military"),
-    MONSTER_GIRLS("monster-girls", "Monster Girls"),
     MONSTERS("monsters", "Monsters"),
+    MONSTER_GIRLS("monster-girls", "Monster Girls"),
     MUSIC("music", "Music"),
     MYSTERY("mystery", "Mystery"),
     NINJA("ninja", "Ninja"),
@@ -69,19 +69,19 @@ public enum Genre {
     SCHOOL_LIFE("school-life", "School life"),
     SCIFI("sci-fi", "Sci Fi"),
     SEINEN("seinen", "Seinen"),
+    SHONEN("shounen", "Shounen"),
+    SHONEN_AI("shounen-ai", "Shounen Ai"),
     SHOTA("shota", "Shota"),
     SHOTACON("shotacon", "Shotacon"),
     SHOUJO("shoujo", "Shoujo"),
     SHOUJO_AI("shoujo-ai", "Shoujo Ai"),
-    SHONEN("shounen", "Shounen"),
-    SHONEN_AI("shounen-ai", "Shounen Ai"),
-    SLICE_OF_LIFE("slice-of-life", "Slice of Life"),
+    SLICE_OF_LIFE("slice-of-life", "Slice of life"),
     SMUT("smut", "Smut"),
     SPACE("space", "Space"),
     SPORT("sports", "Sports"),
-    SUPER_POWER("super-power", "Super Power"),
-    SUPER_HERO("superhero", "Super Hero"),
     SUPERNATURAL("supernatural", "Supernatural"),
+    SUPER_HERO("superhero", "Super Hero"),
+    SUPER_POWER("super-power", "Super Power"),
     SURVIVAL("survival", "Survival"),
     SUSPENSE("suspense", "Suspense"),
     THRILLER("thriller", "Thriller"),
@@ -103,9 +103,7 @@ public enum Genre {
     ZOMBIES("zombies", "Zombies");
 
 
-
-
-    Genre(String name, String dispName){
+    Genre(String name, String dispName) {
 
         this.name = name;
         this.dispName = dispName;
