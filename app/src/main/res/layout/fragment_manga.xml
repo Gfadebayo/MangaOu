@@ -58,7 +58,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="51dp"
-                    android:text="Bookmark"
+                    android:text="@string/bookmark"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
@@ -88,63 +88,63 @@
                         android:id="@+id/text_author"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Author: " + manga.author}'
+                        android:text='@{@string/author(": " + manga.author)}'
                         tools:text="Author: Eiichiro Oda" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_artist"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Artist: " + manga.artist}'
+                        android:text='@{@string/artist(": " + manga.artist)}'
                         tools:text="Author: Eiichiro Oda" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_type"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Series Type: " + manga.type.dispName}'
+                        android:text='@{@string/series_type(": " + manga.type.dispName)}'
                         tools:text="Type: Japanese Manga" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_release"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Release Date: " + String.valueOf(manga.release)}'
+                        android:text='@{@string/release_date(String.format(": %s", manga.release == 0 ? @string/n_a : String.valueOf(manga.release)))}'
                         tools:text="Release Date: 1998" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Status: " + manga.status}'
+                        android:text='@{@string/status(": " + manga.status)}'
                         tools:text="Status: Ongoing" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_popularity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Popularity: " + manga.popularity}'
+                        android:text='@{@string/popularity(": " + manga.popularity)}'
                         tools:text="Popularity: 6th" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_votes"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Votes: " + manga.votes}'
+                        android:text='@{@string/votes(": " + manga.votes)}'
                         tools:text="Votes: 6th" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_views"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Views: " + manga.views}'
+                        android:text='@{@string/views(": " + manga.views)}'
                         tools:text="Votes: 6th" />
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/text_summary"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text='@{"Synopsis: " + manga.summary}'
+                        android:text='@{@string/synopsis(": " + manga.summary)}'
                         tools:text="@string/summary" />
 
                     <com.google.android.material.chip.ChipGroup

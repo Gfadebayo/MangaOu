@@ -2,10 +2,12 @@ package com.exzell.mangaplayground.viewmodels
 
 import android.app.Application
 import android.content.Context
+import android.util.Pair
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.exzell.mangaplayground.R
 import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.io.database.createManga
 import com.exzell.mangaplayground.models.Manga
@@ -42,9 +44,10 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
         if (!mHandle.contains(KEY_MANGAS)) mHandle.set(KEY_MANGAS, ArrayList<Manga>())
     }
 
-    fun parseHome(consumer: BiConsumer<List<Manga>, Int>, popularIndex: Int, latestIndex: Int) {
+    fun parseHome(consumer: BiConsumer<List<Manga>, Pair<Int, Boolean>>, popularIndex: Int, latestIndex: Int) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
+                var errorMessage = ""
                 val resp = mRepo!!.home()
                 if (resp != null)
                     with(resp) {
@@ -58,14 +61,17 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
                             } catch (e: IOException) {
                                 e.printStackTrace()
                             }
-                        } else {
-                            Toast.makeText(mContext, "Failed: ${resp.code()}", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                else {
-                    launch(Dispatchers.Main) {
-                        Toast.makeText(mContext, "Error, Please check your network", Toast.LENGTH_SHORT).show()
-                    }
+
+                            return@withContext
+                        } else errorMessage = mContext.getString(R.string.failed, ": ${resp.code()}")
+
+                    } else errorMessage = mContext.getString(R.string.error_network)
+
+                //should only be reached when a problem occurs
+                launch(Dispatchers.Main) {
+                    if (errorMessage.isNotEmpty()) Toast.makeText(mContext, errorMessage, Toast.LENGTH_SHORT).show()
+                    consumer.accept(emptyList(), Pair(popularIndex, false))
+                    consumer.accept(emptyList(), Pair(latestIndex, false))
                 }
             }
         }
@@ -76,7 +82,7 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
      * are all under a **li** tag with class as used in the code
      * @param docu The Document of the home html
      */
-    private suspend fun popularUpdates(scope: CoroutineScope, docu: Document, consumer: BiConsumer<List<Manga>, Int>, acceptIndex: Int) {
+    private suspend fun popularUpdates(scope: CoroutineScope, docu: Document, consumer: BiConsumer<List<Manga>, Pair<Int, Boolean>>, acceptIndex: Int) {
         scope.launch(Dispatchers.Main) {
             consumer.accept(
                     withContext(Dispatchers.Default) {
@@ -93,7 +99,7 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
                                     Timber.i(link)
                                     manga
                                 }
-                    }, acceptIndex)
+                    }, Pair(acceptIndex, true))
         }
     }
 
@@ -103,7 +109,7 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
      * @param docu The Document of the home html
      * @return A list of manga found under Latest Releases
     </div> */
-    private suspend fun latestRelease(scope: CoroutineScope, docu: Document, consumer: BiConsumer<List<Manga>, Int>, acceptIndex: Int) {
+    private suspend fun latestRelease(scope: CoroutineScope, docu: Document, consumer: BiConsumer<List<Manga>, Pair<Int, Boolean>>, acceptIndex: Int) {
         scope.launch(Dispatchers.Main) {
             consumer.accept(
                     withContext(Dispatchers.Default) {
@@ -119,28 +125,29 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
                                     manga.thumbnailLink = thumbnail
                                     manga
                                 }
-                    }, acceptIndex)
+                    }, Pair(acceptIndex, true))
         }
     }
 
-    fun queryDb(consumer: BiConsumer<List<Manga>, Int>, bookmarkIndex: Int, downloadIndex: Int) {
+    fun queryDb(consumer: BiConsumer<List<Manga>, Pair<Int, Boolean>>, bookmarkIndex: Int, downloadIndex: Int) {
         viewModelScope.launch {
+
+            launch(Dispatchers.Main) {
+                withContext(Dispatchers.IO) {
+                    mRepo!!.getDownloadedMangas().map {
+                        it.map { info -> info.createManga() }
+                    }
+                }.collect {
+                    consumer.accept(it.shuffled().take(5), Pair(downloadIndex, it.isNotEmpty()))
+                }
+            }
 
             withContext(Dispatchers.IO) {
                 mRepo!!.getBookmarkedManga().map {
                     it.map { info -> info.createManga() }
                 }
             }.collect {
-                consumer.accept(it.shuffled().take(5), bookmarkIndex)
-            }
-
-
-            withContext(Dispatchers.IO) {
-                mRepo!!.getDownloadedMangas().map {
-                    it.map { info -> info.createManga() }
-                }
-            }.collect {
-                consumer.accept(it.shuffled().take(5), downloadIndex)
+                consumer.accept(it.shuffled().take(5), Pair(bookmarkIndex, it.isNotEmpty()))
             }
         }
     }
@@ -196,5 +203,6 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
     }
 
     fun getNextLink(): String? = mHandle.get(KEY_LINK)
+
     fun getCachedMangas(): List<Manga> = mHandle.get(KEY_MANGAS)!!
 }

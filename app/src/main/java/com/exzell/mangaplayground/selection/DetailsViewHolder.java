@@ -12,5 +12,5 @@ public abstract class DetailsViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
     }
 
-    public abstract ItemDetailsLookup.ItemDetails getDetails();
+    public abstract ItemDetailsLookup.ItemDetails<Long> getDetails();
 }

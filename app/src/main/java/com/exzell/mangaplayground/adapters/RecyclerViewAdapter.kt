@@ -4,11 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.exzell.mangaplayground.R
+import com.exzell.mangaplayground.databinding.GenericLoadingRecyclerViewBinding
 
 /**
  * Just like the name says, it is an adapter that holds a recycler view
@@ -17,16 +15,16 @@ import com.exzell.mangaplayground.R
  */
 class RecyclerViewAdapter(val mViewAdapter: RecyclerView.Adapter<out RecyclerView.ViewHolder>,
                           val mContext: Context,
+                          val mText: String = "",
                           var mManager: RecyclerView.LayoutManager?): RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>() {
 
-    private var isProgressHidden = false
+    var isProgressVisible = true
+        private set
 
-    private val mPayload = "PROGRESS CHANGED"
+    var isTextVisible = false
+        private set
 
-    fun hideProgressBar(hide: Boolean){
-        isProgressHidden = true
-        notifyItemChanged(0, mPayload)
-    }
+    private val mPayload = "SOMETHING CHANGED"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(mContext).inflate(viewType, parent, false))
@@ -39,19 +37,31 @@ class RecyclerViewAdapter(val mViewAdapter: RecyclerView.Adapter<out RecyclerVie
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
-        holder.mBar.visibility = if (isProgressHidden) View.GONE else View.VISIBLE
+        holder.mBinding.progressLoad.visibility = if (isProgressVisible) View.VISIBLE else View.GONE
+        holder.mBinding.textOther.visibility = if (isTextVisible) View.VISIBLE else View.GONE
 
         if (payloads.isEmpty() || !payloads.contains(mPayload)) {
-            holder.mRecyclerView.adapter = mViewAdapter
+            holder.mBinding.textOther.text = mText
 
-            if (holder.mRecyclerView.layoutManager != mManager) mManager.let { holder.mRecyclerView.layoutManager = it }
+            holder.mBinding.recyclerLoad.adapter = mViewAdapter
+
+            if (holder.mBinding.recyclerLoad.layoutManager != mManager) mManager.let { holder.mBinding.recyclerLoad.layoutManager = it }
         }
     }
 
     override fun getItemViewType(position: Int) = R.layout.generic_loading_recycler_view
 
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-        val mRecyclerView = itemView.findViewById<RecyclerView>(R.id.recycler_load)
-        val mBar = itemView.findViewById<ProgressBar>(R.id.progress_load)
+    fun textVisiblilty(visible: Boolean) {
+        isTextVisible = visible
+        notifyItemChanged(0, mPayload)
+    }
+
+    fun progressBarVisiblity(visible: Boolean) {
+        isProgressVisible = visible
+        notifyItemChanged(0, mPayload)
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val mBinding: GenericLoadingRecyclerViewBinding = GenericLoadingRecyclerViewBinding.bind(itemView)
     }
 }

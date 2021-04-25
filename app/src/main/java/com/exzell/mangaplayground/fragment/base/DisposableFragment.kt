@@ -4,6 +4,7 @@ package com.exzell.mangaplayground.fragment.base
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.annotation.CallSuper
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -23,7 +24,7 @@ abstract class DisposableFragment : Fragment() {
 
     private var mIsFingerDown = false
 
-    private val mRecyclerScrollListener: RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
+    private var mRecyclerScrollListener: RecyclerView.OnScrollListener? = object : RecyclerView.OnScrollListener() {
         var currentScrollChange = 0
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             currentScrollChange += dy
@@ -32,7 +33,7 @@ abstract class DisposableFragment : Fragment() {
         }
     }
 
-    private val mScrollChangedListener = object : ViewTreeObserver.OnScrollChangedListener {
+    private var mScrollChangedListener: ViewTreeObserver.OnScrollChangedListener? = object : ViewTreeObserver.OnScrollChangedListener {
         override fun onScrollChanged() {
             if (!isVisible) return
 
@@ -46,9 +47,25 @@ abstract class DisposableFragment : Fragment() {
         dispose?.let { mToBeDisposed.add(it) }
     }
 
+    fun setSwipeRefreshView(swipe: SwipeRefreshLayout, scrollChild: View) {
+        mSwipeRefresh = swipe
+        mChild = scrollChild
+    }
+
+    @CallSuper
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mSwipeRefresh?.let {
+
+            if (mChild is RecyclerView) (mChild as RecyclerView).addOnScrollListener(mRecyclerScrollListener!!)
+            else it.viewTreeObserver.addOnScrollChangedListener(mScrollChangedListener)
+
+        }
+    }
+
     override fun onDestroyView() {
         mToBeDisposed.forEach {
-            if (!it.isDisposed) it.dispose()
+            it.dispose()
         }
         mToBeDisposed.clear()
 
@@ -57,33 +74,13 @@ abstract class DisposableFragment : Fragment() {
             it.viewTreeObserver!!.removeOnScrollChangedListener(mScrollChangedListener)
             it.setOnTouchListener(null)
         }
-        mSwipeRefresh = null
 
-        if (mChild is RecyclerView) (mChild as RecyclerView).removeOnScrollListener(mRecyclerScrollListener)
-        mChild = null
-
-
+        if (mChild is RecyclerView) (mChild as RecyclerView).removeOnScrollListener(mRecyclerScrollListener!!)
         super.onDestroyView()
-    }
 
-
-    fun setSwipeRefreshView(swipe: SwipeRefreshLayout, scrollChild: View) {
-        mSwipeRefresh = swipe
-        mChild = scrollChild
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        mSwipeRefresh?.let {
-
-            if (mChild is RecyclerView) (mChild as RecyclerView).addOnScrollListener(mRecyclerScrollListener)
-            else it.viewTreeObserver.addOnScrollChangedListener(mScrollChangedListener)
-
-//            it.setOnTouchListener { _, event ->
-//
-//                mIsFingerDown = !(event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL)
-//                true
-//            }
-        }
+        mSwipeRefresh = null
+        mChild = null
+        mScrollChangedListener = null
+//        mRecyclerScrollListener = null
     }
 }

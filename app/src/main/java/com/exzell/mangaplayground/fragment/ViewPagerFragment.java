@@ -46,7 +46,7 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setMenuResource(R.menu.cab_menu);
+        setMenuResource(0, R.menu.cab_menu);
 
         forBookmark = getArguments().getInt(BUNDLE_KEY) == BookmarkFragment.BOOKMARK_BOOKMARK;
 
@@ -66,6 +66,7 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        setSwipeRefreshView(mBinding.loadRefresh, mBinding.recyclerLoad);
         super.onViewCreated(view, savedInstanceState);
         mBinding.progressLoad.setVisibility(View.GONE);
 
@@ -81,7 +82,6 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         adapter.setTracker(getTracker());
 
         mBinding.loadRefresh.setOnRefreshListener(this);
-        setSwipeRefreshView(mBinding.loadRefresh, mBinding.recyclerLoad);
     }
 
     private Consumer<List<Manga>> consume(MangaListAdapter adapter) {

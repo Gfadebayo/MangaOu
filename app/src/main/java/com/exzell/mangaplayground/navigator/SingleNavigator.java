@@ -17,10 +17,6 @@ import java.util.Map;
 @Navigator.Name("persist_fragment")
 public class SingleNavigator extends FragmentNavigator {
 
-    private Context mContext;
-    private FragmentManager mManger;
-    private int mContainerId;
-
     //instances we want to keep
     private List<String> mFragmentInstances;
 
@@ -29,10 +25,7 @@ public class SingleNavigator extends FragmentNavigator {
 
     public SingleNavigator(Context context, FragmentManager manager, int containerId, String... excludeInstances) {
         super(context, manager, containerId);
-        mContext = context;
 
-        mManger = manager;
-        mContainerId = containerId;
         mFragmentInstances = Arrays.asList(excludeInstances);
 
         manager.setFragmentFactory(new Factory(manager.getFragmentFactory()));

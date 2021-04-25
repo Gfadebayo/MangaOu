@@ -72,8 +72,8 @@ class BookmarkViewModel(application: Application) : AndroidViewModel(application
             day.toString() + " " + mContext.getString(R.string.date_days_ago)
         }
         else -> {
-            val todayExact = Calendar.getInstance().reset(null)
-            todayExact.add(Calendar.DAY_OF_MONTH, day * -1)
+            val todayExact = Calendar.getInstance().reset()
+            todayExact.add(Calendar.DAY_OF_MONTH, day.times(-1))
             SimpleDateFormat.getDateInstance().format(todayExact.time)
         }
     }

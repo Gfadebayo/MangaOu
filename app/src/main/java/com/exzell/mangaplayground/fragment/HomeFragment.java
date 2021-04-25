@@ -1,6 +1,7 @@
 package com.exzell.mangaplayground.fragment;
 
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.exzell.mangaplayground.MangaApplication;
@@ -39,7 +39,6 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
 
         mViewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity()
                 .getApplication(), this)).get(HomeViewModel.class);
@@ -51,26 +50,33 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        mBinding = FragmentHomeBinding.inflate(inflater, container, false);
+        return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        mBinding = FragmentHomeBinding.bind(view);
+        setSwipeRefreshView(mBinding.swipeRefresh, mBinding.recyclerHome);
+        super.onViewCreated(view, savedInstanceState);
 
-        String[] names = getResources().getStringArray(R.array.home_names);
+        //index 0 is Popular Updates, 1 is Latest Updates, 2 is Bookmarks and 3 is Downloads
+        List<String> names = Arrays.asList(getResources().getStringArray(R.array.home_names));
 
-        Arrays.stream(names).forEach(s -> {
+        names.forEach(name -> {
+            int index = names.indexOf(name);
+
+            String errorText = index < 2 ? getString(R.string.error_fetch) : getString(R.string.error_not_found);
+
 
             MangaListAdapter ad = new MangaListAdapter(requireActivity(), new ArrayList<>(), R.layout.list_manga_home);
-            RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter(ad, requireActivity(),
+            RecyclerViewAdapter rvAdapter = new RecyclerViewAdapter(ad, requireActivity(), errorText,
                     new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
 
-            TitleAdapter titleAd = new TitleAdapter(requireActivity(), s, rvAdapter);
-            titleAd.setImageListener(v -> getLink(s));
+            TitleAdapter titleAd = new TitleAdapter(requireActivity(), name, rvAdapter);
+            titleAd.setImageListener(v -> getLink(index, name));
             titleAd.setDrawableResource(R.drawable.ic_arrow_forward_black_24dp);
 
-            if (s.equals("Latest")) ad.showMoreInfo(true);
+            if (index == 1) ad.showMoreInfo(true);
 
             if (mBinding.recyclerHome.getAdapter() == null) {
                 ConcatAdapter adapter = new ConcatAdapter(titleAd);
@@ -84,34 +90,39 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         onRefresh();
 
         mBinding.swipeRefresh.setOnRefreshListener(this);
-        setSwipeRefreshView(mBinding.swipeRefresh, mBinding.recyclerHome);
     }
 
-    private BiConsumer<List<Manga>, Integer> consumer() {
+    private BiConsumer<List<Manga>, Pair<Integer, Boolean>> consumer() {
 
         return (manga, which) -> {
             if (isAdded()) {
-                List<? extends RecyclerView.Adapter<? extends RecyclerView.ViewHolder>> adapters = ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters();
+                RecyclerViewAdapter rvAdapter = (RecyclerViewAdapter) ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters().get(which.first);
+                rvAdapter.progressBarVisiblity(false);
 
+                MangaListAdapter adapter = (MangaListAdapter) rvAdapter.getMViewAdapter();
+                if (which.second) {
 
-                MangaListAdapter adapter = (MangaListAdapter) ((RecyclerViewAdapter) adapters.get(which)).getMViewAdapter();
+                    adapter.submitList(null);
+                    adapter.submitList(new ArrayList<>(manga));
 
-                adapter.submitList(null);
-                adapter.submitList(new ArrayList<>(manga));
-
-                ((RecyclerViewAdapter) adapters.get(which)).hideProgressBar(true);
+                } else if (adapter.getItemCount() == 0) {
+                    //which.second already confirmed to be false
+                    rvAdapter.textVisiblilty(true);
+                }
             }
         };
     }
 
-    private void getLink(String name) {
+    private void getLink(int index, String title) {
         NavController control = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
-        if (name.contains("Bookmark") || name.contains("Download"))
-            control.navigate(R.id.action_nav_home_to_nav_bookamrk);
-        else {
-            String link = name.equalsIgnoreCase("popular") ? "/popular" : "/latest";
-            String title = name.equalsIgnoreCase("popular") ? "Popular" : "Latest";
+        if (index == 2 || index == 3) {
+            Bundle b = new Bundle(1);
+            b.putInt(BookmarkFragment.KEY_ITEM, index);
+
+            control.navigate(R.id.action_nav_home_to_nav_bookamrk, b);
+        } else {
+            String link = index == 0 ? "/popular" : "/latest";
 
             Bundle linkBund = new Bundle(2);
 
@@ -123,12 +134,21 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
 
     @Override
     public void onRefresh() {
+        mBinding.swipeRefresh.setRefreshing(false);
 
-        BiConsumer<List<Manga>, Integer> consumer = consumer();
+        ((ConcatAdapter) mBinding.recyclerHome.getAdapter()).getAdapters()
+                .forEach(adapter -> {
+                    if (!(adapter instanceof RecyclerViewAdapter)) return;
+
+                    if (((RecyclerViewAdapter) adapter).isTextVisible()) {
+                        ((RecyclerViewAdapter) adapter).textVisiblilty(false);
+                        ((RecyclerViewAdapter) adapter).progressBarVisiblity(true);
+                    }
+                });
+
+        BiConsumer<List<Manga>, Pair<Integer, Boolean>> consumer = consumer();
         mViewModel.parseHome(consumer, 1, 3);
         mViewModel.queryDb(consumer, 5, 7);
-
-        mBinding.swipeRefresh.setRefreshing(false);
     }
 
     @Override

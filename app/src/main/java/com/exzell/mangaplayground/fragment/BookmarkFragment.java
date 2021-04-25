@@ -16,6 +16,8 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class BookmarkFragment extends Fragment {
 
+    public static final String KEY_ITEM = "current item";
+
     public static int BOOKMARK_BOOKMARK = 0;
     private TabLayoutMediator mTabMediator;
     private FragmentBookmarkBinding mBinding;
@@ -41,6 +43,13 @@ public class BookmarkFragment extends Fragment {
         mTabMediator = new TabLayoutMediator(mBinding.tabBookmark, mBinding.pagerBookmark, stra);
 
         mTabMediator.attach();
+
+        mBinding.pagerBookmark.post(() -> {
+            if (getArguments() != null) {
+                int val = getArguments().getInt(KEY_ITEM);
+                mBinding.pagerBookmark.setCurrentItem(val % 2, false);
+            }
+        });
     }
 
     @Override

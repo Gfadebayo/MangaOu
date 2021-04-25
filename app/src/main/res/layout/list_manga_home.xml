@@ -19,7 +19,7 @@
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/image_manga"
                     android:layout_width="0dp"
-                    android:layout_height="150dp"
+                    android:layout_height="@dimen/manga_height"
                     android:scaleType="center"
                     app:layout_constraintDimensionRatio="12:15"
                     app:layout_constraintEnd_toEndOf="@id/button_more"

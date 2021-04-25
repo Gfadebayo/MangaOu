@@ -3,4 +3,5 @@
     <dimen name="text_size">18sp</dimen>
     <dimen name="progress_width">24dp</dimen>
     <dimen name="progress_height">24dp</dimen>
+    <dimen name="manga_height">150dp</dimen>
 </resources>
