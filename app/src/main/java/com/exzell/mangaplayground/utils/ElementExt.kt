@@ -59,7 +59,10 @@ private fun parseMangaSection(body: Element, manga: Manga) {
 
         if (it.text().contains("Genre")) {
             it.nextElementSibling().getElementsByTag("a").forEach { a: Element ->
-                manga.addGenres(Genre.values().first { gen -> gen.dispName == a.text() })
+                manga.addGenres(Genre.values().first { gen ->
+                    gen.dispName.replace("\\s", "")
+                            .compareTo(a.text().replace("\\s", ""), true) == 0
+                })
             }
         }
 

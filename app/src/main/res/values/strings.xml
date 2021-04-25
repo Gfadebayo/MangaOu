@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">MangaOu</string>
+    <string name="n_a">N/A</string>
+
     <string name="popular_updates">Popular Updates</string>
     <string name="latest_updates">Latest Updates</string>
     <string name="ongoing">Ongoing</string>
@@ -9,23 +11,64 @@
     <string name="reset">Reset</string>
     <string name="search">Search</string>
     <string name="cancel">Cancel</string>
-    <string name="updating_manga">Updating Mangas</string>
     <string name="title">Title</string>
     <string name="chapters">Chapters</string>
     <string name="release">Release</string>
 
-    <string name="summary">Summary: <b><i>Gol D. Roger</i></b> was known as the Pirate King, the strongest and most infamous being to have sailed the Grand Line. The capture and death of Roger by the World Government brought a change throughout the world. His last words before his death revealed the location of the greatest treasure in the world, One Piece. It was this revelation that brought about the Grand Age of Pirates, men who dreamed of finding One Piece (which promises an unlimited amount of riches and fame), and quite possibly the most coveted of titles for the person who found it, the title of the Pirate King.
-Enter Monkey D. Luffy, a 17-year-old boy who defies the standard definition of a pirate. Rather than the popular persona of a wicked, hardened, toothless pirate who ransacks villages for fun, Luffy’s reason for being a pirate is one of pure wonder; the thought of an exciting adventure and meeting new and intriguing people, along with finding One Piece. Following in the footsteps of his childhood hero, Luffy and his crew travel across the Grand Line, experiencing crazy adventures, unveiling dark mysteries and battling strong enemies, all in order to reach One Piece.</string>
-    <string name="download">Download</string>
+    <string name="manga">Manga</string>
+    <string name="plural_manga">Mangas</string>
+
+    <string name="update">%s Update %s</string>
+    <string name="updating">%s Updating %s</string>
+
     <string name="bookmark">Bookmark</string>
+    <string name="bookmarks">Bookmarks</string>
+
+    <string name="updating_mangas">Updating Mangas</string>
+
+
+    <string name="download">Download %s</string>
     <string name="mark_as_read">Mark as read</string>
-    <string name="author">Author</string>
+
+
     <string name="date_today">Today</string>
     <string name="date_yesterday">Yesterday</string>
     <string name="date_days_ago">Days ago</string>
+
+    <string name="error">Error</string>
+
     <string name="latest_chapters">Latest Chapters</string>
     <string name="downloader">Downloader</string>
     <string name="download_complete">Download Complete</string>
     <string name="download_error">Download Error</string>
     <string name="bookmark_update">Bookmark Update</string>
+
+    <string name="downloads">Downloads</string>
+
+    <!--Chapter strings!-->
+    <string name="release_date">Release Date%s</string>
+    <string name="author">Author%s</string>
+    <string name="artist">Artist%s</string>
+    <string name="series_type">Series Type%s</string>
+    <string name="status">Status%s</string>
+    <string name="popularity">Popularity%s</string>
+    <string name="votes">Votes%s</string>
+    <string name="views">Views%s</string>
+    <string name="synopsis">Synopsis%s</string>
+
+
+    <string name="error_network">Error, Please check your network</string>
+    <string name="error_fetch">Failed to get Mangas</string>
+    <string name="error_not_found">No Mangas found</string>
+
+    <string name="any">Any</string>
+    <string name="and">And</string>
+    <string name="or">Or</string>
+
+    <string name="contains">Contains</string>
+    <string name="begins">Begins</string>
+    <string name="ends">Ends</string>
+
+    <string name="summary">Summary: <b><i>Gol D. Roger</i></b> was known as the Pirate King, the strongest and most infamous being to have sailed the Grand Line. The capture and death of Roger by the World Government brought a change throughout the world. His last words before his death revealed the location of the greatest treasure in the world, One Piece. It was this revelation that brought about the Grand Age of Pirates, men who dreamed of finding One Piece (which promises an unlimited amount of riches and fame), and quite possibly the most coveted of titles for the person who found it, the title of the Pirate King.
+Enter Monkey D. Luffy, a 17-year-old boy who defies the standard definition of a pirate. Rather than the popular persona of a wicked, hardened, toothless pirate who ransacks villages for fun, Luffy’s reason for being a pirate is one of pure wonder; the thought of an exciting adventure and meeting new and intriguing people, along with finding One Piece. Following in the footsteps of his childhood hero, Luffy and his crew travel across the Grand Line, experiencing crazy adventures, unveiling dark mysteries and battling strong enemies, all in order to reach One Piece.</string>
 </resources>
