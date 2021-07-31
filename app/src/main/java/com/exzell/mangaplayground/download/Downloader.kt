@@ -1,10 +1,11 @@
 package com.exzell.mangaplayground.download
 
 import android.content.Context
-import android.util.Log
 import android.webkit.MimeTypeMap
 import com.exzell.mangaplayground.BuildConfig
+import com.exzell.mangaplayground.download.model.DownloadPage
 import com.exzell.mangaplayground.io.internet.InternetManager
+import com.exzell.mangaplayground.models.Download
 import com.exzell.mangaplayground.utils.fetchDownloadLink
 import com.exzell.mangaplayground.utils.isConnectedToNetwork
 import io.reactivex.rxjava3.core.Observable
@@ -16,69 +17,74 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.concurrent.TimeUnit
+import java.io.InterruptedIOException
 
-class Downloader(val mManager: DownloadManager, val context: Context): DownloadChangeListener {
-
-    companion object{
-        val tag = "Downloader"
-    }
+class Downloader(val id: Long,
+                 val mManager: DownloadManager,
+                 val context: Context,
+                 val client: OkHttpClient) : DownloadChangeListener {
 
     val mPublishObserver: PublishSubject<Download> = PublishSubject.create()
 
     val mDisposer = CompositeDisposable()
 
-    private val mClient = OkHttpClient.Builder().connectTimeout(2, TimeUnit.MINUTES).build()
-
     var isRunning = false
+
+    var concurrentDownloads = 3
 
     init {
         mManager.addListener(this)
     }
 
-    fun startDownloading(){
-        if(isRunning) return
+    fun startDownloading() {
+        if (isRunning) return
 
         mDisposer.clear()
 
-        mDisposer.add(mPublishObserver.startWithIterable(mManager.downloads)
+        mDisposer.add(mPublishObserver.startWithIterable(mManager.getDownloads(id))
                 .filter { !it.state.equals(Download.State.CANCELLED) }
                 .subscribeOn(Schedulers.io())
-                .flatMap({ createDownloadPages(it) }, 5)
-                .doOnNext {
-                    if(it.state.equals(DownloadPage.State.DOWNLOADED)) incrementProgress(it.parent)
-                }.doOnError {
-//                    Log.i("Downloader", "Error thrown when downloading")
-                }.doOnComplete {
-                    Log.i("Downloader", "Downloader is stopping")
+                .doOnEach { it.value.progress = 0 }
+                .flatMap({ createDownloadPages(it) }, concurrentDownloads)
+                .subscribe({ page ->
+                    if (page.state == DownloadPage.State.DOWNLOADED) incrementProgress(page.parent)
+                }, { error ->
+                    Timber.d(error)
+                }, {
+                    Timber.i("Download Complete")
                     isRunning = false
                     mDisposer.clear()
-                    mManager.stopService()
-                }.subscribe())
+                    mManager.informDownloaderDone(id)
+                }))
 
         isRunning = true
     }
 
-    fun stopDownloading(){
-        if(!isRunning) return
+    fun stopDownloading() {
+        if (!isRunning) return
+
+        client.dispatcher().cancelAll()
+
+        mPublishObserver.unsubscribeOn(Schedulers.io())
 
         mDisposer.clear()
         isRunning = false
     }
 
-    private fun createDownloadPages(d: Download): Observable<DownloadPage>{
-        return Observable.range(1, d.length).subscribeOn(Schedulers.io())
+    private fun createDownloadPages(d: Download): Observable<DownloadPage> {
+        return Observable.range(1, d.length - d.progress).subscribeOn(Schedulers.io())
                 .map { DownloadPage(createPageNumber(it), createPagePath(d.path, it), createPageUrl(d.link, it), d) }
                 .doOnError {
-                    Log.i("Downloader", "Error thrown when downloading")
+                    Timber.i("Error thrown when downloading")
                     d.state = Download.State.ERROR
                     mManager.updateDownload(d.id, DownloadChangeListener.FLAG_STATE)
                 }
                 .doOnNext {
-                    if(checkDownloadState(it.parent)) {
+                    if (checkDownloadState(it.parent)) {
                         if (checkPagePath(it)) it.state = DownloadPage.State.DOWNLOADED
                         else downloadPage(it)
                     }
@@ -88,62 +94,82 @@ class Downloader(val mManager: DownloadManager, val context: Context): DownloadC
     /**
      * Checks before any page is downloaded the state of a download.
      * If it is in a queued state, it changes to downloading since its can only start creating pages
-     * once a download is ready. Any other state should be ignored as the are user defined
+     * once a download is ready. Any other state should be ignored as they are user defined
      */
-    private fun checkDownloadState(d: Download): Boolean{
-        if(d.state.equals(Download.State.QUEUED) || d.state.equals(Download.State.DOWNLOADING)){
+    private fun checkDownloadState(d: Download): Boolean {
+        if (d.state.equals(Download.State.QUEUED)) {
             d.state = Download.State.DOWNLOADING
-            return true
+
+            mManager.updateDownload(d.id, DownloadChangeListener.FLAG_STATE)
         }
-        return false
+
+        return d.state.equals(Download.State.DOWNLOADING)
     }
 
-    private fun createPageNumber(num: Int) = if(num < 10) "0$num" else num.toString()
+    private fun createPageNumber(num: Int) = if (num < 10) "0$num" else num.toString()
 
-    private fun createPagePath(path: String, num: Int) = File(path, num.toString()).path
+    private fun createPagePath(path: String, num: Int): String {
+        val numStr = if (num >= 10) num.toString() else "0".plus(num)
+        return File(path, numStr).path
+    }
 
-    private fun createPageUrl(link: String, num: Int): String{
+    private fun createPageUrl(link: String, num: Int): String {
         val lastIndex = link.lastIndexOf('/')
-        return link.replaceRange(lastIndex+1, link.length, num.toString())
+        return link.replaceRange(lastIndex + 1, link.length, num.toString())
     }
 
     /**
      * Checks the particular file to see if it already exists and is not empty
      * @return returns true if this file already exists
      */
-    private fun checkPagePath(page: DownloadPage) = File(page.parent.path).list { dir, name -> name.contains(page.number)}?.isNotEmpty() ?: false
+    private fun checkPagePath(page: DownloadPage) = File(page.parent.path).list { dir, name -> name.contains(page.number) }?.isNotEmpty()
+            ?: false
 
-    private fun downloadPage(page: DownloadPage){
-        if(!context.isConnectedToNetwork()) throw IOException("Device is not connected to the internet")
+    private fun downloadPage(page: DownloadPage) {
+        if (!context.isConnectedToNetwork()) {
+            Timber.d("Device is not connected to the internet")
+            return
+        }
 
-        val url = HttpUrl.get(InternetManager.mBaseUrl + page.url)
+        //The cancel call causes unfinished calls to crash the app
+        try {
+            if (page.parent.state != Download.State.DOWNLOADING) return
 
-        val request = Request.Builder().url(url).build()
+            val url = HttpUrl.get(InternetManager.baseUrl + page.url)
 
-        val response = mClient.newCall(request).execute()
+            val request = Request.Builder().url(url).build()
 
-        if(response.isSuccessful){
-            val html = response.body()?.string()
-            response.close()
+            val response = client.newCall(request).execute()
 
-            val link = fetchDownloadLink(Jsoup.parse(html))
+            if (response.isSuccessful) {
+                val html = response.body()?.string()
+                response.close()
 
-            downloadAndWriteImages(link, page)
+                val link = fetchDownloadLink(Jsoup.parse(html))
 
-        }else{
-            if(BuildConfig.DEBUG) Log.i(tag, response.code().toString())
-            page.state = DownloadPage.State.ERROR
-            val code = response.code()
-            throw IOException("Error downloading page: Response code is $code")
+                downloadAndWriteImages(link, page)
+
+            } else {
+                if (BuildConfig.DEBUG) Timber.i(response.code().toString())
+                page.state = DownloadPage.State.ERROR
+                val code = response.code()
+                Timber.d("Error downloading page: Response code is $code")
+            }
+        } catch (e: InterruptedIOException) {
+        } catch (e: IOException) {
         }
     }
 
     private fun downloadAndWriteImages(link: String?, page: DownloadPage) {
         val imageRequest = Request.Builder().url(link).build()
 
-        val response = mClient.newCall(imageRequest).execute()
+        val response = client.newCall(imageRequest).execute()
         val code = response.code()
-        if(!response.isSuccessful) throw IOException("Failed: $code")
+        if (!response.isSuccessful) {
+            Timber.d("Failed to download page. Error code: $code")
+            page.parent.state = Download.State.ERROR
+            return
+        }
 
         val by = response.body()?.bytes()
         var extension = response.body()?.contentType()?.let { decipherExtension(it) } ?: "png"
@@ -151,7 +177,10 @@ class Downloader(val mManager: DownloadManager, val context: Context): DownloadC
         response.close()
 
         File(page.path + extension).apply {
-            if(!exists()) createNewFile()
+            val parent = this.parentFile!!
+            if (!parent.exists()) parent.mkdirs()
+
+            if (!exists()) createNewFile()
 
             val outStream = FileOutputStream(this)
             outStream.write(by)
@@ -161,7 +190,7 @@ class Downloader(val mManager: DownloadManager, val context: Context): DownloadC
         }
     }
 
-    private fun decipherExtension(mediaType: MediaType): String{
+    private fun decipherExtension(mediaType: MediaType): String {
 
         val type = mediaType.type()
         val sub = mediaType.subtype()
@@ -170,23 +199,33 @@ class Downloader(val mManager: DownloadManager, val context: Context): DownloadC
         return MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "png"
     }
 
-    private fun incrementProgress(down: Download){
+    private fun incrementProgress(down: Download) {
         down.progress++
         mManager.updateDownload(down.id, DownloadChangeListener.FLAG_PROGRESS)
 
-        if(down.progress == down.length){
+        if (down.progress == down.length) {
             down.state = Download.State.DOWNLOADED
             mManager.updateDownload(down.id, DownloadChangeListener.FLAG_STATE)
         }
     }
 
-    override fun onDownloadChange(down: Download, flag: String) {
-        if(flag.equals(DownloadChangeListener.FLAG_NEW)){
-            mPublishObserver.onNext(down)
-        }else if(flag.equals(DownloadChangeListener.FLAG_STATE)){
+    override fun onDownloadChange(downs: MutableList<Download>, flag: String) {
 
-            if(down.state == Download.State.DOWNLOADING){
-                if(mPublishObserver.contains(down).blockingGet()) mPublishObserver.onNext(down)
+        if (downs[0].mangaId != this.id && !isRunning) return
+
+        if (flag.equals(DownloadChangeListener.FLAG_NEW)) downs.forEach { mPublishObserver.onNext(it) }
+        else if (flag.equals(DownloadChangeListener.FLAG_STATE)) {
+
+            if (downs[0].state == Download.State.DOWNLOADING || downs[0].state == Download.State.QUEUED) {
+                downs.forEach {
+                    mDisposer.add(mPublishObserver.contains(it)
+                            .subscribeOn(Schedulers.computation())
+                            .doOnSuccess { success ->
+                                Timber.i("Checking if Download $it is available")
+                                if (!success) mPublishObserver.onNext(it)
+                            }
+                            .subscribe())
+                }
             }
         }
     }

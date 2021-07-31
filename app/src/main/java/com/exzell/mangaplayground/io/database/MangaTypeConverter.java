@@ -1,22 +1,14 @@
 package com.exzell.mangaplayground.io.database;
 
-import android.util.Log;
-
-import androidx.core.util.PatternsCompat;
 import androidx.room.TypeConverter;
-import androidx.room.TypeConverters;
 
 import com.exzell.mangaplayground.advancedsearch.Genre;
 import com.exzell.mangaplayground.advancedsearch.Type;
-import com.exzell.mangaplayground.download.Download;
 import com.exzell.mangaplayground.models.Chapter;
+import com.exzell.mangaplayground.models.Download;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

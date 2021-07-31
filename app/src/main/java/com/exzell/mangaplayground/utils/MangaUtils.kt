@@ -53,5 +53,5 @@ fun Manga.transferInfo(to: Manga, andChapters: Boolean = true) {
     to.isBookmark = isBookmark
 
     if (andChapters)
-        to.chapters = transferChapterInfo(to.chapters, chapters)
+        to.chapters = transferChapterInfo(to.chapters.onEach { it.mangaId = id }, chapters)
 }

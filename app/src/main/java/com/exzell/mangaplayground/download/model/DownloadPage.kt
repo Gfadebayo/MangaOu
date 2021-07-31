@@ -1,4 +1,6 @@
-package com.exzell.mangaplayground.download
+package com.exzell.mangaplayground.download.model
+
+import com.exzell.mangaplayground.models.Download
 
 data class DownloadPage(
         val number: String,
@@ -7,7 +9,7 @@ data class DownloadPage(
         val parent: Download,
         var state: State = State.PENDING) {
 
-    enum class State{
+    enum class State {
         DOWNLOADED,
         ERROR,
         PENDING

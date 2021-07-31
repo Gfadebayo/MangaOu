@@ -1,13 +1,9 @@
 package com.exzell.mangaplayground.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
@@ -18,17 +14,18 @@ import com.exzell.mangaplayground.advancedsearch.Type;
 import com.exzell.mangaplayground.io.database.MangaTypeConverter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity(tableName = "manga", indices = @Index(name = "manga_link_index", value = "link"))
-public class Manga{
+public class Manga {
 
     @PrimaryKey(autoGenerate = true)
     private long id;
 
     private String title = "";
+
+    @ColumnInfo(name = "alt_title")
+    private String altTitle = "";
 
     private String link = "";
 
@@ -67,14 +64,20 @@ public class Manga{
     public Manga(){}
 
     @Ignore
-    public Manga(String link){
+    public Manga(String link) {
         this.link = link;
     }
 
-    public void setId(long id){this.id = id;}
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getAltTitle() {
+        return altTitle;
     }
 
     public void setLink(String link) {
@@ -141,12 +144,16 @@ public class Manga{
         this.chapters = chapters;
     }
 
-    public long getId(){
+    public long getId() {
         return id;
     }
 
     public String getTitle() {
         return title;
+    }
+
+    public void setAltTitle(String altTitle) {
+        this.altTitle = altTitle;
     }
 
     public String getLink() {

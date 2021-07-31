@@ -1,7 +1,5 @@
 package com.exzell.mangaplayground;
 
-import android.util.Log;
-
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Manga;
 
@@ -13,40 +11,24 @@ import org.jsoup.select.Elements;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Scanner;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.functions.Function;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import static com.exzell.mangaplayground.BuildConfig.DEBUG;
-import static java.time.Duration.ofNanos;
-import static org.junit.Assert.*;
 
 public class DownloadFileUnitTest {
 
@@ -124,38 +106,9 @@ public class DownloadFileUnitTest {
         return build.toString();
     }
 
-    //DONE
-    @Test
-    public void createChapterwithObservable(){
-
-        Manga manga = new Manga();
-        manga.setId(0x0002);
-
-
-        Document doc = Jsoup.parse(getHtml("D:\\Cgpa Calculator\\Manga - manga file.html"));
-        Elements select = doc.body().select("div[id*=stream]");
-
-        Observable.range(0, select.size()).flatMap(integer -> Observable.just(select.get(integer))
-//                .subscribeOn(Schedulers.newThread())
-                .flatMap((Function<Element, ObservableSource<Chapter>>) ele -> {
-                    String version = ele.select("span[class*=ml-1 stream-text]").text();
-
-                    System.out.printf("***************%s*************\n\n", version);
-                    Chapter.Version vers = Stream.of(Chapter.Version.values())
-                            .filter(p -> version.equalsIgnoreCase(p.getDispName()))
-                            .findFirst().get();
-
-                    return createChapters(ele, manga, vers);
-                }, 2))
-                /*.doOnNext(c -> {
-    System.out.println(c.getNumber());
-}))*/.subscribe();
-//
-    }
-
-    private static Observable<Chapter> createChapters(Element parent, Manga manga, Chapter.Version version){
+    private static Observable<Chapter> createChapters(Element parent, Elements latestChapters, Manga manga, Chapter.Version version) {
         Elements allLinks = parent.select("a[class=ml-1 visited ch]");
-
+        List<String> latestLinks = latestChapters.stream().map(element -> element.attr("href")).collect(Collectors.toList());
 //        Elements allTitles = parent.select("div[class=d-none d-md-flex align-items-center ml-0 ml-md-1  txt]");
         String[] allTime = parent.select("span[class=time]").text().split("ago");
         Elements newChapter = parent.select("li[class*=d-flex py-1 item new]");
@@ -172,10 +125,14 @@ public class DownloadFileUnitTest {
 
 
             String chapterNumber = allLinks.get(i).text();
-            chap.setNumber(chapterNumber);
+//            chap.setNumber(chapterNumber);
 //            chap.setReleaseDate(allTime[i] + " ago");
-            chap.setLink(allLinks.get(i).attr("href"));
-            chap.setNewChap(newChapNum.contains(chapterNumber));
+
+            String link = allLinks.get(i).attr("href");
+            chap.setLink(link);
+
+            boolean isLatest = latestLinks.contains(link);
+            chap.setNewChap(isLatest);
 
             String title = li.get(i).select("div[class=d-none d-md-flex align-items-center ml-0 ml-md-1  txt]").text();
             chap.setTitle(title);
@@ -183,17 +140,92 @@ public class DownloadFileUnitTest {
             chap.setLength(Integer.parseInt(length));
 
 
+//            Map<Integer, String> titleRegexMatch = regexIt(title, null);
+//            boolean hasTitle = titleRegexMatch.containsKey(3) && !titleRegexMatch.get(3).isEmpty();
+//
+//            Map<Integer, String> numberMatch = regexIt(chapterNumber);
+
+
+//            String[] numberSplit = chapterNumber.split("(ch|Chapter)\\.?\\s*([\\d]+)");
+
+            String[] titleSplit = title.split("(ch|Chapter)\\.?\\s*[\\d\\W]*:");
+
+            if (titleSplit.length <= 1) {
+                if (title.isEmpty()) {
+                    title = chapterNumber.split("(ch|Chapter)\\.?\\s*[\\d\\W]*:")[1];
+                }  //use title itself otherwise
+
+
+            } else title = titleSplit[1];
+
+            Pattern numberPattern = Pattern.compile("(ch|Chapter)\\.?\\s?([\\d\\.]+)");
+            Matcher numberMatcher = numberPattern.matcher(chapterNumber);
+
+            while (numberMatcher.find()) {
+                int groupCount = numberMatcher.groupCount();
+                String number = numberMatcher.group(groupCount);
+                String ok = "";
+            }
             return chap;
         });
     }
 
+    public static Map<Integer, String> regexIt(String string, String sequence) {
+        Map<Integer, String> groups = new HashMap<>();
+
+        Pattern pattern = Pattern.compile(string);
+        Matcher matcher = pattern.matcher("((ch\\.?|Chapter\\.?)\\s*(\\d\\.?)+:?\\s?)?([\\S\\s]*)");
+
+        boolean matches = matcher.matches();
+
+        if (matches) {
+            String chapNumber = matcher.group(2);
+            String title = matcher.group(3);
+
+            groups.put(2, chapNumber);
+            groups.put(3, title);
+        }
+
+        return groups;
+    }
+
+    //DONE
     @Test
-    public void testTime(){
+    public void createChapterWithObservable() {
+
+        Manga manga = new Manga();
+        manga.setId(0x0002);
+
+
+        Document doc = Jsoup.parse(getHtml("D:\\Manga - manga file.html"));
+        Elements select = doc.body().select("div[id*=stream]");
+
+        Elements latestChapters = doc.body().select("ul[class=lest]").first().select("a[class=visited ch]");
+        Observable.range(0, select.size()).flatMap(integer -> Observable.just(select.get(integer))
+//                .subscribeOn(Schedulers.newThread())
+                .flatMap((Function<Element, ObservableSource<Chapter>>) ele -> {
+                    String version = ele.select("span[class*=ml-1 stream-text]").text();
+
+                    System.out.printf("***************%s*************\n\n", version);
+                    Chapter.Version vers = Stream.of(Chapter.Version.values())
+                            .filter(p -> version.equalsIgnoreCase(p.getDispName()))
+                            .findFirst().get();
+
+                    return createChapters(ele, latestChapters, manga, vers);
+                }, 2))
+                /*.doOnNext(c -> {
+    System.out.println(c.getNumber());
+}))*/.subscribe();
+//
+    }
+
+    @Test
+    public void testTime() {
 
         StringBuilder timeBuild = new StringBuilder("");
         long time = (System.currentTimeMillis());
 
-        while (!timeBuild.toString().isEmpty() && !timeBuild.toString().trim().equals("ago")){
+        while (!timeBuild.toString().isEmpty() && !timeBuild.toString().trim().equals("ago")) {
             time = parseDate(timeBuild, time);
         }
 

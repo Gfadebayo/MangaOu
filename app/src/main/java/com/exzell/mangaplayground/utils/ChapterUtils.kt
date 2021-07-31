@@ -4,6 +4,7 @@ import com.exzell.mangaplayground.models.Chapter
 import org.jsoup.nodes.DataNode
 import org.jsoup.nodes.Document
 import java.util.*
+import java.util.stream.Collectors
 
 /**
  * Titles seem to start with a colon which is stressful to remove from the scraping
@@ -45,11 +46,9 @@ fun fetchDownloadLink(doc: Document): String {
 
 private fun parseDownloadLink(link: String): String {
     val https = Arrays.stream(link.split("\"".toRegex()).toTypedArray()).filter { p: String -> p.contains("https") }.findFirst().orElse("")
-    val build = StringBuilder(https)
-    for (i in 0 until build.length) {
-        if (build[i] == '\\') build.deleteCharAt(i)
-    }
-    return build.toString()
+    val joinToString = https.split("\\").stream().collect(Collectors.joining())/*.joinToString { "" }*/
+
+    return joinToString
 }
 
 /**
@@ -61,28 +60,19 @@ fun transferChapterInfo(newChaps: List<Chapter>, oldChaps: MutableList<Chapter>)
 
     oldChaps.sortedByDescending { it.position }
 
-    //newChaps that are already in oldChaps
+    //newChaps that are already in oldChaps which are the ones we need to update
     val old = newChaps.filter {
         oldChaps.contains(it)
     }
 
     old.forEach {
-        oldChaps.find { old: Chapter -> it == old }?.let { old: Chapter ->
+        oldChaps.find { old -> it == old }?.let { old ->
+            it.id = old.id
             it.isBookmarked = old.isBookmarked
             it.lastReadTime = old.lastReadTime
             it.lastReadingPosition = old.lastReadingPosition
             it.isCompleted = old.isCompleted
-            it.isDownloaded = old.isDownloaded
         }
     }
     return newChaps
-}
-
-fun generateId(link: String, position: Int, number: String, version: Chapter.Version): Long {
-    val result = 23
-    val hash = (link.hashCode()
-            + version.toString().hashCode()
-            + position
-            + number.hashCode())
-    return (37 * result + hash).toLong()
 }

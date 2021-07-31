@@ -6,6 +6,7 @@ import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 import io.reactivex.rxjava3.core.Observable
 import org.jsoup.nodes.Element
+import java.util.regex.Pattern
 import java.util.stream.Collectors
 import java.util.stream.Stream
 
@@ -74,6 +75,11 @@ private fun parseMangaSection(body: Element, manga: Manga) {
             val status = it.nextElementSibling().text()
             manga.status = status
         }
+
+        if (it.text().contains("Alternative")) {
+            val altNames = it.nextElementSibling().text()
+            manga.altTitle = altNames
+        }
     }
 
     manga.summary = mangaClass.getElementsByClass("summary").text()
@@ -115,8 +121,8 @@ fun Element.createSearchManga(pos: Int): List<Manga> {
 
                     b.text().contains("Genre") -> {
                         val genreTag = b.nextElementSibling().parent().getElementsByTag("a")
-                        genres = genreTag.text().split("\\s+".toRegex()).map {
-                            Genre.values().first { gen: Genre -> gen.dispName == it }
+                        genres = genreTag.map {
+                            Genre.values().first { gen: Genre -> gen.dispName == it.text() }
                         }
                     }
                 }
@@ -131,6 +137,10 @@ fun Element.createSearchManga(pos: Int): List<Manga> {
  */
 fun Element.createChapterWithObservable(manga: Manga) {
     val select = select("div[id*=stream]")
+    val latestChapters = select("ul[class=lest]").first().select("a[class=visited ch]")
+    val latestLinks = latestChapters.map { element: Element -> element.attr("href") }
+
+
     Observable.range(0, select.size).flatMap({
         val version = select[it].select("span[class*=ml-1 stream-text]").text()
 
@@ -138,34 +148,56 @@ fun Element.createChapterWithObservable(manga: Manga) {
             version.equals(it.dispName, ignoreCase = true)
         }
 
-        createChapters(select[it], manga, versionTranslate)
+        createChapters(select[it], manga, versionTranslate, latestLinks)
     }, 30).map { chapter: Chapter? -> manga }.blockingSubscribe()
 }
 
-private fun createChapters(parent: Element, manga: Manga, chapVersion: Chapter.Version): Observable<Chapter?>? {
+private fun createChapters(parent: Element, manga: Manga, chapVersion: Chapter.Version, latest: List<String>): Observable<Chapter?>? {
     val allLinks = parent.select("a[class=ml-1 visited ch]")
     val allTime = parent.select("span[class=time]").text().split("ago".toRegex()).toTypedArray()
     val newChapter = parent.select("li[class*=d-flex py-1 item new]")
 
-    //TODO: Check this, ch. should not be the only deciding factor
-    val newChapNum = Stream.of(*newChapter.text().split(" 1 3 6 10 all of ".toRegex()).toTypedArray()).filter { p: String -> p.startsWith("ch.") }.collect(Collectors.toList())
     val chapLengths = parent.select("em").text().split("1 3 6 10 all of ".toRegex()).toTypedArray()
     val li = parent.select("li[class*=d-flex py-1 item]")
 
     return Observable.range(0, allLinks.size).map {
 
-        Chapter().apply {
-            title = fixTitle(li[it].select("div[class=d-none d-md-flex align-items-center ml-0 ml-md-1  txt]").text())
-            link = allLinks[it].attr("href")
+        Chapter(manga.id).apply {
+            val chapNum = allLinks[it].text()
+            val chapLink = allLinks[it].attr("href")
+
+            title = fixTitle(correctTitle(li[it].select("div[class=d-none d-md-flex align-items-center ml-0 ml-md-1  txt]").text(), chapNum))
+            link = chapLink
             version = chapVersion
-            number = allLinks[it].text()
+            number = extractChapterNumber(chapNum)
             releaseDate = allTime[it].translateTime()
 
-            isNewChap = newChapNum.contains(number)
+            isNewChap = latest.contains(chapLink)
             length = chapLengths[it + 1].trim().toInt()
             position = allLinks.size - 1 - it
-            id = generateId(link, position, number, version)
         }
 
     }.doOnNext { manga.addChapter(it) }
+}
+
+private fun extractChapterNumber(text: String): Float {
+    val numberPattern = Pattern.compile("(ch|Chapter)\\.?\\s?([\\d\\.]+)")
+    val numberMatcher = numberPattern.matcher(text)
+
+    return if (numberMatcher.find()) {
+        val groupCount = numberMatcher.groupCount()
+        numberMatcher.group(groupCount).toFloat()
+    } else 0f
+}
+
+private fun correctTitle(wrongTitle: String, chapterNumber: String): String {
+
+    val titleSplit: Array<String> = wrongTitle.split("(ch|Chapter)\\.?\\s*[\\d\\.]+:?".toRegex()).toTypedArray()
+
+    return if (titleSplit.size <= 1) {
+        return if (wrongTitle.isEmpty()) {
+            val titles = chapterNumber.split("(ch|Chapter)\\.?\\s*[\\d\\.]+:?".toRegex()).toTypedArray()
+            titles[1]
+        } else wrongTitle//use title itself otherwise
+    } else titleSplit[1]
 }

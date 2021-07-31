@@ -45,6 +45,10 @@ interface MangaDao {
     fun getMangaFromChapter(chapter_id: Long): DBManga
 
     @Transaction
+    @Query("SELECT id, title, thumbnailLink FROM manga WHERE id =:id")
+    fun getMangaInfoFromId(id: Long): DownloadInfo
+
+    @Transaction
     @Query("SELECT DISTINCT manga.* FROM manga, chapter ON manga.id=chapter.manga_id AND chapter.last_read_time >=:read_time ORDER BY chapter.last_read_time DESC")
     fun getMangaFromChapterTime(read_time: Long): List<DBManga>
 

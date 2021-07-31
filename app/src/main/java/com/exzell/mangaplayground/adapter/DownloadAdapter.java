@@ -1,4 +1,4 @@
-package com.exzell.mangaplayground.download;
+package com.exzell.mangaplayground.adapter;
 
 import android.content.Context;
 import android.text.Spanned;
@@ -15,10 +15,10 @@ import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.R;
+import com.exzell.mangaplayground.models.Download;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHolder> {
@@ -27,19 +27,20 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
     private final Context mContext;
     private OnPopupItemClicked mPopupListener;
 
-    public DownloadAdapter(List<Download> mDownloads, Context mContext) {
-        this.mDownloads = new ArrayList<>(mDownloads);
-        this.mContext = mContext;
+    public DownloadAdapter(List<Download> downloads, Context context) {
+
+        this.mContext = context;
+        mDownloads = downloads;
     }
 
-    public void setListener(OnPopupItemClicked listener){
+    public void setListener(OnPopupItemClicked listener) {
         mPopupListener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.fragment_download, parent, false);
+        View v = LayoutInflater.from(mContext).inflate(R.layout.list_download_chapter, parent, false);
         return new ViewHolder(v);
     }
 
@@ -48,7 +49,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
         Download d = mDownloads.get(position);
         String stateLength = d.getState() + "(" + d.getProgress() + "/" + d.getLength() + ")";
 
-        holder.mTitle.setText(setText(d));
+        holder.mTitle.setText(d.getChapNumber());
         holder.mLength.setText(stateLength);
 
 
@@ -68,30 +69,33 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
         return mDownloads.size();
     }
 
-    public List<Download> getItems(){return mDownloads;}
+    public void addDownloads(List<Download> newDown) {
+        if (!mDownloads.containsAll(newDown)) {
+            newDown.removeAll(mDownloads);
+            mDownloads.addAll(newDown);
 
-    public void addDownload(Download newDown){
-        if(!mDownloads.contains(newDown)){
-            mDownloads.add(newDown);
-            notifyItemInserted(mDownloads.size()-1);
+            notifyItemRangeInserted(mDownloads.size(), newDown.size());
         }
     }
 
-    public void removeDownload(Download down){
-        int index = mDownloads.indexOf(down);
-        mDownloads.remove(down);
-        notifyItemRemoved(index);
+    public void removeDownloads(List<Download> downs) {
+        downs.forEach((down) -> {
+            int index = mDownloads.indexOf(down);
+            mDownloads.remove(index);
+            notifyItemRemoved(index);
+        });
     }
 
-    public void updateDownload(Download down){
-        int index = mDownloads.indexOf(down);
-        if(index != -1){
-            mDownloads.set(index, down);
-            notifyItemChanged(index);
-        }
+    public void updateDownloads(List<Download> downs) {
+        downs.forEach((down) -> {
+            int index = mDownloads.indexOf(down);
+            if (index != -1) {
+                notifyItemChanged(index);
+            }
+        });
     }
 
-    private PopupMenu.OnMenuItemClickListener popListener(int position){
+    private PopupMenu.OnMenuItemClickListener popListener(int position) {
         return item -> {
 
             Download d = mDownloads.get(position);
@@ -101,7 +105,11 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
         };
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public List<Download> getItems() {
+        return mDownloads;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         public MaterialTextView mTitle;
         public MaterialTextView mLength;
@@ -113,7 +121,7 @@ public class DownloadAdapter extends RecyclerView.Adapter<DownloadAdapter.ViewHo
 
             mTitle = itemView.findViewById(R.id.text_download_title);
             mLength = itemView.findViewById(R.id.text_download_length);
-            mBar = itemView.findViewById(R.id.progress_download);
+            mBar = itemView.findViewById(R.id.progress_length);
             ImageView img = itemView.findViewById(R.id.button_download_menu);
             img.setOnClickListener(v -> createPopUp(v));
 

@@ -2,12 +2,12 @@ package com.exzell.mangaplayground.di
 
 import android.content.Context
 import com.exzell.mangaplayground.AppExecutors
-import com.exzell.mangaplayground.MainActivity
 import com.exzell.mangaplayground.MangaApplication
 import com.exzell.mangaplayground.UpdateService
-import com.exzell.mangaplayground.download.DownloadQueueFragment
+import com.exzell.mangaplayground.download.DownloadManager
 import com.exzell.mangaplayground.download.DownloadService
-import com.exzell.mangaplayground.fragment.*
+import com.exzell.mangaplayground.fragment.DownloadQueueFragment
+import com.exzell.mangaplayground.fragment.DownloadQueueMangaFragment
 import com.exzell.mangaplayground.io.database.AppDatabase
 import com.exzell.mangaplayground.io.internet.InternetManager
 import com.exzell.mangaplayground.viewmodels.*
@@ -34,12 +34,22 @@ interface AppComponent{
 
     fun injectRepo(readerViewModel: ReaderViewModel)
 
+    fun injectRepo(historyViewModel: HistoryViewModel)
+
     fun injectDownloadManager(downloadService: DownloadService)
 
     fun injectDownloadManager(downloadFragment: DownloadQueueFragment)
 
+    fun injectDownloadManager(downloadMangaFragment: DownloadQueueMangaFragment)
+
+    fun injectPrefs(downloadManager: DownloadManager)
+
+    fun injectPrefs(downloadFragment: DownloadQueueFragment)
+
+    fun injectPrefs(downloadQueueMangaFragment: DownloadQueueMangaFragment)
+
     @Component.Builder
-   interface Builder{
+    interface Builder {
 
         @BindsInstance
         fun bindContext(context: Context): Builder

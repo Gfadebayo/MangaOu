@@ -151,4 +151,11 @@ public class ExampleUnitTest {
 
         System.out.printf("%s popularity with %s monthly views", popular, views);
     }
+
+    @Test
+    public void testParse() {
+        String weirdLink = "https:\\/\\/xcdn-210.bato.to\\/10061\\/93\\/5d\\/5d45796baaec5529bf5ed539\\/01_290375_975_1400.jpeg?acc=1J41Wy82e5B6w-P4iBjHyQ&exp=1624800401";
+        String collect = String.join("", weirdLink.split("\\\\"));
+        System.out.println(collect);
+    }
 }

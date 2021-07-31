@@ -45,7 +45,7 @@ public enum Genre {
     MAGIC("magic", "Magic"),
     MAGICAL_GIRLS("magical-girls", "Magical Girls"),
     MANHWA("manhwa", "Manhwa"),
-    MATRIAL_ARTIST("martial-artist", "Martial Artist"),
+    MARTIAL_ARTIST("martial-arts", "Martial Arts"),
     MATURE("mature", "Mature"),
     MECHA("mecha", "Mecha"),
     MEDICAL("medical", "Medical"),

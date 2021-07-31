@@ -1,4 +1,4 @@
-package com.exzell.mangaplayground.download;
+package com.exzell.mangaplayground.models;
 
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
@@ -10,11 +10,12 @@ import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
 import com.exzell.mangaplayground.io.database.MangaTypeConverter;
-import com.exzell.mangaplayground.models.Chapter;
 
-@Entity(tableName = "download", foreignKeys = @ForeignKey(parentColumns = "id",
+@Entity(tableName = "download", foreignKeys = {@ForeignKey(parentColumns = "id",
         childColumns = "chapter_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE, entity = Chapter.class),
-        indices = @Index(value = "chapter_id", name = "download_chapter_id_index"))
+        @ForeignKey(parentColumns = "id", childColumns = "manga_id", onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE, entity = Manga.class)},
+        indices = {@Index(value = "chapter_id", name = "download_chapter_id_index"),
+                @Index(value = "manga_id", name = "download_manga_id_index")})
 public class Download {
 
     @PrimaryKey(autoGenerate = true)
@@ -37,19 +38,24 @@ public class Download {
     @ColumnInfo(name = "chapter_id")
     private long chapterId;
 
+    @ColumnInfo(name = "manga_id", defaultValue = "0")
+    private long mangaId;
+
     @TypeConverters(MangaTypeConverter.class)
     private State state = State.QUEUED;
 
-    public Download(){}
+    public Download() {
+    }
 
     @Ignore
-    public Download(long chapId, String title, String chNum, String path, String link,  int length) {
+    public Download(long chapId, String title, String chNum, String path, String link, int length, long mangaId) {
         this.chapterId = chapId;
         this.title = title;
         this.chapNumber = chNum;
         this.path = path;
         this.link = link;
         this.length = length;
+        this.mangaId = mangaId;
     }
 
     public long getId() {
@@ -124,16 +130,26 @@ public class Download {
         this.state = state;
     }
 
+    public long getMangaId() {
+        return mangaId;
+    }
+
+    public void setMangaId(long mangaId) {
+        this.mangaId = mangaId;
+    }
+
     @Override
     public boolean equals(@Nullable Object obj) {
-        if(obj == null) return false;
-        else if(!(obj instanceof Download)) return false;
+        if (obj == null) return false;
+        else if (!(obj instanceof Download)) return false;
 
         Download o = (Download) obj;
 
-        return this.title.equals(o.title) && this.chapNumber.equals(o.chapNumber)
+        return this.title.equals(o.title)
+                && this.chapNumber.equals(o.chapNumber)
                 && this.path.equals(o.path)
-                && this.chapterId == o.chapterId && this.length == o.length;
+                && this.chapterId == o.chapterId
+                && this.length == o.length;
     }
 
     @Override
