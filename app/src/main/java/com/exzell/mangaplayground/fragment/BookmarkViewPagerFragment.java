@@ -1,6 +1,7 @@
 package com.exzell.mangaplayground.fragment;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,27 +18,31 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.UpdateService;
-import com.exzell.mangaplayground.adapters.MangaListAdapter;
+import com.exzell.mangaplayground.adapter.MangaListAdapter;
 import com.exzell.mangaplayground.databinding.SwiperefreshLoadingRecyclerViewBinding;
+import com.exzell.mangaplayground.fragment.base.SearchViewFragment;
 import com.exzell.mangaplayground.models.Manga;
-import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.BookmarkViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-public class ViewPagerFragment extends SelectionFragment implements SwipeRefreshLayout.OnRefreshListener {
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
+
+public class BookmarkViewPagerFragment extends SearchViewFragment implements SwipeRefreshLayout.OnRefreshListener {
     private static final String BUNDLE_KEY = "for which";
     private boolean forBookmark;
 
     private BookmarkViewModel mViewModel;
     private SwiperefreshLoadingRecyclerViewBinding mBinding;
 
-    public static ViewPagerFragment getInstance(int which){
+    public static BookmarkViewPagerFragment getInstance(int which) {
         Bundle b = new Bundle(1);
         b.putInt(BUNDLE_KEY, which);
-        ViewPagerFragment f = new ViewPagerFragment();
+        BookmarkViewPagerFragment f = new BookmarkViewPagerFragment();
         f.setArguments(b);
 
         return f;
@@ -46,9 +51,9 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setMenuResource(0, R.menu.cab_menu);
+        setContextMenuResource(0, R.menu.menu_cab_bookmark);
 
-        forBookmark = getArguments().getInt(BUNDLE_KEY) == BookmarkFragment.BOOKMARK_BOOKMARK;
+        forBookmark = getArguments().getInt(BUNDLE_KEY) == BookmarkFragment.PAGE_BOOKMARK;
 
         mViewModel = new ViewModelProvider(this, new SavedStateViewModelFactory(requireActivity()
                 .getApplication(), requireActivity())).get(BookmarkViewModel.class);
@@ -70,7 +75,9 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         super.onViewCreated(view, savedInstanceState);
         mBinding.progressLoad.setVisibility(View.GONE);
 
-        GridLayoutManager manager = new GridLayoutManager(requireActivity(), 3);
+        boolean isPortrait = requireContext().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
+
+        GridLayoutManager manager = new GridLayoutManager(requireActivity(), isPortrait ? 3 : 5);
         mBinding.recyclerLoad.setLayoutManager(manager);
 
         MangaListAdapter adapter = new MangaListAdapter(requireActivity(), new ArrayList<>(), R.layout.list_manga_home);
@@ -82,6 +89,23 @@ public class ViewPagerFragment extends SelectionFragment implements SwipeRefresh
         adapter.setTracker(getTracker());
 
         mBinding.loadRefresh.setOnRefreshListener(this);
+
+        setSearchListeners(filter(adapter), () -> {
+            filter(adapter).invoke("");
+            return Unit.INSTANCE;
+        });
+    }
+
+    private Function1<String, Unit> filter(MangaListAdapter adapter) {
+
+        return keyword -> {
+            List<Manga> mangas = new ArrayList<>(mViewModel.getMMangas());
+
+            adapter.submitList(mangas.stream().filter(manga -> manga.getTitle().toLowerCase()
+                    .contains(keyword)).collect(Collectors.toList()));
+
+            return Unit.INSTANCE;
+        };
     }
 
     private Consumer<List<Manga>> consume(MangaListAdapter adapter) {

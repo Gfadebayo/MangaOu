@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.adapters.MangaListAdapter;
+import com.exzell.mangaplayground.adapter.MangaListAdapter;
 import com.exzell.mangaplayground.databinding.SwiperefreshLoadingRecyclerViewBinding;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
@@ -44,7 +44,7 @@ public class EmptyFragment extends SelectionFragment {
         ((MangaApplication) requireActivity().getApplication())
                 .mAppComponent.injectRepo(mViewModel);
 
-        setMenuResource(R.menu.cab_menu);
+        setContextMenuResource(0, R.menu.menu_cab_bookmark);
         mLink = getArguments().getString(LINK);
 
         mViewModel.initHandler(mLink);
@@ -86,7 +86,7 @@ public class EmptyFragment extends SelectionFragment {
             mBinding.progressLoad.setVisibility(View.GONE);
             mAdapter.addMangas(mangas);
 
-            addDisposable(mViewModel.goToLink(mViewModel.getNextLink(), onSuccess()));
+            mViewModel.goToLink(mViewModel.getNextLink(), onSuccess());
         };
     }
 

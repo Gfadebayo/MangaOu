@@ -10,15 +10,18 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.adapters.ViewPagerAdapter;
+import com.exzell.mangaplayground.adapter.ViewPagerAdapter;
 import com.exzell.mangaplayground.databinding.FragmentBookmarkBinding;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 public class BookmarkFragment extends Fragment {
 
-    public static final String KEY_ITEM = "current item";
+    public static final String KEY_PAGE = "current page";
 
-    public static int BOOKMARK_BOOKMARK = 0;
+    /**
+     * The page for Bookmarks, anything other than this is for Downloads
+     */
+    public static int PAGE_BOOKMARK = 0;
     private TabLayoutMediator mTabMediator;
     private FragmentBookmarkBinding mBinding;
 
@@ -32,12 +35,12 @@ public class BookmarkFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        ViewPagerAdapter mAdapter = new ViewPagerAdapter(this, requireActivity().getResources().getStringArray(R.array.bookmark_titles));
+        ViewPagerAdapter adapter = new ViewPagerAdapter(this, requireActivity().getResources().getStringArray(R.array.bookmark_titles));
 
-        mBinding.pagerBookmark.setAdapter(mAdapter);
+        mBinding.pagerBookmark.setAdapter(adapter);
 
         TabLayoutMediator.TabConfigurationStrategy stra = (tab, position) -> {
-            String s = mAdapter.getTitle(position);
+            String s = adapter.getTitle(position);
             tab.setText(s);
         };
         mTabMediator = new TabLayoutMediator(mBinding.tabBookmark, mBinding.pagerBookmark, stra);
@@ -46,8 +49,8 @@ public class BookmarkFragment extends Fragment {
 
         mBinding.pagerBookmark.post(() -> {
             if (getArguments() != null) {
-                int val = getArguments().getInt(KEY_ITEM);
-                mBinding.pagerBookmark.setCurrentItem(val % 2, false);
+                int val = getArguments().getInt(KEY_PAGE);
+                mBinding.pagerBookmark.setCurrentItem(val, false);
             }
         });
     }

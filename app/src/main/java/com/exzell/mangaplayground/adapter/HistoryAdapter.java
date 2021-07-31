@@ -1,4 +1,4 @@
-package com.exzell.mangaplayground.adapters;
+package com.exzell.mangaplayground.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -73,7 +73,7 @@ public class HistoryAdapter extends ListAdapter<DBManga, HistoryAdapter.ViewHold
         DBManga man = getCurrentList().get(position);
 
         holder.mTitle.setText(man.getTitle());
-        holder.mChapter.setText(man.getLastChapter().getNumber());
+        holder.mChapter.setText(man.getLastChapter().getNumberString());
 
         Request request = Glide.with(mContext).load(man.getThumbnailLink()).into(holder.mImage).getRequest();
         if(!request.isRunning()) request.begin();

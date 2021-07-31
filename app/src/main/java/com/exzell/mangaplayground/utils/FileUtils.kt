@@ -2,14 +2,11 @@ package com.exzell.mangaplayground.utils
 
 import android.content.Context
 
-import com.exzell.mangaplayground.download.Download
-import com.exzell.mangaplayground.models.Chapter
+import com.exzell.mangaplayground.models.Download
 
 import java.io.File
-import java.io.FileFilter
-import java.io.FilenameFilter
 
-    //file format is manga -> version -> chapter
+//file format is manga -> version -> chapter
 
     /**
      * Creates the dir where the chapter will be stored

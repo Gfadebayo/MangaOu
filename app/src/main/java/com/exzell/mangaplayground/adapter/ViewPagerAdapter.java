@@ -1,4 +1,4 @@
-package com.exzell.mangaplayground.adapters;
+package com.exzell.mangaplayground.adapter;
 
 import android.content.Context;
 
@@ -6,8 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import com.exzell.mangaplayground.fragment.BookmarkFragment;
-import com.exzell.mangaplayground.fragment.ViewPagerFragment;
+import com.exzell.mangaplayground.fragment.BookmarkViewPagerFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
     private final Context mContext;
@@ -26,10 +25,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        //Else doesnt matter
-        int type = position == 0 ? BookmarkFragment.BOOKMARK_BOOKMARK : -1;
-
-        return ViewPagerFragment.getInstance(type);
+        return BookmarkViewPagerFragment.getInstance(position);
     }
 
     @Override

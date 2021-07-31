@@ -14,26 +14,30 @@ import javax.inject.Singleton
 @Module
 object InternetManager {
 
-    const val mBaseUrl = "https://mangapark.net/"
+    val baseUrl = "https://v2.mangapark.net/"
 
     @JvmField
-    val mClient: OkHttpClient = OkHttpClient.Builder()
+    val client: OkHttpClient = OkHttpClient.Builder()
             .connectTimeout(1, TimeUnit.MINUTES)
             .readTimeout(30, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true).build()
 
-    @JvmStatic
+
+    private var retrofit: Retrofit? = null
+
     @Singleton
     @Provides
-    fun getApi(context: Context): Retrofit{
+    fun getApi(context: Context): Retrofit {
+        if (retrofit != null) return retrofit!!
 
-        val client = mClient.newBuilder().cache(createCache(context)).build()
+        val client = client.newBuilder()
+                .cache(createCache(context)).build()
 
         return Retrofit.Builder()
-                .baseUrl(mBaseUrl)
+                .baseUrl(baseUrl)
                 .client(client)
                 .addCallAdapterFactory(RxJava3CallAdapterFactory.create())
-                .build()
+                .build().apply { retrofit = this }
     }
 
     private fun createCache(context: Context): Cache {

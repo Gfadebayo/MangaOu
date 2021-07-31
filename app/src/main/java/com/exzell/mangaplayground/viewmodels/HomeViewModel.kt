@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.util.Pair
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.exzell.mangaplayground.R
@@ -12,7 +11,6 @@ import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.io.database.createManga
 import com.exzell.mangaplayground.models.Manga
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.*
@@ -29,7 +27,7 @@ import java.util.stream.Collectors
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class HomeViewModel(application: Application, private val mHandle: SavedStateHandle) : AndroidViewModel(application) {
+class HomeViewModel(application: Application, private val mHandle: SavedStateHandle) : DisposableViewModel(application) {
 
     @JvmField
     @Inject
@@ -153,8 +151,8 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
     }
 
     //Used in empty fragment instead of creating another viewmodel just for it
-    fun goToLink(link: String, next: Consumer<List<Manga>?>): Disposable {
-        return mRepo!!.moveTo(link)
+    fun goToLink(link: String, next: Consumer<List<Manga>?>) {
+        addDisposable(mRepo!!.moveTo(link)
                 .observeOn(Schedulers.computation())
                 .map {
                     val response = it.string()
@@ -182,7 +180,7 @@ class HomeViewModel(application: Application, private val mHandle: SavedStateHan
                     setNextLink(nextLink(link))
                     next.accept(mangas)
                     cacheMangas(mangas ?: emptyList())
-                }) { thr: Throwable -> thr.printStackTrace() }
+                }) { thr: Throwable -> thr.printStackTrace() })
     }
 
     private fun nextLink(link: String): String {

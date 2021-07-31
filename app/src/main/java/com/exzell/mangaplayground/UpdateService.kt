@@ -54,8 +54,8 @@ class UpdateService : Service() {
 
     private val mNotification: NotificationCompat.Builder by lazy {
         NotificationCompat.Builder(this, Notifications.BOOKMARK_ID)
-                .setContentTitle(getString(R.string.updating_manga))
-                .setSmallIcon(R.drawable.ic_update_black_24dp)
+                .setContentTitle(getString(R.string.updating_mangas))
+                .setSmallIcon(R.drawable.ic_round_update_24)
     }
 
     private val mSummaryNotification: NotificationCompat.Builder by lazy {
@@ -146,8 +146,8 @@ class UpdateService : Service() {
 
         return NotificationCompat.Builder(this, Notifications.BOOKMARK_NEW_CHAPTER_ID)
                 .setContentTitle(manga.title)
-                .setContentText(newChapter.number)
-                .setSmallIcon(R.drawable.ic_baseline_new_releases_24)
+                .setContentText(newChapter.numberString)
+                .setSmallIcon(R.drawable.ic_round_new_releases_24)
                 .setGroup(GROUP)
                 .setLargeIcon(cover)
                 .setAutoCancel(true)

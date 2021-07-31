@@ -1,11 +1,12 @@
 package com.exzell.mangaplayground.io
 
 import com.exzell.mangaplayground.AppExecutors
-import com.exzell.mangaplayground.download.Download
+import com.exzell.mangaplayground.download.model.DownloadManga
 import com.exzell.mangaplayground.io.database.*
 import com.exzell.mangaplayground.io.internet.InternetManager
 import com.exzell.mangaplayground.io.internet.MangaParkApi
 import com.exzell.mangaplayground.models.Chapter
+import com.exzell.mangaplayground.models.Download
 import com.exzell.mangaplayground.models.Manga
 import io.reactivex.rxjava3.core.Observable
 import kotlinx.coroutines.flow.Flow
@@ -75,7 +76,7 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
     fun goTo(link: String): Observable<ResponseBody>? {
         return try {
             val req = Request.Builder().url(link).build()
-            Observable.just(InternetManager.mClient.newCall(req).execute().body())
+            Observable.just(InternetManager.client.newCall(req).execute().body())
         } catch (e: IOException) {
             e.printStackTrace()
             null
@@ -104,9 +105,22 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         mExecutor.diskExecutor.submit {
             mMangaDao.updateMangas(listOf(*manga))
 
-            if (andChapters) mChapterDao.insertChapters(manga.flatMap {
-                it.chapters.onEach { chap -> chap.mangaId = it.id }
-            })
+            if (!andChapters) return@submit
+
+            //separate new from old: key 1 for those with ids(i.e already in the DB) and 2 for those without one
+            val chapterGroup = manga.flatMap {
+                it.chapters.also { chapLst ->
+                    chapLst.filter { ch -> ch.mangaId <= 0 }
+                            .onEach { ch -> ch.mangaId = it.id }
+                }
+            }.groupBy { chap -> if (chap.id > 0) 1 else 2 }
+
+            chapterGroup.keys.forEach {
+                chapterGroup[it]?.let { group ->
+                    if (it == 1) mChapterDao.updateChapters(group)
+                    else mChapterDao.insertChapters(group)
+                }
+            }
         }
     }
 
@@ -182,6 +196,18 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         }
     }
 
+    fun getDownloadManga(chapterId: Long): DownloadManga? {
+        return try {
+            mExecutor.diskExecutor.submit(Callable { mMangaDao.getMangaInfoFromId(chapterId).createManga() }).get()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+            null
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     //Calls to ChapterDao
     fun updateChapters(chapter: List<Chapter>) {
         mExecutor.diskExecutor.submit { mChapterDao.updateChapters(chapter) }
@@ -203,14 +229,16 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         mExecutor.diskExecutor.submit { mDownloadDao.addDownloads(downs) }
     }
 
-    fun deleteDownloads(downs: List<Download?>?) {
-        mExecutor.diskExecutor.submit { mDownloadDao.deleteDownloads() }
+    fun deleteDownloads(downs: List<Download>) {
+        mExecutor.diskExecutor.submit { mDownloadDao.deleteDownloads(downs) }
     }
 
+    /** Returns the list of all uncompleted downloads */
     fun getLiveDownloads(): Flow<List<Download>> {
         return mDownloadDao.getPendingDownloadsLive()
     }
 
+    /** Returns a list of every download in the db*/
     fun getDownloads(): Flow<List<Download>> {
         return mDownloadDao.getAllDownloads()
     }

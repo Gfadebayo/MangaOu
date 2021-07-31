@@ -18,11 +18,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.adapters.MangaListAdapter;
-import com.exzell.mangaplayground.adapters.RecyclerViewAdapter;
-import com.exzell.mangaplayground.adapters.TitleAdapter;
+import com.exzell.mangaplayground.adapter.MangaListAdapter;
+import com.exzell.mangaplayground.adapter.RecyclerViewAdapter;
+import com.exzell.mangaplayground.adapter.TitleAdapter;
 import com.exzell.mangaplayground.databinding.FragmentHomeBinding;
-import com.exzell.mangaplayground.fragment.base.DisposableFragment;
+import com.exzell.mangaplayground.fragment.base.SwipeRefreshFragment;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.viewmodels.HomeViewModel;
 
@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public class HomeFragment extends DisposableFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class HomeFragment extends SwipeRefreshFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private FragmentHomeBinding mBinding;
     private HomeViewModel mViewModel;
@@ -73,8 +73,8 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
                     new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
 
             TitleAdapter titleAd = new TitleAdapter(requireActivity(), name, rvAdapter);
-            titleAd.setImageListener(v -> getLink(index, name));
-            titleAd.setDrawableResource(R.drawable.ic_arrow_forward_black_24dp);
+            titleAd.setImageListener(v -> getLink(index, name, names));
+            titleAd.setDrawableResource(R.drawable.ic_round_arrow_forward_24);
 
             if (index == 1) ad.showMoreInfo(true);
 
@@ -113,12 +113,14 @@ public class HomeFragment extends DisposableFragment implements SwipeRefreshLayo
         };
     }
 
-    private void getLink(int index, String title) {
+    private void getLink(int index, String title, List<String> headers) {
         NavController control = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
 
-        if (index == 2 || index == 3) {
+        if (headers.get(index).equals(getString(R.string.bookmarks)) || headers.get(index).equals(getString(R.string.downloads))) {
+            boolean toBookmark = index == headers.indexOf(getString(R.string.bookmarks));
+
             Bundle b = new Bundle(1);
-            b.putInt(BookmarkFragment.KEY_ITEM, index);
+            b.putInt(BookmarkFragment.KEY_PAGE, toBookmark ? BookmarkFragment.PAGE_BOOKMARK : BookmarkFragment.PAGE_BOOKMARK + 1);
 
             control.navigate(R.id.action_nav_home_to_nav_bookamrk, b);
         } else {

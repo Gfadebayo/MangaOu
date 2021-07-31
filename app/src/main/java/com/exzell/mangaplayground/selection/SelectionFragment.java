@@ -18,11 +18,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.customview.BottomCab;
-import com.exzell.mangaplayground.fragment.base.DisposableFragment;
+import com.exzell.mangaplayground.fragment.base.SwipeRefreshFragment;
+import com.exzell.mangaplayground.utils.ViewExtKt;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.jetbrains.annotations.NotNull;
 
-public abstract class SelectionFragment extends DisposableFragment {
+public abstract class SelectionFragment extends SwipeRefreshFragment {
     public static final String SELECTION_ID = "selection view";
     private SelectionTracker<Long> mTracker;
     private ActionMode mActionMode;
@@ -30,7 +32,7 @@ public abstract class SelectionFragment extends DisposableFragment {
     private ActionMode.Callback mActionCallback;
 
     private int mRes;
-    private int mMenuRes;
+    private int mCabRes;
     private SelectionTracker.SelectionObserver<Long> mObserver = new SelectionTracker.SelectionObserver<Long>() {
 
         @Override
@@ -39,12 +41,13 @@ public abstract class SelectionFragment extends DisposableFragment {
             int size = mTracker.getSelection().size();
             createActionMode();
 
-            if (size > 0 && mActionMode == null) {
-                mActionMode = requireActivity().startActionMode(mActionCallback, ActionMode.TYPE_PRIMARY);
+            if (size > 0) {
+                if (mActionMode == null)
+                    mActionMode = requireActivity().startActionMode(mActionCallback, ActionMode.TYPE_PRIMARY);
+
+                mActionMode.setTitle(String.valueOf(size));
 
             } else if (mActionMode != null) mActionMode.finish();
-
-            if (mActionMode != null) mActionMode.setTitle(String.valueOf(size));
         }
     };
 
@@ -81,24 +84,33 @@ public abstract class SelectionFragment extends DisposableFragment {
      * @param res       the resource to inflate for the cab on the toolbar
      * @param bottomRes the resource to inflate on the bottom cab
      */
-    public void setMenuResource(@MenuRes int res, @MenuRes int bottomRes) {
+    public void setContextMenuResource(@MenuRes int res, @MenuRes int bottomRes) {
         mRes = res;
-        mMenuRes = bottomRes;
+        mCabRes = bottomRes;
     }
 
     private void createActionMode() {
         if (mActionCallback != null) return;
+
+        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav_view);
 
         mActionCallback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 
                 if (mRes != 0) mode.getMenuInflater().inflate(mRes, menu);
-                mCab.show(mMenuRes, mode.getMenuInflater(), menuItem -> {
-                    boolean handle = SelectionFragment.this.onActionItemClicked(menuItem);
-                    mode.finish();
-                    return handle;
-                });
+
+                if (mCabRes != 0) {
+                    //hide the bottom nav view
+                    ViewExtKt.toggleVisibility(bottomNav, false);
+
+
+                    mCab.show(mCabRes, mode.getMenuInflater(), menuItem -> {
+                        boolean handle = SelectionFragment.this.onActionItemClicked(menuItem);
+                        mode.finish();
+                        return handle;
+                    });
+                }
 
                 return true;
             }
@@ -120,6 +132,7 @@ public abstract class SelectionFragment extends DisposableFragment {
                 mActionMode = null;
                 mTracker.clearSelection();
                 mCab.hide();
+                ViewExtKt.toggleVisibility(bottomNav, true);
 //                mActionCallback = null;
             }
         };
@@ -134,7 +147,7 @@ public abstract class SelectionFragment extends DisposableFragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mCab.clearMenu();
+        if (mCab != null) mCab.clearMenu();
         mTracker = null;
 //        mCab = null;
     }
@@ -153,13 +166,6 @@ public abstract class SelectionFragment extends DisposableFragment {
             View pointer = mRv.findChildViewUnder(e.getX(), e.getY());
             RecyclerView.ViewHolder holder = pointer != null ? mRv.findContainingViewHolder(pointer) : null;
 
-            /*if(holder instanceof TitleAdapter.BodyViewHolder){
-                View bodyView = ((TitleAdapter.BodyViewHolder) holder).mRecyclerView.findChildViewUnder(e.getX(), e.getY());
-                RecyclerView.ViewHolder bodyHolder = ((TitleAdapter.BodyViewHolder) holder).mRecyclerView.findContainingViewHolder(bodyView);
-
-                return ((DetailsViewHolder) bodyHolder).getDetails();
-
-            }else*/
             return holder instanceof DetailsViewHolder ? ((DetailsViewHolder) holder).getDetails() : null;
         }
     }

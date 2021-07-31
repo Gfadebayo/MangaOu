@@ -23,17 +23,26 @@ object Notifications {
 
     const val BOOKMARK_NEW_CHAPTER_ID = "latest chapters"
 
+    /** A value we multiply to the id of a manga downloading
+     * before posting it as the notification id. So it
+     * wont be clashing with other notifications that also
+     * work with the manga id like Updates
+     */
+    const val DOWNLOAD_MULTIPLIER = -3000
+
 
     fun createChannels(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
 
-        NotificationManagerCompat.from(context).also {
-            it.createNotificationChannels(listOf(
-                    NotificationChannel(DOWNLOAD_PROGRESS_ID, context.getString(R.string.downloader), NotificationManager.IMPORTANCE_LOW),
-                    NotificationChannel(DOWNLOAD_COMPLETE_ID, context.getString(R.string.download_complete), NotificationManager.IMPORTANCE_LOW),
-                    NotificationChannel(DOWNLOAD_ERROR_ID, context.getString(R.string.download_error), NotificationManager.IMPORTANCE_LOW),
-                    NotificationChannel(BOOKMARK_ID, context.getString(R.string.bookmark_update), NotificationManager.IMPORTANCE_LOW),
-                    NotificationChannel(BOOKMARK_NEW_CHAPTER_ID, context.getString(R.string.latest_chapters), NotificationManager.IMPORTANCE_LOW)))
+        with(context) {
+            NotificationManagerCompat.from(this).also {
+                it.createNotificationChannels(listOf(
+                        NotificationChannel(DOWNLOAD_PROGRESS_ID, getString(R.string.downloader), NotificationManager.IMPORTANCE_LOW),
+                        NotificationChannel(DOWNLOAD_COMPLETE_ID, getString(R.string.download_complete), NotificationManager.IMPORTANCE_LOW),
+                        NotificationChannel(DOWNLOAD_ERROR_ID, getString(R.string.download_error), NotificationManager.IMPORTANCE_LOW),
+                        NotificationChannel(BOOKMARK_ID, getString(R.string.bookmark_update), NotificationManager.IMPORTANCE_LOW),
+                        NotificationChannel(BOOKMARK_NEW_CHAPTER_ID, getString(R.string.latest_chapters), NotificationManager.IMPORTANCE_LOW)))
+            }
         }
     }
 }

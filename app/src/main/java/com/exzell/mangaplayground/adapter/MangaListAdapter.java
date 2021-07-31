@@ -1,4 +1,4 @@
-package com.exzell.mangaplayground.adapters;
+package com.exzell.mangaplayground.adapter;
 
 import android.content.Context;
 import android.os.Bundle;
