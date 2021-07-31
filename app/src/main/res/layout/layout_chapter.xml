@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/root_chapter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-    android:background="@drawable/chapter_selector"
-        android:layout_marginBottom="4dp">
-
-
-        <com.google.android.material.imageview.ShapeableImageView
-            android:id="@+id/image_chap_thumb"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:scaleType="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/ic_launcher_foreground" />
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_chapter"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/selector_chapter_item"
+    android:paddingHorizontal="2dp"
+    android:paddingVertical="2dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/image_chap_thumb"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textview.MaterialTextView
@@ -46,11 +37,11 @@
             tools:text="12 minutes ago" />
     </LinearLayout>
 
-        <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/text_chap_length"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:text="12/20" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/text_chap_length"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="12/20" />
+</androidx.constraintlayout.widget.ConstraintLayout>

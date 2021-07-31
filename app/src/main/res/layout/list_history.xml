@@ -9,37 +9,37 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_manga"
         android:layout_width="0dp"
-        android:layout_height="150dp"
+        android:layout_height="120dp"
         android:scaleType="center"
         app:layout_constraintDimensionRatio="12:15"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
-        tools:src="@drawable/ic_android_black_24dp" />
+        tools:src="@drawable/ic_round_android_24" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/text_title_history"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:lines="1"
         android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/text_chapter_history"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/image_manga"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/image_manga"
         tools:text="One Piece" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/text_chapter_history"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:maxLines="3"
         app:layout_constraintBottom_toTopOf="@+id/button_resume"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@id/text_title_history"
         app:layout_constraintTop_toBottomOf="@id/text_title_history"
-        tools:text="@string/summary" />
+        tools:text="ch.29" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_resume"
@@ -49,18 +49,17 @@
         android:insetLeft="3dp"
         android:insetRight="3dp"
         android:text="Resume"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="@id/text_chapter_history"
-        app:strokeColor="@color/colorAccent"
-        app:strokeWidth="4dp" />
+        app:layout_constraintBottom_toBottomOf="@id/image_manga"
+        app:layout_constraintStart_toStartOf="@id/text_chapter_history" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/button_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Delete"
-        app:layout_constraintStart_toEndOf="@id/button_resume"
+        app:layout_constraintBottom_toBottomOf="@id/button_resume"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/button_resume"
         app:layout_constraintTop_toTopOf="@id/button_resume" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

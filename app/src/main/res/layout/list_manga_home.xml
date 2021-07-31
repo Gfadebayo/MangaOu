@@ -5,10 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_marginVertical="4dp"
     android:layout_marginEnd="4dp"
-    android:layout_marginBottom="8dp"
+    android:layout_marginStart="5dp"
     android:padding="4dp"
-    app:cardBackgroundColor="@color/selection_selector"
+    app:cardBackgroundColor="@color/selector_list_selection"
     app:cardCornerRadius="8dp"
     app:cardElevation="5dp">
 
@@ -16,32 +17,47 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/image_manga"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/manga_height"
-                    android:scaleType="center"
-                    app:layout_constraintDimensionRatio="12:15"
-                    app:layout_constraintEnd_toEndOf="@id/button_more"
-                    app:layout_constraintStart_toStartOf="@+id/text_manga_title"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
-                    tools:src="@drawable/ic_android_black_24dp" />
+        <FrameLayout
+            android:id="@+id/thumbnail_parent"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/manga_height"
+            app:layout_constraintDimensionRatio="12:15"
+            app:layout_constraintEnd_toEndOf="@id/button_more"
+            app:layout_constraintStart_toStartOf="@+id/text_manga_title"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/image_manga"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="center"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
+                tools:src="@drawable/ic_round_android_24" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/indicator_thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:indeterminate="true"
+                android:indeterminateBehavior="cycle"
+                app:indicatorDirectionCircular="counterclockwise"
+                app:indicatorSize="16dp" />
+        </FrameLayout>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_manga_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-condensed-light"
+            android:fontFamily="serif"
             android:gravity="center"
             android:lines="4"
-            android:textSize="14sp"
             app:layout_constrainedWidth="true"
             app:layout_constraintEnd_toStartOf="@id/button_more"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/image_manga"
-            tools:text="@string/summary" />
+            app:layout_constraintTop_toBottomOf="@id/thumbnail_parent"
+            tools:text="@string/summary_sample" />
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/button_more"
@@ -51,7 +67,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/text_manga_title"
             app:layout_constraintVertical_bias="0.0"
-            tools:src="@drawable/ic_android_black_24dp" />
+            tools:src="@drawable/ic_round_android_24" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
