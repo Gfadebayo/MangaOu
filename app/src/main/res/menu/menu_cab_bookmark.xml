@@ -4,13 +4,13 @@
 
     <item
         android:id="@+id/cab_refresh"
-        android:title="Refresh"
-        android:icon="@drawable/ic_baseline_refresh_24"
-        app:showAsAction="always"/>
+        android:icon="@drawable/ic_round_refresh_24"
+        android:title="@string/refresh"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/cab_delete"
-        android:title="Delete"
-        android:icon="@drawable/ic_baseline_delete_24"
-        app:showAsAction="always"/>
+        android:icon="@drawable/ic_round_delete_24"
+        android:title="@string/delete"
+        app:showAsAction="always" />
 </menu>

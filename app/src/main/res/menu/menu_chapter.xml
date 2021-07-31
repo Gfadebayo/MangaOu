@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_done"
+        android:icon="@drawable/ic_round_done_all_24"
+        android:title="@string/mark_as_read"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_chapter_bookmark"
+        android:icon="@drawable/ic_round_collections_bookmark_24"
+        android:title="@string/bookmark"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_download"
+        android:icon="@drawable/ic_round_download_24"
+        android:title="@string/download"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_delete_download"
+        android:icon="@drawable/ic_round_delete_24"
+        android:title="@string/delete_downloads"
+        app:showAsAction="always" />
+</menu>
