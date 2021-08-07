@@ -36,4 +36,15 @@
         <item>@string/bookmarks</item>
         <item>@string/downloads</item>
     </string-array>
+
+    <string-array name="search_titles">
+        <item>@string/status</item>
+        <item>@string/type</item>
+        <item>@string/genre</item>
+    </string-array>
+
+    <string-array name="search_status">
+        <item>@string/completed</item>
+        <item>@string/ongoing</item>
+    </string-array>
 </resources>

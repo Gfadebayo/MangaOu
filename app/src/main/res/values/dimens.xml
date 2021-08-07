@@ -4,4 +4,5 @@
     <dimen name="progress_width">24dp</dimen>
     <dimen name="progress_height">24dp</dimen>
     <dimen name="manga_height">150dp</dimen>
+    <dimen name="search_field_height">42dp</dimen>
 </resources>

@@ -18,6 +18,8 @@
     <string name="manga">Manga</string>
     <string name="mangas">Mangas</string>
 
+    <string name="chapter">Chapter %s</string>
+
     <string name="update">%s Update %s</string>
     <string name="updating">%s Updating %s</string>
 
@@ -99,4 +101,10 @@ Enter Monkey D. Luffy, a 17-year-old boy who defies the standard definition of a
     <string name="summary">Summary</string>
     <string name="categories">Categories</string>
     <string name="no_recently_read_mangas">No recently read mangas</string>
+    <string name="alt_title">Alternative Title</string>
+    <string name="type">Type</string>
+    <string name="chapter_amount">Chapter Amount</string>
+    <string name="genre_inclusion">Genre Inclusion</string>
+
+    <string name="no_title">No Title</string>
 </resources>

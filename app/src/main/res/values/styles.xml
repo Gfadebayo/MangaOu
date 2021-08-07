@@ -18,21 +18,38 @@
         </item>
     </style>
 
-    <style name="Widget.MaterialComponents.TextView.HomeTextView">
-        <item name="android:fontFamily">sans-serif-condensed-medium</item>
-        <item name="android:paddingTop">4dp</item>
-        <item name="android:paddingBottom">4dp</item>
-        <item name="android:textColor">?attr/colorPrimary</item>
-        <item name="android:textSize">22sp</item>
-        <item name="android:layout_gravity">bottom</item>
+    <style name="SearchTitleTextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">@style/SearchTextAppearance</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:paddingStart">4dp</item>
     </style>
 
-    <style name="FilterTextView" parent="Widget.MaterialComponents.TextView">
+    <style name="SearchTextAppearance" parent="android:TextAppearance.Material.Small">
+        <item name="android:textSize">16sp</item>
         <item name="android:gravity">center_vertical</item>
     </style>
 
-    <style name="Widget.MaterialComponents.TextView.SpinnerText">
-        <item name="android:textSize">18sp</item>
+    <style name="SearchTextAppearance.HeaderTextAppearance">
+        <item name="android:fontFamily">sans-serif-condensed-medium</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+    <style name="MangaPowerSpinner">
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:textAppearance">@style/SpinnerTextAppearance</item>
+        <item name="android:drawablePadding">0dp</item>
+        <item name="android:minWidth">60dp</item>
+        <item name="spinner_popup_background">?attr/colorBackgroundFloating</item>
+        <item name="spinner_popup_elevation">4dp</item>
+        <item name="spinner_divider_color">?attr/colorOnBackground</item>
+        <item name="spinner_divider_show">true</item>
+        <item name="spinner_arrow_tint">?attr/colorSecondary</item>
+        <item name="spinner_popup_animation">dropdown</item>
+    </style>
+
+    <style name="SpinnerTextAppearance" parent="SearchTextAppearance">
         <item name="android:layout_marginStart">4dp</item>
         <item name="android:textColor">@android:color/black</item>
         <item name="android:gravity">center_vertical</item>
@@ -62,5 +79,17 @@
         <item name="textEndPadding">0dp</item>
         <item name="android:textColor">?attr/colorSecondary</item>
         <item name="chipMinTouchTargetSize">34dp</item>
+    </style>
+
+    <style name="ThemeOverlay.MaterialComponents.Light.MangaPageOverlay">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:paddingStart">2dp</item>
+        <item name="android:paddingEnd">2dp</item>
+        <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout.ChapterTabLayout</item>
+    </style>
+
+    <style name="Widget.MaterialComponents.TabLayout.ChapterTabLayout">
+        <item name="colorPrimary">?attr/colorSecondary</item>
     </style>
 </resources>
