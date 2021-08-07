@@ -8,6 +8,8 @@
 
         <import type="android.view.View" />
 
+        <import type="com.exzell.mangaplayground.utils.BindingUtils" />
+
         <variable
             name="manga"
             type="com.exzell.mangaplayground.models.Manga" />
@@ -17,6 +19,7 @@
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Light.MangaPageOverlay"
         android:visibility='@{manga == null ? View.GONE : View.VISIBLE}'
         tools:visibility="visible">
 
@@ -24,10 +27,10 @@
             android:id="@+id/text_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="sans-serif-smallcaps"
+            android:fontFamily="sans-serif-light"
             android:text="@{manga.title}"
-            android:textColor="@color/orange"
-            android:textSize="22sp"
+            android:textColor="?attr/colorSecondary"
+            android:textSize="26sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,11 +48,25 @@
             app:layout_constraintTop_toBottomOf="@id/text_title"
             tools:src="@drawable/ic_launcher_foreground" />
 
+        <me.zhanghai.android.materialratingbar.MaterialRatingBar
+            android:id="@+id/rating_manga"
+            style="@style/Widget.MaterialRatingBar.RatingBar"
+            android:isIndicator="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="28dp"
+            android:rating="@{(float) manga.rating}"
+            android:numStars="5"
+            android:stepSize="0.2"
+            app:layout_constraintEnd_toEndOf="@id/image_manga"
+            app:layout_constraintStart_toStartOf="@id/image_manga"
+            app:layout_constraintTop_toBottomOf="@id/image_manga"
+            tools:rating="4.9" />
+
         <ImageView
             android:id="@+id/bookmark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="?attr/colorSecondary"
             android:minWidth="32dp"
             android:minHeight="32dp"
             android:src="@drawable/selector_bookmark"
@@ -57,18 +74,6 @@
             app:layout_constraintStart_toStartOf="@+id/rating_manga"
             app:layout_constraintTop_toBottomOf="@+id/rating_manga"
             app:tint="?attr/colorSecondary" />
-
-        <me.zhanghai.android.materialratingbar.MaterialRatingBar
-            android:id="@+id/rating_manga"
-            style="@style/Widget.MaterialRatingBar.RatingBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:rating="@{(int) manga.rating}"
-            app:layout_constraintEnd_toEndOf="@id/image_manga"
-            app:layout_constraintStart_toStartOf="@id/image_manga"
-            app:layout_constraintTop_toBottomOf="@id/image_manga"
-            tools:rating="3.5" />
 
         <GridLayout
             android:id="@+id/grid"
@@ -94,6 +99,34 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
+                    android:text="@string/alt_title"
+                    android:textColor="@android:color/black" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_alternative"
+                    ellipsizeChecker="@{1}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text='@{BindingUtils.listToString(manga.altTitle, "\n")}'
+                    tools:text="Eiichiro Oda Eiichiro Oda" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:layout_columnWeight="1"
+                android:background="@drawable/box_shape_outline"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="2dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
                     android:text="@string/author"
                     android:textColor="@android:color/black" />
 
@@ -101,15 +134,18 @@
                     android:id="@+id/text_author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    ellipsizeChecker="@{1}"
+                    android:ellipsize="end"
                     android:text='@{manga.author}'
-                    tools:text="Eiichiro Oda" />
+                    android:maxLines="1"
+                    tools:text="Eiichiro Oda Eiichiro Oda" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_row="0"
-                android:layout_column="1"
+                android:layout_column="2"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -129,6 +165,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text='@{manga.artist}'
+                    ellipsizeChecker="@{1}"
                     tools:text="Eiichiro Oda" />
 
             </LinearLayout>
@@ -136,8 +173,8 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_row="0"
-                android:layout_column="2"
+                android:layout_row="1"
+                android:layout_column="0"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -165,7 +202,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
-                android:layout_column="0"
+                android:layout_column="1"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -192,7 +229,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_row="1"
-                android:layout_column="1"
+                android:layout_column="2"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -218,8 +255,8 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_row="1"
-                android:layout_column="2"
+                android:layout_row="2"
+                android:layout_column="0"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -246,7 +283,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_row="2"
-                android:layout_column="0"
+                android:layout_column="1"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -273,7 +310,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_row="2"
-                android:layout_column="1"
+                android:layout_column="2"
                 android:layout_columnWeight="1"
                 android:background="@drawable/box_shape_outline"
                 android:gravity="center"
@@ -322,6 +359,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text='@{manga.summary}'
+                    ellipsizeChecker="@{4}"
+                    android:maxLines="4"
                     tools:text="@string/summary_sample" />
 
             </LinearLayout>

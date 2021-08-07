@@ -26,4 +26,7 @@ interface DownloadDao {
 
     @Query("SELECT path FROM download WHERE chapter_id =:id AND state = 'DOWNLOADED'")
     fun getPathFromId(id: Long): String
+
+    @Query("SELECT chapter_id FROM download WHERE state = 'DOWNLOADED'")
+    fun getCompleteIds(): Flow<List<Long>>
 }

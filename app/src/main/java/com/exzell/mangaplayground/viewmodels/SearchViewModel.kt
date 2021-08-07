@@ -21,14 +21,14 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.*
 import java.util.function.Consumer
-import java.util.stream.Collectors
-import java.util.stream.IntStream
-import java.util.stream.Stream
 import javax.inject.Inject
 
 class SearchViewModel(application: Application, private val mHandle: SavedStateHandle) : AndroidViewModel(application) {
 
     private val mContext = application.applicationContext
+
+    @JvmField
+    var mSearch: MangaSearch = MangaSearch.Builder().build()
 
     @Inject
     lateinit var mRepo: Repository
@@ -49,10 +49,8 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
 
     private val KEY_LINK = "last search link"
 
-    private val mCurrentSearchResults = ArrayList<Manga>()
-
-    val currentSearchResults: List<Manga>
-        get() = mCurrentSearchResults
+    @JvmField
+    val mCurrentSearchResults = ArrayList<Manga>()
 
     val nextLink: Map<String, String>?
         get() = mHandle.get<Map<String, String>>(KEY_LINK)
@@ -114,7 +112,7 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
                         } else
                             setNextSearchLink(null)
 
-                        val searchManga = html.createSearchManga(currentSearchResults.size)
+                        val searchManga = html.createSearchManga(mCurrentSearchResults.size)
                         mCurrentSearchResults.addAll(searchManga)
                         onMangaRetrieved.accept(searchManga)
                         Timber.w(next)
@@ -161,11 +159,9 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
 
     fun setGenres(genre: String, which: Boolean) {
         val arr = mHandle.get<ArrayList<String>>(KEY_GENRE)
-        if (which)
-            arr!!.add(genre)
-        else {
-            arr!!.removeAt(arr.indexOf(genre))
-        }
+
+        if (which) arr!!.add(genre)
+        else arr!!.removeAt(arr.indexOf(genre))
     }
 
     fun setName(which: Boolean, value: String) {
@@ -193,18 +189,20 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
     }
 
     fun handlerDefaults() {
-        if (!mHandle.contains(KEY_GENRE)) mHandle.set(KEY_GENRE, ArrayList<String>())
-        if (!mHandle.contains(KEY_TITLE)) mHandle.set(KEY_TITLE, "")
-        if (!mHandle.contains(KEY_AUTHOR)) mHandle.set(KEY_AUTHOR, "")
-        if (!mHandle.contains(KEY_TITLE_CONTAIN)) mHandle.set(KEY_TITLE_CONTAIN, "")
-        if (!mHandle.contains(KEY_AUTHOR_CONTAIN)) mHandle.set(KEY_AUTHOR_CONTAIN, "")
-        if (!mHandle.contains(KEY_RATING)) mHandle.set(KEY_RATING, -1)
-        if (!mHandle.contains(KEY_STATUS)) mHandle.set(KEY_STATUS, "")
-        if (!mHandle.contains(KEY_TYPE)) mHandle.set(KEY_TYPE, "")
-        if (!mHandle.contains(KEY_CHAPTERS)) mHandle.set(KEY_CHAPTERS, -1)
-        if (!mHandle.contains(KEY_RELEASE)) mHandle.set(KEY_RELEASE, -1)
-        if (!mHandle.contains(KEY_GENRE_INCL)) mHandle.set(KEY_GENRE_INCL, "")
-        if (!mHandle.contains(KEY_ORDER)) mHandle.set(KEY_ORDER, "")
+        with(mHandle) {
+            if (!contains(KEY_GENRE)) set(KEY_GENRE, ArrayList<String>())
+            if (!contains(KEY_TITLE)) set(KEY_TITLE, "")
+            if (!contains(KEY_AUTHOR)) set(KEY_AUTHOR, "")
+            if (!contains(KEY_TITLE_CONTAIN)) set(KEY_TITLE_CONTAIN, "")
+            if (!contains(KEY_AUTHOR_CONTAIN)) set(KEY_AUTHOR_CONTAIN, "")
+            if (!contains(KEY_RATING)) set(KEY_RATING, -1)
+            if (!contains(KEY_STATUS)) set(KEY_STATUS, "")
+            if (!contains(KEY_TYPE)) set(KEY_TYPE, "")
+            if (!contains(KEY_CHAPTERS)) set(KEY_CHAPTERS, -1)
+            if (!contains(KEY_RELEASE)) set(KEY_RELEASE, -1)
+            if (!contains(KEY_GENRE_INCL)) set(KEY_GENRE_INCL, "")
+            if (!contains(KEY_ORDER)) set(KEY_ORDER, "")
+        }
     }
 
     fun search(): Map<String, String> {
@@ -212,7 +210,7 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
                 .setAuthorContain(containValue(true)!!)
                 .setTitle(getName(false)!!)
                 .setTitleContain(containValue(false)!!)
-                .setChapters(chapters)
+                .setChapterAmount(chapters)
                 .setRating(rating)
                 .setRelease(release)
                 .setStatus(status!!)
@@ -220,7 +218,7 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
                 .addGenres(selectedGenres!!)
                 .setGenreInclusion(genreInclusion!!)
                 .setOrder(order)
-                .build()
+                .build().apply { mSearch = this }
 
         //        if(search.searchQuery().isEmpty()) return;
         return search.searchQuery()
@@ -243,15 +241,5 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
         }
                 .toList()
                 .subscribe { mangas -> mRepo.insertManga(*mangas.toTypedArray()) }
-    }
-
-    companion object {
-
-        @JvmField
-        val statusData = Stream.of(MangaSearch.STATUS_COMPLETED, MangaSearch.STATUS_ONGOING).map { it.toUpperCase() }.collect(Collectors.toList())
-        @JvmField
-        val chapterData = Stream.of(1, 5, 10, 20, 30, 40, 50, 100, 200).collect(Collectors.toList())
-        @JvmField
-        val releaseData = IntStream.rangeClosed(1946, 2017).boxed().map { it.toString() }.collect(Collectors.toList())
     }
 }

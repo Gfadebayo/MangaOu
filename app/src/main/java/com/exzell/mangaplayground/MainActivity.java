@@ -1,8 +1,8 @@
 package com.exzell.mangaplayground;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,6 +17,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.exzell.mangaplayground.databinding.ActivityMainBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
+import com.exzell.mangaplayground.utils.ContextExtKt;
 import com.exzell.mangaplayground.utils.ViewExtKt;
 
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +30,7 @@ import timber.log.Timber;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding mBinding;
+    private final List<Integer> mFabDest = Arrays.asList(R.id.nav_search, R.id.nav_downloads);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -72,23 +74,16 @@ public class MainActivity extends AppCompatActivity {
 
             if (dest.getId() == R.id.frag_manga) {
                 mBinding.toolbar.setTitle(null);
-                mBinding.toolbarLayout.setBackground(null);
+                mBinding.toolbarLayout.setBackgroundColor(Color.TRANSPARENT);
                 ViewExtKt.toggleVisibility(mBinding.bottomNavView, false);
             } else {
-                mBinding.toolbarLayout.setBackgroundColor(getPrimaryColor());
+                mBinding.toolbarLayout.setBackgroundColor(ContextExtKt.getPrimaryColor(this));
                 ViewExtKt.toggleVisibility(mBinding.bottomNavView, true);
             }
 
 
-            List<Integer> dests = Arrays.asList(R.id.nav_search, R.id.nav_downloads);
-            mBinding.fab.setVisibility(dests.contains(dest.getId()) ? View.VISIBLE : View.GONE);
+            mBinding.fab.setVisibility(mFabDest.contains(dest.getId()) ? View.VISIBLE : View.GONE);
         });
-    }
-
-    private int getPrimaryColor() {
-        TypedValue value = new TypedValue();
-        getTheme().resolveAttribute(R.attr.colorPrimary, value, true);
-        return value.data;
     }
 
     @Override

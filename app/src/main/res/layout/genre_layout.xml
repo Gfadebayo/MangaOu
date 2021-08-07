@@ -15,10 +15,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Genre Inclusion"
-        style="@style/Widget.MaterialComponents.TextView.HomeTextView" />
+        style="@style/SearchTitleTextView" />
 
         <include
-            android:id="@+id/spin_genre"
+            android:id="@+id/spin_genre_incl"
             layout="@layout/spinner_power"
             android:layout_width="0dp"
             android:layout_height="match_parent"

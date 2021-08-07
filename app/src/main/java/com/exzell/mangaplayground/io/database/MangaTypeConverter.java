@@ -7,6 +7,8 @@ import com.exzell.mangaplayground.advancedsearch.Type;
 import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Download;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -50,12 +52,23 @@ public class MangaTypeConverter {
     }
 
     @TypeConverter
-    public static String stateToString(Download.State state){
+    public static String stateToString(Download.State state) {
         return state.name();
     }
 
     @TypeConverter
-    public static Download.State stringToState(String string){
+    public static Download.State stringToState(String string) {
         return Download.State.valueOf(string);
+    }
+
+    @TypeConverter
+    public static String altListToString(List<String> altTitle) {
+        return altTitle.stream().collect(Collectors.joining("|"));
+    }
+
+    @TypeConverter
+    public static List<String> stringToAltList(String string) {
+        if (string == null) return Collections.emptyList();
+        return Arrays.asList(string.split(Pattern.quote("|")));
     }
 }

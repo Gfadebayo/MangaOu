@@ -243,6 +243,11 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         return mDownloadDao.getAllDownloads()
     }
 
+    /** Returns a list of chapter_ids for all the completed downloads **/
+    fun getCompletedDownloadChapterIds(): Flow<List<Long>> {
+        return mDownloadDao.getCompleteIds()
+    }
+
     fun getCurrentDownloads(): List<Download> = try {
         mExecutor.diskExecutor.submit(Callable { mDownloadDao.getPendingDownloads() }).get()
     } catch (e: ExecutionException) {

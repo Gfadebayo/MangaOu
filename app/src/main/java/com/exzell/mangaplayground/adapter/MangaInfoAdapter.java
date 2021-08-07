@@ -19,6 +19,7 @@ import com.exzell.mangaplayground.models.Chapter;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.reader.ReadActivity;
 import com.exzell.mangaplayground.selection.DetailsViewHolder;
+import com.exzell.mangaplayground.utils.ChapterUtilsKt;
 import com.google.android.material.tabs.TabLayout;
 
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,12 +39,15 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private Manga mManga;
     private ArrayList<Chapter> mVisibleChapters = new ArrayList<>();
+    private final int PAYLOAD_BOOKMARK = 2;
     private Chapter.Version mCurrentVersion;
     private Context mContext;
     private View.OnClickListener mListener;
     private View.OnClickListener mBookmarkListener;
     private SelectionTracker<Long> mTracker;
     private DateFormat mDateFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT);
+    private final int PAYLOAD_DOWNLOAD = 4;
+    private ArrayList<Long> mDownloadIds = new ArrayList<>();
 
     public MangaInfoAdapter(Context context, Manga manga) {
         mManga = manga;
@@ -50,6 +55,25 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         setHasStableIds(true);
 
         if (manga != null) setCurrentVisibleChapters();
+    }
+
+    public void setDownloads(List<Long> ids) {
+        List<Long> chapIds = mVisibleChapters.stream().map(chap -> chap.getId())
+                .collect(Collectors.toList());
+
+        List<Long> oldIds = new ArrayList<>(mDownloadIds);
+
+        mDownloadIds.clear();
+        mDownloadIds.addAll(ids);
+
+        List<Long> inserted = ids.stream().filter(id -> !oldIds.contains(id))
+                .collect(Collectors.toList());
+
+        List<Long> removed = oldIds.stream().filter(id -> !ids.contains(id))
+                .collect(Collectors.toList());
+
+        inserted.addAll(removed);
+        inserted.forEach(change -> notifyItemChanged(chapIds.indexOf(change), PAYLOAD_DOWNLOAD));
     }
 
     private void setCurrentVisibleChapters() {
@@ -84,11 +108,14 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         mCurrentVersion = version;
     }
 
-    public void updateMangaInfo(Manga newManga) {
-        mManga = newManga;
-        notifyItemChanged(0);
+    public void updateMangaInfo(Manga newManga, boolean onlyBookmark) {
+        if (onlyBookmark) notifyItemChanged(0, PAYLOAD_BOOKMARK);
+        else {
+            mManga = newManga;
+            notifyItemChanged(0);
 
-        setCurrentVisibleChapters();
+            setCurrentVisibleChapters();
+        }
     }
 
     public void addTracker(SelectionTracker<Long> track) {
@@ -121,20 +148,45 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             Chapter chap = mVisibleChapters.get(position - 1);
             holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
 
-            chapHolder.mBinding.textChapTitle.setText(chap.getTitle());
-            chapHolder.mBinding.textChapNumber.setText(chap.getNumberString());
-            chapHolder.mBinding.textChapLength.setText(String.valueOf(chap.getLength()));
+            String chapterName = mContext.getString(R.string.chapter, ChapterUtilsKt.getChapterNumericValue(chap));
+            chapHolder.mBinding.textChapNumber.setText(chapterName);
 
-            String date = mDateFormatter.format(new Date(chap.getReleaseDate()));
-            chapHolder.mBinding.textChapRelease.setText(date);
+            String title = chap.getTitle().isEmpty() ? mContext.getString(R.string.no_title) : chap.getTitle();
+            chapHolder.mBinding.textChapTitle.setText(title);
 
+            chapHolder.mBinding.textChapReleaseLength.setText(createReleasePositionSpan(chap));
             Timber.d("Binding chapter %s for version %s", chap.getTitle(), chap.getVersion().toString());
 
         } else {
             ((MangaInfoViewHolder) holder).mBinding.setManga(mManga);
-
-            ((MangaInfoViewHolder) holder).mBinding.bookmark.setSelected(mManga.isBookmark());
         }
+    }
+
+    private String createReleasePositionSpan(Chapter chapter) {
+        String date = mDateFormatter.format(new Date(chapter.getReleaseDate()));
+
+        String readPosition = String.valueOf(chapter.getLength());
+
+        if (chapter.getLastReadingPosition() > 0)
+            readPosition = chapter.getLastReadingPosition() + "/" + readPosition;
+
+        String bulletedText = date + " \u2022 " + readPosition;
+
+        return bulletedText;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull @NotNull RecyclerView.ViewHolder holder, int position, @NonNull @NotNull List<Object> payloads) {
+
+        if (payloads.contains(PAYLOAD_BOOKMARK))
+            ((MangaInfoViewHolder) holder).mBinding.bookmark.setSelected(mManga.isBookmark());
+
+        else if (payloads.contains(PAYLOAD_DOWNLOAD)) {
+            Chapter chap = mVisibleChapters.get(position - 1);
+            int visibility = mDownloadIds.contains(chap.getId()) ? View.VISIBLE : View.GONE;
+            ((ChapterViewHolder) holder).mBinding.imageChapDownload.setVisibility(visibility);
+
+        } else super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
@@ -176,7 +228,7 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             };
 
             itemView.setOnClickListener(v -> {
-                int index = getBindingAdapterPosition();
+                int index = getAbsoluteAdapterPosition() - 1;
 
                 Chapter chap = mVisibleChapters.get(index);
 
@@ -202,6 +254,7 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
             mBinding = LayoutMangaInfoBinding.bind(itemView);
 
+            mBinding.bookmark.setSelected(mManga.isBookmark());
             //create tabs equal to the versions
             addTabs();
 
@@ -214,7 +267,7 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 @Override
                 public void onTabSelected(TabLayout.Tab tab) {
                     mCurrentVersion = Arrays.stream(Chapter.Version.values())
-                            .filter(ver -> ver.getDispName().equals(tab.getText()))
+                            .filter(ver -> String.valueOf(tab.getText()).contains(ver.getDispName()))
                             .findFirst().get();
                     setCurrentVisibleChapters();
                 }
@@ -232,7 +285,7 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     .forEach(ver -> {
 
                         TabLayout.Tab versionTab = mBinding.tabChapters.newTab();
-                        versionTab.setText(ver.getDispName());
+                        versionTab.setText(ver.getDispName() + "(" + mVisibleChapters.size() + ")");
 
                         mBinding.tabChapters.addTab(versionTab, mCurrentVersion.equals(ver));
                         mBinding.tabChapters.addOnTabSelectedListener(tabListener);

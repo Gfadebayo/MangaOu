@@ -84,6 +84,8 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
             boolean bookmark = mViewModel.alterBookmark();
 
             String book = getString(bookmark ? R.string.bookmark_add : R.string.bookmark_remove);
+
+            adapter.updateMangaInfo(null, true);
             Toast.makeText(requireActivity(), book, Toast.LENGTH_SHORT).show();
         });
 
@@ -126,19 +128,10 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
         MangaInfoAdapter adapter = (MangaInfoAdapter) mBinding.recyclerLoad.getAdapter();
 
-        adapter.updateMangaInfo(mViewModel.getManga());
+        adapter.updateMangaInfo(mViewModel.getManga(), false);
 
 
-        mViewModel.getDownloads(this, downloads -> downloads.forEach(d -> {
-            mViewModel.getManga().getChapters().stream().filter(p -> p.getId() == d.getChapterId())
-                    .findAny().ifPresent(chap -> {
-                chap.setDownloadState(d.getState());
-
-//                int chapIndex = mManga.getChapters().indexOf(chap);
-//                mManga.getChapters()
-//                mAdapter.notifyItemChanged(chapIndex);
-            });
-        }));
+        mViewModel.getDownloads(this, ids -> adapter.setDownloads(ids));
     }
 
     @Override
@@ -166,7 +159,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
             List<Download> downloads = chosen.stream().map(chap -> {
                 String parentDir = mViewModel.getManga().getTitle() + "/" + chap.getVersion();
-                String dir = FileUtilsKt.createDownloadFolder(requireActivity(), parentDir, String.valueOf(chap.getNumberString()));
+                String dir = FileUtilsKt.createDownloadFolder(requireActivity(), mViewModel.getManga(), chap);
 
                 return new Download(chap.getId(), mViewModel.getManga().getTitle(),
                         String.valueOf(chap.getNumberString()), dir, chap.getLink(), chap.getLength(), mViewModel.getManga().getId());

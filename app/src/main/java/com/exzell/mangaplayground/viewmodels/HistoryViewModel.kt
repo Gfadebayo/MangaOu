@@ -21,17 +21,18 @@ import javax.inject.Inject
 
 class HistoryViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val mContext = application.applicationContext
+
     @Inject
-    var mRepo: Repository? = null
+    lateinit var mRepo: Repository
 
     var alreadyWatching = false
 
-    private val mContext = application.applicationContext
-
-    val mMangas: MutableList<DBManga> = mutableListOf()
-        get() = Collections.unmodifiableList(field)
+    private val mMangas: MutableList<DBManga> = mutableListOf()
 
     var onHistoryChanged: ((Map<Long, List<DBManga>>) -> Unit)? = null
+
+    fun getMangas(): List<DBManga> = mMangas.toList()
 
     fun getHistory(): Map<Long, List<DBManga>> =
             Collections.unmodifiableMap(mMangas.groupBy { Calendar.getInstance().reset(it.lastReadTime).timeInMillis })

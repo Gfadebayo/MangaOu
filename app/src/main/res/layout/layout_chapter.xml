@@ -22,7 +22,7 @@
             android:id="@+id/text_chap_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="My Name is Kozuki Oden" />
+            tools:text="Chapter 300" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_chap_title"
@@ -31,17 +31,20 @@
             tools:text="My Name is Kozuki Oden" />
 
         <com.google.android.material.textview.MaterialTextView
-            android:id="@+id/text_chap_release"
+            android:id="@+id/text_chap_release_length"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="12 minutes ago" />
     </LinearLayout>
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text_chap_length"
+    <ImageView
+        android:id="@+id/image_chap_download"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:src="@drawable/ic_round_download_24"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:text="12/20" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
 </androidx.constraintlayout.widget.ConstraintLayout>

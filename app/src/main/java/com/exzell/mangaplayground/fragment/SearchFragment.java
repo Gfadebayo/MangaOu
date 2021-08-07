@@ -15,29 +15,24 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.MangaApplication;
 import com.exzell.mangaplayground.R;
-import com.exzell.mangaplayground.adapters.MangaListAdapter;
-import com.exzell.mangaplayground.advancedsearch.Order;
-import com.exzell.mangaplayground.databinding.FragmentSearchBinding;
+import com.exzell.mangaplayground.adapter.MangaListAdapter;
+import com.exzell.mangaplayground.databinding.GenericLoadingRecyclerViewBinding;
 import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.SearchViewModel;
-import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
-import com.skydoves.powerspinner.PowerSpinnerView;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import kotlin.Unit;
 
 public class SearchFragment extends SelectionFragment implements SearchDialogFragment.OnSearchClickedListener{
     private SearchViewModel mViewModel;
     private MangaListAdapter mAdapter;
-    private FragmentSearchBinding mBinding;
+    private GenericLoadingRecyclerViewBinding mBinding;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,69 +44,48 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
                 .mAppComponent.injectRepo(mViewModel);
 
         mViewModel.handlerDefaults();
-        setMenuResource(R.menu.cab_menu);
+        setContextMenuResource(0, R.menu.menu_cab_bookmark);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = FragmentSearchBinding.inflate(getLayoutInflater());
+        mBinding = GenericLoadingRecyclerViewBinding.inflate(getLayoutInflater());
         return mBinding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        requireActivity().findViewById(R.id.fab).setOnClickListener(v -> {
-            SearchDialogFragment searchDia = SearchDialogFragment.getInstance();
-            searchDia.show(getChildFragmentManager(), null);
-        });
-
-        configureOrder();
+        mBinding.progressLoad.setVisibility(View.GONE);
+        setFab(true);
 
         mAdapter = new MangaListAdapter(requireContext(), new ArrayList<>(), R.layout.list_manga);
         mAdapter.showSummary(true);
 
-        mBinding.recyclerSearchResult.setAdapter(mAdapter);
+        mBinding.recyclerLoad.setAdapter(mAdapter);
 
-        createTracker(mBinding.recyclerSearchResult);
+        createTracker(mBinding.recyclerLoad);
         mAdapter.setTracker(getTracker());
 
         mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 if (itemCount > 0) {
-                    view.findViewById(R.id.progress_search).setVisibility(View.GONE);
-                    mBinding.recyclerSearchResult.setVisibility(View.VISIBLE);
+                    mBinding.progressLoad.setVisibility(View.GONE);
+                    mBinding.recyclerLoad.setVisibility(View.VISIBLE);
                 }
             }
         });
 
-        onResultReturned().accept(mViewModel.getCurrentSearchResults());
-    }
-
-    private void configureOrder(){
-        PowerSpinnerView spin = mBinding.spinnerOrder.getRoot();
-
-        List<String> data = Stream.of(Order.values()).map(order -> order.dispName).collect(Collectors.toList());
-        spin.setItems(data);
-
-        int index = data.indexOf(mViewModel.getOrder());
-        if(index != -1) spin.selectItemByIndex(index);
-
-        spin.setSpinnerOutsideTouchListener((view, motionEvent) -> spin.dismiss());
-        spin.setOnSpinnerItemSelectedListener((OnSpinnerItemSelectedListener<String>) (i, s) -> {
-            mViewModel.setOrder(s);
-            onSearchClicked();
-        });
+        onResultReturned().accept(mViewModel.mCurrentSearchResults);
     }
 
     @Override
     public boolean onActionItemClicked(MenuItem item) {
         ArrayList<String> mangaLinks = new ArrayList<>(getTracker().getSelection().size());
         getTracker().getSelection().forEach(id -> {
-            RecyclerView.ViewHolder vh = mBinding.recyclerSearchResult.findViewHolderForItemId(id);
+            RecyclerView.ViewHolder vh = mBinding.recyclerLoad.findViewHolderForItemId(id);
             Manga manga = mAdapter.getCurrentList().get(vh.getBindingAdapterPosition());
             mangaLinks.add(manga.getLink());
         });
@@ -126,18 +100,18 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
 
     @Override
     public void onSearchClicked() {
-        getView().findViewById(R.id.progress_search).setVisibility(View.VISIBLE);
+        mBinding.progressLoad.setVisibility(View.VISIBLE);
         mAdapter.submitList(Collections.emptyList());
         mViewModel.clearSearchResults();
-        Map<String, String> search = mViewModel.search();
-        mViewModel.resolveSearch(search, onResultReturned());
+        mViewModel.resolveSearch(mViewModel.search(), onResultReturned());
     }
 
     private Consumer<List<Manga>> onResultReturned(){
         return mangas -> {
             if(!isVisible()) return;
             requireActivity().runOnUiThread(() -> mAdapter.addMangas(mangas));
-            if(mViewModel.getNextLink() != null) mViewModel.resolveSearch(mViewModel.getNextLink(), onResultReturned());
+            if (mViewModel.getNextLink() != null)
+                mViewModel.resolveSearch(mViewModel.getNextLink(), onResultReturned());
         };
     }
 
@@ -146,6 +120,22 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
         super.onDestroyView();
         mAdapter = null;
         mBinding = null;
-        requireActivity().findViewById(R.id.fab).setOnClickListener(null);
+
+        setFab(false);
+    }
+
+    private void setFab(boolean show) {
+        ExtendedFloatingActionButton fab = requireActivity().findViewById(R.id.fab);
+
+        if (show) {
+            fab.setText(R.string.search);
+            fab.setIconResource(R.drawable.ic_round_search_24);
+            fab.setOnClickListener(v -> {
+                SearchDialogFragment searchDia = SearchDialogFragment.getInstance();
+                searchDia.show(getChildFragmentManager(), null);
+            });
+        } else {
+            fab.setOnClickListener(null);
+        }
     }
 }

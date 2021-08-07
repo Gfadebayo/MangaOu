@@ -25,7 +25,8 @@ public class Manga {
     private String title = "";
 
     @ColumnInfo(name = "alt_title")
-    private String altTitle = "";
+    @TypeConverters(MangaTypeConverter.class)
+    private List<String> altTitle = new ArrayList<>();
 
     private String link = "";
 
@@ -76,7 +77,7 @@ public class Manga {
         this.title = title;
     }
 
-    public String getAltTitle() {
+    public List<String> getAltTitle() {
         return altTitle;
     }
 
@@ -152,7 +153,7 @@ public class Manga {
         return title;
     }
 
-    public void setAltTitle(String altTitle) {
+    public void setAltTitle(List<String> altTitle) {
         this.altTitle = altTitle;
     }
 

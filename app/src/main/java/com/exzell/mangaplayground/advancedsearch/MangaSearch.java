@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.exzell.mangaplayground.advancedsearch.Type;
-
 public final class MangaSearch {
 
     public static final String STATUS_ONGOING = "ongoing";
@@ -21,6 +19,8 @@ public final class MangaSearch {
     public static final String SEARCH_CONTAIN = "contains";
     public static final String SEARCH_END = "end";
     public static final String SEARCH_BEGIN = "begins";
+
+    public static final int[] RELEASE_POINTS = {1946, 2017};
 
     //Keys (search headers)
     private static final String KEY_RATING = "rating";
@@ -41,7 +41,7 @@ public final class MangaSearch {
     private int release;
     private String title;
     private String author;
-    private int chapters;
+    private int chapterAmount;
     private String status;
     private String genreInclusion;
     private int rating;
@@ -50,73 +50,50 @@ public final class MangaSearch {
     private String authorContain;
     private Order order;
 
-    private MangaSearch(Builder build){
-        genre = build.genre;
-        this.release = build.release;
-        this.title = build.title;
-        this.author = build.author;
-        this.chapters = build.chapters;
-        this.status = build.status;
-        this.genreInclusion = build.genreInclusion;
-        this.authorContain = build.authorContain;
-        this.titleContain = build.titleContain;
-        this.type = build.type;
-        this.rating = build.rating;
-        this.order = build.order;
+    private MangaSearch(Builder build) {
+        if (!build.genre.isEmpty()) genre = build.genre;
+        if (build.release > 0) this.release = build.release;
+        if (!build.title.isEmpty()) this.title = build.title;
+        if (!build.author.isEmpty()) this.author = build.author;
+        if (build.chapterAmount > 0) this.chapterAmount = build.chapterAmount;
+        if (!build.status.isEmpty()) this.status = build.status;
+        if (!build.genre.isEmpty()) this.genreInclusion = build.genreInclusion;
+        if (!build.authorContain.isEmpty()) this.authorContain = build.authorContain;
+        if (!build.titleContain.isEmpty()) this.titleContain = build.titleContain;
+        if (build.type != null) this.type = build.type;
+        if (build.rating > 0) this.rating = build.rating;
+        if (build.order != null) this.order = build.order;
     }
 
-    public Map<String, String> searchQuery(){
-
-        Map<String, String> search = new HashMap<>(11);
-        if(title != null) search.put(KEY_TITLE, title);
-        if(titleContain != null) search.put(KEY_MATCH_TITLE, titleContain);
-        if(author != null) search.put(KEY_AUTHOR, author);
-        if(authorContain != null) search.put(KEY_MATCH_AUTHOR, authorContain);
-        if(status != null) search.put(KEY_STATUS, status);
-        if(chapters != -1) search.put(KEY_CHAPTERS, String.valueOf(chapters));
-        if(rating != -1) search.put(KEY_RATING, String.valueOf(rating));
-        if(release != -1) search.put(KEY_RELEASE, String.valueOf(release));
-        if(type != null) search.put(KEY_TYPE, type.value);
-        if(genre != null && !genre.isEmpty()) {
-            StringBuilder build = new StringBuilder();
-            genre.forEach(c -> {
-                build.append(c.name).append(",");
-            });
-            if(build.toString().endsWith(",")) build.deleteCharAt(build.length()-1);
-            search.put(KEY_GENRE, build.toString());
-        }
-        if(genreInclusion != null) search.put(KEY_GENRE_INCL, genreInclusion);
-        if(order != null) search.put(KEY_ORDER, order.val);
-
-        return search;
-    }
-
-    public static MangaSearch from(Map<String, String> query){
+    public static MangaSearch from(Map<String, String> query) {
         Builder build = new Builder();
-        if(query.containsKey(KEY_AUTHOR)) build.setAuthor(query.get(KEY_AUTHOR));
-        if(query.containsKey(KEY_TITLE)) build.setTitle(query.get(KEY_TITLE));
-        if(query.containsKey(KEY_RELEASE)) build.setRelease(Integer.parseInt(query.get(KEY_RELEASE)));
-        if(query.containsKey(KEY_RATING)) build.setRating(Integer.valueOf(query.get(KEY_RATING)));
-        if(query.containsKey(KEY_MATCH_AUTHOR)) build.setAuthorContain(query.get(KEY_MATCH_AUTHOR));
-        if(query.containsKey(KEY_MATCH_TITLE)) build.setTitleContain(query.get(KEY_MATCH_TITLE));
-        if(query.containsKey(KEY_CHAPTERS)) build.setChapters(Integer.parseInt(query.get(KEY_CHAPTERS)));
-        if(query.containsKey(KEY_STATUS)) build.setStatus(query.get(KEY_STATUS));
-        if(query.containsKey(KEY_GENRE_INCL)) build.setGenreInclusion(query.get(KEY_GENRE_INCL));
+        if (query.containsKey(KEY_AUTHOR)) build.setAuthor(query.get(KEY_AUTHOR));
+        if (query.containsKey(KEY_TITLE)) build.setTitle(query.get(KEY_TITLE));
+        if (query.containsKey(KEY_RELEASE))
+            build.setRelease(Integer.parseInt(query.get(KEY_RELEASE)));
+        if (query.containsKey(KEY_RATING)) build.setRating(Integer.valueOf(query.get(KEY_RATING)));
+        if (query.containsKey(KEY_MATCH_AUTHOR))
+            build.setAuthorContain(query.get(KEY_MATCH_AUTHOR));
+        if (query.containsKey(KEY_MATCH_TITLE)) build.setTitleContain(query.get(KEY_MATCH_TITLE));
+        if (query.containsKey(KEY_CHAPTERS))
+            build.setChapterAmount(Integer.parseInt(query.get(KEY_CHAPTERS)));
+        if (query.containsKey(KEY_STATUS)) build.setStatus(query.get(KEY_STATUS));
+        if (query.containsKey(KEY_GENRE_INCL)) build.setGenreInclusion(query.get(KEY_GENRE_INCL));
 
-        if(query.containsKey(KEY_GENRE)) {
+        if (query.containsKey(KEY_GENRE)) {
             Stream.of(query.get(KEY_GENRE).split(",")).forEach(s -> Stream.of(Genre.values()).forEach(c -> {
                 if (c.name.equals(s)) build.addGenre(c.dispName);
             }));
         }
 
-        if(query.containsKey(KEY_TYPE)) {
+        if (query.containsKey(KEY_TYPE)) {
             Optional<String> first = Stream.of(Type.values()).filter(type -> type.value
                     .equals(query.get(KEY_ORDER))).map(type -> type.dispName).findFirst();
 
             build.setType(first.get());
         }
 
-        if(query.containsKey(KEY_ORDER)){
+        if (query.containsKey(KEY_ORDER)) {
             Optional<String> first = Stream.of(Order.values()).filter(order -> order.val
                     .equals(query.get(KEY_ORDER))).map(order -> order.dispName).findFirst();
 
@@ -126,24 +103,98 @@ public final class MangaSearch {
         return new MangaSearch(build);
     }
 
-    public static final class Builder{
+    public List<Genre> getGenre() {
+        return genre;
+    }
+
+    public int getRelease() {
+        return release;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public int getChapterAmount() {
+        return chapterAmount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getGenreInclusion() {
+        return genreInclusion;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public String getTitleContain() {
+        return titleContain;
+    }
+
+    public String getAuthorContain() {
+        return authorContain;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public Map<String, String> searchQuery() {
+
+        Map<String, String> search = new HashMap<>(11);
+        if (title != null) search.put(KEY_TITLE, title);
+        if (titleContain != null) search.put(KEY_MATCH_TITLE, titleContain);
+        if (author != null) search.put(KEY_AUTHOR, author);
+        if (authorContain != null) search.put(KEY_MATCH_AUTHOR, authorContain);
+        if (status != null) search.put(KEY_STATUS, status);
+        if (chapterAmount > 0) search.put(KEY_CHAPTERS, String.valueOf(chapterAmount));
+        if (rating > 0) search.put(KEY_RATING, String.valueOf(rating));
+        if (release > 0) search.put(KEY_RELEASE, String.valueOf(release));
+        if (type != null) search.put(KEY_TYPE, type.value);
+        if (genre != null && !genre.isEmpty()) {
+            StringBuilder build = new StringBuilder();
+            genre.forEach(c -> {
+                build.append(c.name).append(",");
+            });
+            if (build.toString().endsWith(",")) build.deleteCharAt(build.length() - 1);
+            search.put(KEY_GENRE, build.toString());
+        }
+        if (genreInclusion != null) search.put(KEY_GENRE_INCL, genreInclusion);
+        if(order != null) search.put(KEY_ORDER, order.val);
+
+        return search;
+    }
+
+    public static final class Builder {
 
         private List<Genre> genre = new ArrayList<>();
         private int release = -1;
-        private String title;
-        private String author;
-        private int chapters = -1;
-        private String status;
-        private String genreInclusion;
-        private Type type;
+        private String title = "";
+        private String author = "";
+        private int chapterAmount = -1;
+        private String status = "";
+        private String genreInclusion = "";
+        private Type type = Type.UNKNOWN;
         private int rating = -1;
-        private String titleContain;
-        private String authorContain;
+        private String titleContain = "";
+        private String authorContain = "";
         private Order order;
 
 
-        public Builder addGenre(String genreDispName){
-            if(genreDispName != null && !genreDispName.isEmpty()) {
+        public Builder addGenre(String genreDispName) {
+            if (genreDispName != null && !genreDispName.isEmpty()) {
                 Optional<Genre> searchType = Stream.of(Genre.values()).filter(genre -> genre.dispName.
                         equalsIgnoreCase(genreDispName)).findFirst();
 
@@ -159,7 +210,7 @@ public final class MangaSearch {
         }
 
         public Builder setRelease(int release){
-            if(release != -1) this.release = release;
+            if (release > 0) this.release = release;
             return this;
         }
 
@@ -168,7 +219,7 @@ public final class MangaSearch {
                 Optional<Type> searchType = Stream.of(Type.values()).filter(type -> type.dispName.
                         equalsIgnoreCase(typeDispName)).findFirst();
 
-                this.type = searchType.get();
+                searchType.ifPresent(t -> type = t);
             }
             return this;
         }
@@ -184,32 +235,32 @@ public final class MangaSearch {
         }
 
         public Builder setRating(int rating){
-            if(rating > -1) this.rating = rating;
+            if (rating > 0) this.rating = rating;
             return this;
         }
 
-        public Builder setTitle(String title){
-            if(!title.isEmpty()) this.title = title;
+        public Builder setTitle(String title) {
+            if (!title.isEmpty()) this.title = title;
             return this;
         }
 
-        public Builder setAuthor(String author){
-            if(!author.isEmpty()) this.author = author;
+        public Builder setAuthor(String author) {
+            if (!author.isEmpty()) this.author = author;
             return this;
         }
 
-        public Builder setChapters(int chapters){
-            if(chapters != -1) this.chapters = chapters;
+        public Builder setChapterAmount(int chapterAmount) {
+            if (chapterAmount > 0) this.chapterAmount = chapterAmount;
             return this;
         }
 
-        public Builder setStatus(String status){
-            if(!status.isEmpty()) this.status = status;
+        public Builder setStatus(String status) {
+            if (!status.isEmpty()) this.status = status;
             return this;
         }
 
-        public Builder setGenreInclusion(String inclusion){
-            if(!inclusion.isEmpty()) this.genreInclusion = inclusion;
+        public Builder setGenreInclusion(String inclusion) {
+            if (!inclusion.isEmpty()) this.genreInclusion = inclusion;
             return this;
         }
 

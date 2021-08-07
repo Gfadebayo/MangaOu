@@ -9,9 +9,9 @@ public enum Type {
     KOREAN("manhwa", "Korean Manhwa", true),
     CHINESE("manhua", "Chinese Manhwa", true),
     CHINESE_V2("manhua", "Chinese Manhua", false),
-    UNKNOWN("unknown", "Unknown", true);
+    UNKNOWN("", "Unknown", true);
 
-    Type(String value, String dispName, boolean isSearchable){
+    Type(String value, String dispName, boolean isSearchable) {
         this.value = value;
         this.dispName = dispName;
         this.isSearchable = isSearchable;

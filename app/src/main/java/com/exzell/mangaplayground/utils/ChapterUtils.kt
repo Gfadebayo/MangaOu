@@ -12,8 +12,8 @@ import java.util.stream.Collectors
  */
 fun fixTitle(title: String): String {
     var trimmedTitle = title.trim { it <= ' ' }
-    if (!trimmedTitle.isEmpty() && trimmedTitle[0] == ':') trimmedTitle = StringBuilder(trimmedTitle).deleteCharAt(0).toString().trim { it <= ' ' }
-    return if (!trimmedTitle.isEmpty()) trimmedTitle else "No Title"
+    if (trimmedTitle.isNotEmpty() && trimmedTitle[0] == ':') trimmedTitle = StringBuilder(trimmedTitle).deleteCharAt(0).toString().trim { it <= ' ' }
+    return if (trimmedTitle.isNotEmpty()) trimmedTitle else "No Title"
 }
 
 /**
@@ -25,7 +25,7 @@ fun splitChapterNumbers(numbers: String): List<String> {
     val chapters: MutableList<String> = ArrayList(1000)
     var skipNextSpace = false
     var start = 0
-    for (i in 0 until numbers.length) {
+    for (i in numbers.indices) {
         val lastChar = i == numbers.length - 1
         if (lastChar) chapters.add(numbers.substring(start)) else if (numbers[i] == ' ' && !skipNextSpace) {
             chapters.add(numbers.substring(start, i))
@@ -46,7 +46,7 @@ fun fetchDownloadLink(doc: Document): String {
 
 private fun parseDownloadLink(link: String): String {
     val https = Arrays.stream(link.split("\"".toRegex()).toTypedArray()).filter { p: String -> p.contains("https") }.findFirst().orElse("")
-    val joinToString = https.split("\\").stream().collect(Collectors.joining())/*.joinToString { "" }*/
+    val joinToString = https.split("\\").stream().collect(Collectors.joining())
 
     return joinToString
 }
@@ -75,4 +75,12 @@ fun transferChapterInfo(newChaps: List<Chapter>, oldChaps: MutableList<Chapter>)
         }
     }
     return newChaps
+}
+
+fun Chapter.getChapterNumericValue(): Number {
+    val str = number.toString().trim()
+    val split = str.split("\\.".toRegex())
+
+    if (split[1].toInt() <= 0) return split[0].toInt()
+    else return number
 }

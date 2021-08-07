@@ -14,6 +14,7 @@ import com.exzell.mangaplayground.viewmodels.*
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Subcomponent
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 @Singleton
@@ -59,6 +60,9 @@ interface AppComponent{
 
         @BindsInstance
         fun bindExecutors(appExecutors: AppExecutors): Builder
+
+        @BindsInstance
+        fun bindNetworkClient(okhttp: OkHttpClient): Builder
 
         fun build(): AppComponent
     }

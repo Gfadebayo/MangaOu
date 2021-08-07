@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.function.Consumer
 import javax.inject.Inject
 
 class MangaViewModel(application: Application, private val mLink: String) : DisposableViewModel(application) {
@@ -102,10 +103,10 @@ class MangaViewModel(application: Application, private val mLink: String) : Disp
         else mRepo.updateManga(true, manga)
     }
 
-    fun getDownloads(o: LifecycleOwner, consumer: java.util.function.Consumer<List<Download>>) {
+    fun getDownloads(o: LifecycleOwner, consumer: Consumer<List<Long>>) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                mRepo.getDownloads()
+                mRepo.getCompletedDownloadChapterIds()
             }.collect {
                 consumer.accept(it)
             }

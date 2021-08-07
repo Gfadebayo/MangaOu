@@ -1,9 +1,12 @@
 package com.exzell.mangaplayground.utils;
 
 import android.os.Bundle;
+import android.text.Layout;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.databinding.BindingAdapter;
 import androidx.navigation.NavController;
@@ -13,105 +16,93 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.Request;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.advancedsearch.Genre;
+import com.exzell.mangaplayground.customview.ImageViewTarget;
 import com.exzell.mangaplayground.fragment.EmptyFragment;
 import com.exzell.mangaplayground.models.Manga;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textview.MaterialTextView;
+import com.skydoves.powerspinner.PowerSpinnerView;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import kotlin.Unit;
+import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 public class BindingUtils {
 
     //Used in fragment_manga, list_manga
     @BindingAdapter("thumbnail")
-    public static void addThumbnail(ImageView v, String link){
+    public static void addThumbnail(ImageView v, String link) {
+        ProgressBar bar = v.getRootView().findViewById(R.id.indicator_thumbnail);
+        ImageViewTarget target = new ImageViewTarget(v, null, bar);
 
         Request req = Glide.with(v)
                 .load(link)
-                .placeholder(R.drawable.ic_done_all_black_24dp)
-                /*.listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-
-                        Timber.i("Failed to get Image");
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        return false;
-                    }
-                })*/
-                .into(v)
+                .into(target)
                 .getRequest();
         if (!req.isRunning()) req.begin();
     }
 
-    //The 5 below are all used in dialog_search
+    @BindingAdapter("setRating")
+    public static void setRating(MaterialRatingBar bar, double rating) {
 
-//    @BindingAdapter(value = "ratingListener")
-//    public static void setRatingListener(RatingBar bar, SearchViewModel vm){
-//        bar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
-//            @Override
-//            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-//                if(fromUser) vm.setRating((int) rating);
-//            }
-//        });
-//    }
-//
-//    @BindingAdapter(value = {"addGrids", "checkboxListener"})
-//    public static void generateGrids(GridLayout grids, List<String> checkedGrids, SearchViewModel vm){
-//        int colIndex = 0;
-//        int rowIndex = 0;
-//
-//        for (Genre genre : Genre.values()) {
-//            MaterialCheckBox box = new MaterialCheckBox(grids.getMContext());
-//            GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(rowIndex), GridLayout.spec(colIndex, 0f));
-//
-//            if (colIndex > 2) {
-//                colIndex = 0;
-//                rowIndex++;
-//            }else colIndex++;
-//
-//            box.setText(genre.getDispName());
-//            if(checkedGrids.contains(genre.getDispName())) box.setChecked(true);
-//            box.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                @Override
-//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                    vm.setGenres(genre.getDispName(), isChecked);
-//                }
-//            });
-//            grids.addView(box, params);
-//        }
-//    }
-//
-//    //used in list_manga
-//    @BindingAdapter("createTextViews")
-//    public static void create(LinearLayout layout, Manga manga){
-//
-//        List<Chapter> chaps = new ArrayList<>(manga.getChapters());
-//        chaps.stream().filter(Chapter::isNewChap).forEach(chap -> {
-//            MaterialTextView text = new MaterialTextView(layout.getMContext());
-//            String chapText = chap.getTitle() + "\t\t" + chap.getReleaseDate();
-//            text.setText(chapText);
-//            text.setOnClickListener(v -> chap.getLink());
-//
-//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-//            layout.addView(text, params);
-//        });
-//
-//
-//    }
+        float rate = (float) ((rating * bar.getNumStars()) / 10);
+        bar.setRating(rate);
+    }
+
+    @BindingAdapter("ellipsizeChecker")
+    public static void checkTextEllipsize(MaterialTextView textView, int maxLines) {
+        textView.post(() -> {
+            Layout layout = textView.getLayout();
+
+            if (layout == null) return;
+
+            int lineCount = layout.getLineCount();
+
+            if (layout.getEllipsisCount(lineCount - 1) > 0) {
+                textView.setOnClickListener(v -> {
+                    int currentMax = textView.getMaxLines();
+
+                    if (currentMax < Integer.MAX_VALUE) {
+                        textView.setMaxLines(Integer.MAX_VALUE);
+                        textView.setEllipsize(null);
+
+                    } else {
+                        textView.setMaxLines(maxLines);
+                        textView.setEllipsize(TextUtils.TruncateAt.END);
+                    }
+                });
+            }
+        });
+    }
+
+    public static void setSpinnerItems(PowerSpinnerView spinner, List<String> items, String selectedItem) {
+        spinner.setItems(items);
+
+        if (selectedItem == null) return;
+
+        int selectedIndex = items.stream().map(String::toLowerCase).collect(Collectors.toList()).indexOf(selectedItem.toLowerCase());
+
+        if (selectedIndex >= 0) spinner.selectItemByIndex(selectedIndex);
+
+        spinner.setOnSpinnerOutsideTouchListener((view, motionEvent) -> {
+            spinner.dismiss();
+            return Unit.INSTANCE;
+        });
+    }
 
     @BindingAdapter("createChips")
-    public static void chips(ChipGroup parent, Manga manga){
-        if(manga == null) return;
+    public static void chips(ChipGroup parent, Manga manga) {
+        if (manga == null) return;
 
         NavController con = Navigation.findNavController(parent);
 
         createOrHideChips(manga.getGenres().size() - parent.getChildCount(), parent);
 
-        for(int i = 0; i < manga.getGenres().size(); i++){
+        for (int i = 0; i < manga.getGenres().size(); i++) {
             Genre g = manga.getGenres().get(i);
             Chip ch = (Chip) parent.getChildAt(i);
             ch.setText(g.dispName);
@@ -131,12 +122,17 @@ public class BindingUtils {
                 .forEach(i -> parent.getChildAt(i).setVisibility(View.GONE));
     }
 
-    private static void createOrHideChips(int size, ChipGroup parent){
-        for(int i = 0; i < size; i++) {
+    private static void createOrHideChips(int size, ChipGroup parent) {
+        for (int i = 0; i < size; i++) {
             Chip ch = new Chip(parent.getContext());
             ChipGroup.LayoutParams params = new ChipGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 
             parent.addView(ch, params);
         }
+    }
+
+
+    public static String listToString(List<String> list, String delimiter) {
+        return list.stream().collect(Collectors.joining(delimiter));
     }
 }

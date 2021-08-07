@@ -42,6 +42,7 @@ class HistoryFragment : SearchViewFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mBinding!!.progressLoad.visibility = View.GONE
+
         mBinding!!.recyclerLoad.adapter = ConcatAdapter()
 
         setHistory(mViewModel!!.getHistory())
@@ -54,62 +55,66 @@ class HistoryFragment : SearchViewFragment() {
     private fun setHistory(historyMangas: Map<Long, List<DBManga>>) {
         if (!isAdded) return
 
-        if (historyMangas.isEmpty()) {
-            mBinding!!.textOther.apply {
+        mBinding!!.textOther.apply {
+            if (historyMangas.isNotEmpty()) visibility = View.GONE
+            else {
                 visibility = View.VISIBLE
                 text = getString(R.string.no_recently_read_mangas)
             }
-        } else {
-            val adapter: ConcatAdapter = mBinding!!.recyclerLoad.adapter as ConcatAdapter
+        }
 
-            val titleAdapters: List<TitleAdapter> = adapter.let {
-                adapter.adapters.filterIsInstance<TitleAdapter>()
-            }
+        mBinding!!.textOther.apply {
 
-            val today = Calendar.getInstance().reset().timeInMillis
-            val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
+        }
+        val adapter: ConcatAdapter = mBinding!!.recyclerLoad.adapter as ConcatAdapter
 
-            historyMangas.keys.forEach { time ->
-                val day = Calendar.getInstance().reset(time).timeInMillis
+        val titleAdapters: List<TitleAdapter> = adapter.let {
+            adapter.adapters.filterIsInstance<TitleAdapter>()
+        }
 
-                val historyManga = historyMangas.getOrDefault(time, emptyList())
+        val today = Calendar.getInstance().reset().timeInMillis
+        val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
 
-                if (historyManga.isNotEmpty()) {
-                    val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
-                    val days = todayInDays - dayInDays
-                    val dayTitle = mViewModel!!.getDayTitle(days.toInt())
+        historyMangas.keys.forEach { time ->
+            val day = Calendar.getInstance().reset(time).timeInMillis
 
-                    //Its possible the concat adapter already has the adapters so we should just update them
-                    val index = historyMangas.keys.indexOf(time)
+            val historyManga = historyMangas.getOrDefault(time, emptyList())
 
-                    with(adapter) {
-                        if (index < titleAdapters.size) {
-                            titleAdapters[index].apply {
-                                title = dayTitle
-                                (bodyAdapter as HistoryAdapter).apply {
-                                    mangas = historyManga
-                                }
+            if (historyManga.isNotEmpty()) {
+                val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
+                val days = todayInDays - dayInDays
+                val dayTitle = mViewModel!!.getDayTitle(days.toInt())
+
+                //Its possible the concat adapter already has the adapters so we should just update them
+                val index = historyMangas.keys.indexOf(time)
+
+                with(adapter) {
+                    if (index < titleAdapters.size) {
+                        titleAdapters[index].apply {
+                            title = dayTitle
+                            (bodyAdapter as HistoryAdapter).apply {
+                                mangas = historyManga
                             }
-                        } else {
-                            val hAdapter = HistoryAdapter(requireActivity(), historyManga)
-                            val tAdapter = TitleAdapter(requireActivity(), dayTitle, hAdapter)
-                            hAdapter.setOnClickListener(onBodyClicked())
-                            hAdapter.setOnButtonsClickedListener(onButtonClicked(), onButtonClicked())
-                            addAdapter(tAdapter)
-                            addAdapter(hAdapter)
                         }
+                    } else {
+                        val hAdapter = HistoryAdapter(requireActivity(), historyManga)
+                        val tAdapter = TitleAdapter(requireActivity(), dayTitle, hAdapter)
+                        hAdapter.setOnClickListener(onBodyClicked())
+                        hAdapter.setOnButtonsClickedListener(onButtonClicked(), onButtonClicked())
+                        addAdapter(tAdapter)
+                        addAdapter(hAdapter)
                     }
                 }
             }
+        }
 
-            //Trim the Concat Adapter of unneeded adapters
-            if (historyMangas.size < titleAdapters.size) {
-                val diff = titleAdapters.size - historyMangas.size
-                for (i in 0 until diff) {
-                    val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
-                    adapter.removeAdapter(titleAdapter)
-                    adapter.removeAdapter(titleAdapter.bodyAdapter)
-                }
+        //Trim the Concat Adapter of unneeded adapters
+        if (historyMangas.size < titleAdapters.size) {
+            val diff = titleAdapters.size - historyMangas.size
+            for (i in 0 until diff) {
+                val titleAdapter = titleAdapters[titleAdapters.size - i - 1]
+                adapter.removeAdapter(titleAdapter)
+                adapter.removeAdapter(titleAdapter.bodyAdapter)
             }
         }
     }
@@ -136,7 +141,7 @@ class HistoryFragment : SearchViewFragment() {
     }
 
     private fun onSearchQueryChanged(newText: String) {
-        setHistory((mViewModel!!.mMangas as List<DBManga>).filter {
+        setHistory(mViewModel!!.getMangas().filter {
             it.title.contains(newText, true)
         }.groupBy {
             Calendar.getInstance().reset(it.lastReadTime).timeInMillis

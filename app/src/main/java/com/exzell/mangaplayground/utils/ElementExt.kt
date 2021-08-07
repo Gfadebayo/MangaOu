@@ -6,9 +6,8 @@ import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Manga
 import io.reactivex.rxjava3.core.Observable
 import org.jsoup.nodes.Element
+import timber.log.Timber
 import java.util.regex.Pattern
-import java.util.stream.Collectors
-import java.util.stream.Stream
 
 /**
  * Removes some unneeded tags first, then calls [parseMangaSection]
@@ -78,7 +77,7 @@ private fun parseMangaSection(body: Element, manga: Manga) {
 
         if (it.text().contains("Alternative")) {
             val altNames = it.nextElementSibling().text()
-            manga.altTitle = altNames
+            manga.altTitle = altNames.split(";".toRegex()).onEach { it.trim() }
         }
     }
 
@@ -120,10 +119,8 @@ fun Element.createSearchManga(pos: Int): List<Manga> {
                     }
 
                     b.text().contains("Genre") -> {
-                        val genreTag = b.nextElementSibling().parent().getElementsByTag("a")
-                        genres = genreTag.map {
-                            Genre.values().first { gen: Genre -> gen.dispName == it.text() }
-                        }
+                        val genreTag = b.nextElementSibling().parent().getElementsByTag("a").map { it.text().lowercase().replace(" ", "") }
+                        genres = Genre.values().filter { genreTag.contains(it.dispName.lowercase().replace(" ", "")) }
                     }
                 }
             }
@@ -155,7 +152,6 @@ fun Element.createChapterWithObservable(manga: Manga) {
 private fun createChapters(parent: Element, manga: Manga, chapVersion: Chapter.Version, latest: List<String>): Observable<Chapter?>? {
     val allLinks = parent.select("a[class=ml-1 visited ch]")
     val allTime = parent.select("span[class=time]").text().split("ago".toRegex()).toTypedArray()
-    val newChapter = parent.select("li[class*=d-flex py-1 item new]")
 
     val chapLengths = parent.select("em").text().split("1 3 6 10 all of ".toRegex()).toTypedArray()
     val li = parent.select("li[class*=d-flex py-1 item]")
@@ -197,7 +193,14 @@ private fun correctTitle(wrongTitle: String, chapterNumber: String): String {
     return if (titleSplit.size <= 1) {
         return if (wrongTitle.isEmpty()) {
             val titles = chapterNumber.split("(ch|Chapter)\\.?\\s*[\\d\\.]+:?".toRegex()).toTypedArray()
-            titles[1]
+            Timber.d("Chapter number is $chapterNumber")
+            return if (titles.size > 1) titles[1]
+            else {
+                val splt = chapterNumber.split("(Vol|vol|Volume|volume)\\.?\\d+".toRegex())
+                Timber.d("Split volume is $splt")
+                if (splt.size > 1) splt[1] else chapterNumber
+            }
         } else wrongTitle//use title itself otherwise
     } else titleSplit[1]
 }
+
