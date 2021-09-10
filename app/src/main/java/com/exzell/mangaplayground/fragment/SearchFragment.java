@@ -21,6 +21,7 @@ import com.exzell.mangaplayground.models.Manga;
 import com.exzell.mangaplayground.selection.SelectionFragment;
 import com.exzell.mangaplayground.viewmodels.SearchViewModel;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +30,9 @@ import java.util.function.Consumer;
 
 import kotlin.Unit;
 
-public class SearchFragment extends SelectionFragment implements SearchDialogFragment.OnSearchClickedListener{
+public class SearchFragment extends SelectionFragment implements SearchDialogFragment.OnSearchClickedListener {
+    public static final String KEY_SEARCH_TITLE = "com.exzell.mangaplayground.search_title";
+
     private SearchViewModel mViewModel;
     private MangaListAdapter mAdapter;
     private GenericLoadingRecyclerViewBinding mBinding;
@@ -43,8 +46,17 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
         ((MangaApplication) requireActivity().getApplication())
                 .mAppComponent.injectRepo(mViewModel);
 
-        mViewModel.handlerDefaults();
-        setContextMenuResource(0, R.menu.menu_cab_bookmark);
+        mViewModel.setOnSuccess(onResultReturned());
+        mViewModel.setOnError(onError());
+
+        if (getArguments() != null && getArguments().containsKey(KEY_SEARCH_TITLE)) {
+            mViewModel.resetValues();
+
+            mViewModel.mSearch.setTitle(getArguments().getString(KEY_SEARCH_TITLE));
+            mViewModel.saveSearchParams();
+            onSearchClicked();
+        }
+        setContextMenuResource(R.menu.cab_fragment_search, 0);
     }
 
     @Nullable
@@ -73,6 +85,7 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 if (itemCount > 0) {
                     mBinding.progressLoad.setVisibility(View.GONE);
+                    mBinding.textOther.setVisibility(View.GONE);
                     mBinding.recyclerLoad.setVisibility(View.VISIBLE);
                 }
             }
@@ -83,17 +96,19 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
 
     @Override
     public boolean onActionItemClicked(MenuItem item) {
-        ArrayList<String> mangaLinks = new ArrayList<>(getTracker().getSelection().size());
-        getTracker().getSelection().forEach(id -> {
-            RecyclerView.ViewHolder vh = mBinding.recyclerLoad.findViewHolderForItemId(id);
-            Manga manga = mAdapter.getCurrentList().get(vh.getBindingAdapterPosition());
-            mangaLinks.add(manga.getLink());
-        });
+        if (item.getItemId() == R.id.action_search_bookmark) {
+            ArrayList<String> mangaLinks = new ArrayList<>(getTracker().getSelection().size());
+            getTracker().getSelection().forEach(id -> {
+                RecyclerView.ViewHolder vh = mBinding.recyclerLoad.findViewHolderForItemId(id);
+                Manga manga = mAdapter.getCurrentList().get(vh.getBindingAdapterPosition());
+                mangaLinks.add(manga.getLink());
+            });
 
-        mViewModel.createAndBookmarkManga(mangaLinks, () -> {
-            Toast.makeText(requireActivity(), "The mangas could not be added", Toast.LENGTH_SHORT).show();
-            return Unit.INSTANCE;
-        });
+            mViewModel.createAndBookmarkManga(mangaLinks, () -> {
+                Toast.makeText(requireActivity(), R.string.failed_add_mangas, Toast.LENGTH_SHORT).show();
+                return Unit.INSTANCE;
+            });
+        }
 
         return true;
     }
@@ -103,15 +118,31 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
         mBinding.progressLoad.setVisibility(View.VISIBLE);
         mAdapter.submitList(Collections.emptyList());
         mViewModel.clearSearchResults();
-        mViewModel.resolveSearch(mViewModel.search(), onResultReturned());
+        mViewModel.resolveSearch(mViewModel.search());
     }
 
-    private Consumer<List<Manga>> onResultReturned(){
+    private Consumer<List<Manga>> onResultReturned() {
         return mangas -> {
-            if(!isVisible()) return;
-            requireActivity().runOnUiThread(() -> mAdapter.addMangas(mangas));
+            if (!isVisible()) return;
+            mAdapter.addMangas(mangas);
             if (mViewModel.getNextLink() != null)
-                mViewModel.resolveSearch(mViewModel.getNextLink(), onResultReturned());
+                mViewModel.resolveSearch(mViewModel.getNextLink());
+        };
+    }
+
+    private Consumer<String> onError() {
+        return message -> {
+            mBinding.progressLoad.setVisibility(View.GONE);
+
+            if (message.equals(SearchViewModel.ERROR_OTHERS)) {
+                Snackbar.make(mBinding.getRoot(), R.string.error_try_again, Snackbar.LENGTH_INDEFINITE).setAction(R.string.retry, v ->
+                        mViewModel.resolveSearch(mViewModel.search()))
+                        .setAnchorView(R.id.bottom_nav_view).show();
+
+            } else if (message.equals(SearchViewModel.ERROR_NO_RESULT)) {
+                mBinding.textOther.setVisibility(View.VISIBLE);
+                mBinding.textOther.setText(R.string.error_not_found);
+            }
         };
     }
 
@@ -126,6 +157,7 @@ public class SearchFragment extends SelectionFragment implements SearchDialogFra
 
     private void setFab(boolean show) {
         ExtendedFloatingActionButton fab = requireActivity().findViewById(R.id.fab);
+        if (fab == null) return;
 
         if (show) {
             fab.setText(R.string.search);

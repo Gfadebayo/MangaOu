@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 import com.exzell.mangaplayground.R;
+import com.exzell.mangaplayground.customview.ImageViewTarget;
 import com.exzell.mangaplayground.databinding.ListMangaBinding;
 import com.exzell.mangaplayground.databinding.ListMangaHomeBinding;
 import com.exzell.mangaplayground.fragment.MangaFragment;
@@ -78,7 +79,7 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
 
             holder.mHomeBinding.textMangaTitle.setText(manga.getTitle());
 
-            BindingUtils.addThumbnail(holder.mHomeBinding.imageManga, manga.getThumbnailLink());
+            BindingUtils.addThumbnail(holder.mHomeBinding.imageManga, manga.getThumbnailLink(), holder.mImageTarget);
             if (mShowMoreInfo) setColor(holder.mHomeBinding.buttonMore);
         }
 
@@ -128,11 +129,17 @@ public class MangaListAdapter extends ListAdapter<Manga, MangaListAdapter.ViewHo
         private ListMangaHomeBinding mHomeBinding;
         private ItemDetailsLookup.ItemDetails<Long> mDetails;
 
+        private ImageViewTarget mImageTarget;
+
         public ViewHolder(@NonNull View itemView, int type) {
             super(itemView);
+            mImageTarget = new ImageViewTarget(itemView.findViewById(R.id.image_manga), null, itemView.findViewById(R.id.indicator_thumbnail));
 
-            if (type == R.layout.list_manga) mBinding = ListMangaBinding.bind(itemView);
-            else mHomeBinding = ListMangaHomeBinding.bind(itemView);
+            if (type == R.layout.list_manga) {
+                mBinding = ListMangaBinding.bind(itemView);
+                mBinding.setTarget(mImageTarget);
+
+            } else mHomeBinding = ListMangaHomeBinding.bind(itemView);
 
 
             itemView.setOnClickListener(v -> {

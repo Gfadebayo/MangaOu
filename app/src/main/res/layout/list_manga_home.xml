@@ -10,40 +10,35 @@
     android:layout_marginStart="5dp"
     android:padding="4dp"
     app:cardBackgroundColor="@color/selector_list_selection"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="5dp">
+    app:cardCornerRadius="8dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <FrameLayout
-            android:id="@+id/thumbnail_parent"
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/image_manga"
             android:layout_width="0dp"
             android:layout_height="@dimen/manga_height"
+            android:scaleType="center"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintDimensionRatio="12:15"
             app:layout_constraintEnd_toEndOf="@id/button_more"
             app:layout_constraintStart_toStartOf="@+id/text_manga_title"
-            app:layout_constraintTop_toTopOf="parent">
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
+            tools:src="@drawable/ic_round_android_24" />
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/image_manga"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="center"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.MediumComponent"
-                tools:src="@drawable/ic_round_android_24" />
-
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/indicator_thumbnail"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:indeterminate="true"
-                android:indeterminateBehavior="cycle"
-                app:indicatorDirectionCircular="counterclockwise"
-                app:indicatorSize="16dp" />
-        </FrameLayout>
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/indicator_thumbnail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:layout_constrainedHeight="true"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintBottom_toBottomOf="@id/image_manga"
+            app:layout_constraintEnd_toEndOf="@id/image_manga"
+            app:layout_constraintStart_toStartOf="@id/image_manga"
+            app:layout_constraintTop_toTopOf="@id/image_manga" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text_manga_title"
@@ -56,7 +51,7 @@
             app:layout_constraintEnd_toStartOf="@id/button_more"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/thumbnail_parent"
+            app:layout_constraintTop_toBottomOf="@id/image_manga"
             tools:text="@string/summary_sample" />
 
         <com.google.android.material.imageview.ShapeableImageView

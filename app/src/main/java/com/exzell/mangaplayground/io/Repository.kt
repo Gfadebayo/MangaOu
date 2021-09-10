@@ -9,10 +9,10 @@ import com.exzell.mangaplayground.models.Chapter
 import com.exzell.mangaplayground.models.Download
 import com.exzell.mangaplayground.models.Manga
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
 import okhttp3.Request
 import okhttp3.ResponseBody
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.IOException
@@ -33,9 +33,9 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
 
 
     //TODO: Consider changing the return type of both methods to Observables
-    fun advancedSearch(queries: Map<String, String>): Call<ResponseBody>? {
+    fun advancedSearch(queries: Map<String, String>): Observable<ResponseBody>? {
         return try {
-            mExecutor.ioExecutor.submit(Callable { mMangaPark.advancedSearch(queries) }).get()
+            mMangaPark.advancedSearch(queries).subscribeOn(Schedulers.io())
         } catch (e: CancellationException) {
             e.printStackTrace()
             null

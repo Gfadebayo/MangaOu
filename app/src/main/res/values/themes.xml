@@ -23,5 +23,6 @@
         <item name="linearProgressIndicatorStyle">@style/MangaProgressIndicator</item>
         <item name="chipStyle">@style/Widget.MaterialComponents.Chip.Action.MangaChip</item>
         <item name="chipGroupStyle">@style/Widget.MaterialComponents.ChipGroup.MangaChipGroup</item>
+        <item name="circularProgressIndicatorStyle">@style/CircularProgressIndicator.Repeated</item>
     </style>
 </resources>

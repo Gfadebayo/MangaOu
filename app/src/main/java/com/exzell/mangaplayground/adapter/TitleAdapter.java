@@ -5,33 +5,37 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.exzell.mangaplayground.R;
 import com.google.android.material.textview.MaterialTextView;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
+
 public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHolder> {
+    private static final String PAYLOAD_DRAWABLE = "drawable change";
+
     private final Context mContext;
     private String mTitle;
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mBodyAdapter;
-    private View.OnClickListener mListener;
     private Drawable mDrawable;
     private View.OnClickListener mParentListener = null;
-    private int mDrawableRes;
 
-    public TitleAdapter(Context context, String title, RecyclerView.Adapter<? extends RecyclerView.ViewHolder> bodyAdapter){
+    private boolean useDrawable = true;
+
+    public TitleAdapter(Context context, String title, RecyclerView.Adapter<? extends RecyclerView.ViewHolder> bodyAdapter) {
         mContext = context;
-        this.mTitle = title;
+        mTitle = title;
         mBodyAdapter = bodyAdapter;
         setHasStableIds(true);
     }
 
-    public void setTitle(String title){
-        if(title.equals(mTitle)) return;
+    public void setTitle(String title) {
+        if (title.equals(mTitle)) return;
         mTitle = title;
         notifyItemChanged(0);
     }
@@ -49,11 +53,17 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
 
     @Override
     public void onBindViewHolder(@NonNull HeaderViewHolder holder, int position) {
-
-        if(mDrawable == null) holder.mButton.setImageResource(mDrawableRes);
-        else holder.mButton.setImageDrawable(mDrawable);
-
         holder.mText.setText(mTitle);
+        if (!useDrawable) holder.mText.setCompoundDrawablesRelative(null, null, null, null);
+        else if (mDrawable != null)
+            holder.mText.setCompoundDrawablesRelative(null, null, mDrawable, null);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull @NotNull TitleAdapter.HeaderViewHolder holder, int position, @NotNull List<Object> payloads) {
+        if (payloads.contains(PAYLOAD_DRAWABLE))
+            holder.mText.setCompoundDrawablesRelative(null, null, mDrawable, null);
+        else super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
@@ -75,35 +85,25 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
         return mBodyAdapter;
     }
 
-    public void setImageListener(View.OnClickListener listener){
-        mListener = listener;
-    }
-
     public void setParentListener(View.OnClickListener listener){
         mParentListener = listener;
     }
 
     public void setDrawable(Drawable drawable){
+        useDrawable = drawable != null;
         mDrawable = drawable;
-        notifyItemChanged(0);
-    }
-
-    public void setDrawableResource(@DrawableRes int res){
-        mDrawableRes = res;
+        notifyItemChanged(0, PAYLOAD_DRAWABLE);
     }
 
     public class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         public MaterialTextView mText;
-        public ImageView mButton;
 
         public HeaderViewHolder(View itemView){
             super(itemView);
             mText = itemView.findViewById(R.id.text_header);
-            mButton = itemView.findViewById(R.id.button_header);
 
             itemView.setOnClickListener(mParentListener);
-            mButton.setOnClickListener(mListener);
         }
     }
 }

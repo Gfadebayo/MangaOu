@@ -1,27 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/SearchDialogTheme">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card_search_control"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="#FFFFFF"
-        android:elevation="4dp">
+        app:cardCornerRadius="0dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_reset"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:layout_gravity="center_vertical"
             android:text="@string/reset"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:strokeColor="@color/light_blue"
+            app:strokeColor="?attr/colorPrimary"
             app:strokeWidth="2dp" />
 
         <com.google.android.material.button.MaterialButton
@@ -30,16 +33,247 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
             android:text="@string/search"
+            android:layout_gravity="end|center_vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_search"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:orientation="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="2dp">
+
+            <com.tiper.MaterialSpinner
+                android:id="@+id/spin_order"
+                style="@style/SearchTextInputLayout.Spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/order_by"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/edit_layout_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/title"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/spin_order">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_text_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.tiper.MaterialSpinner
+                android:id="@+id/spin_title_contain"
+                style="@style/SearchTextInputLayout.Spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/title_contain"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/edit_layout_title" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/edit_layout_auth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/author"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/spin_title_contain">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_text_author"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="@string/summary_sample" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.tiper.MaterialSpinner
+                android:id="@+id/spin_auth_contain"
+                style="@style/SearchTextInputLayout.Spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/author_contain"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/edit_layout_auth" />
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_search_release"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/release"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/spin_auth_contain" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_release"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="@id/text_search_release"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toEndOf="@id/text_search_release"
+                app:layout_constraintTop_toTopOf="@id/text_search_release" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_search_amount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/chapter_amount"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/text_search_release" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_amount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                app:layout_constraintBottom_toBottomOf="@id/text_search_amount"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toEndOf="@id/text_search_amount"
+                app:layout_constraintTop_toTopOf="@id/text_search_amount" />
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/text_search_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rating"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/text_search_amount" />
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_rating"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:valueFrom="0"
+                android:valueTo="5"
+                app:layout_constraintBottom_toBottomOf="@id/text_search_rating"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/text_search_rating"
+                app:layout_constraintTop_toTopOf="@id/text_search_rating" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/header_status"
+                style="@style/HeaderTextView.SearchDropDown"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/status"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/text_search_rating" />
+
+            <RadioGroup
+                android:id="@+id/radio_group_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/header_status"
+                tools:visibility="gone">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/completed" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ongoing" />
+            </RadioGroup>
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/header_type"
+                style="@style/HeaderTextView.SearchDropDown"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/type"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/radio_group_status" />
+
+            <RadioGroup
+                android:id="@+id/radio_group_type"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/header_type"
+                tools:visibility="gone">
+
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/japanese_manga" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/korean_manhwa" />
+
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chinese_manhua" />
+            </RadioGroup>
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/header_genre"
+                style="@style/HeaderTextView.SearchDropDown"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/genre"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/radio_group_type" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/group_genre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="spin_genre_incl, grid_genre"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/header_genre" />
+
+            <com.tiper.MaterialSpinner
+                android:id="@+id/spin_genre_incl"
+                style="@style/SearchTextInputLayout.Spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/genre_inclusion"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/group_genre" />
+
+            <GridLayout
+                android:id="@+id/grid_genre"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                app:layout_constraintEnd_toEndOf="@id/spin_order"
+                app:layout_constraintStart_toStartOf="@id/spin_order"
+                app:layout_constraintTop_toBottomOf="@id/spin_genre_incl" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 </LinearLayout>

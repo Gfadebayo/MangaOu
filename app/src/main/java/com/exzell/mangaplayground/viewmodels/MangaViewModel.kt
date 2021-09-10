@@ -2,7 +2,6 @@ package com.exzell.mangaplayground.viewmodels
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import com.exzell.mangaplayground.download.DownloadManager
 import com.exzell.mangaplayground.io.Repository
@@ -103,7 +102,7 @@ class MangaViewModel(application: Application, private val mLink: String) : Disp
         else mRepo.updateManga(true, manga)
     }
 
-    fun getDownloads(o: LifecycleOwner, consumer: Consumer<List<Long>>) {
+    fun getDownloads(consumer: Consumer<List<Long>>) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 mRepo.getCompletedDownloadChapterIds()

@@ -73,8 +73,7 @@ public class HomeFragment extends SwipeRefreshFragment implements SwipeRefreshLa
                     new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false));
 
             TitleAdapter titleAd = new TitleAdapter(requireActivity(), name, rvAdapter);
-            titleAd.setImageListener(v -> getLink(index, name, names));
-            titleAd.setDrawableResource(R.drawable.ic_round_arrow_forward_24);
+            titleAd.setParentListener(v -> getLink(index, name, names));
 
             if (index == 1) ad.showMoreInfo(true);
 

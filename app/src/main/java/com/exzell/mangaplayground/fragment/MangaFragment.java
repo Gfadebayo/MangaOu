@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 
 import kotlin.Unit;
 
+//TODO: Fix MangaFragment next, especially the UI
 public class MangaFragment extends SelectionFragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String MANGA_LINK = "new manga";
@@ -95,16 +96,19 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
         onComplete();
 
-        if (autoUpdate)
-            mViewModel.updateManga(noError -> {
-                mBinding.loadRefresh.setRefreshing(false);
+        if (autoUpdate) mViewModel.updateManga(noError -> {
+            mBinding.loadRefresh.setRefreshing(false);
 
-                if (noError) onComplete();
-                    //Only display the snackbar when no existing manga is available
-                else errorSnackBar();
+            if (noError) onComplete();
+                //Only display the snackbar when no existing manga is available
+            else errorSnackBar();
 
-                return Unit.INSTANCE;
-            });
+            return Unit.INSTANCE;
+        });
+
+        mViewModel.getDownloads(ids -> {
+            adapter.setDownloads(ids);
+        });
 
         mBinding.loadRefresh.setOnRefreshListener(this);
     }
@@ -113,7 +117,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         if (mErrorSnackbar == null) {
             String message = requireActivity().getResources().getString(R.string.error_fetch);
             String retry = requireActivity().getResources().getString(R.string.retry);
-            mErrorSnackbar = Snackbar.make(getView(), message, Snackbar.LENGTH_INDEFINITE)
+            mErrorSnackbar = Snackbar.make(mBinding.getRoot(), message, Snackbar.LENGTH_INDEFINITE)
                     .setAction(retry, v -> {
                         mBinding.loadRefresh.setRefreshing(true);
                         onRefresh();
@@ -131,7 +135,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         adapter.updateMangaInfo(mViewModel.getManga(), false);
 
 
-        mViewModel.getDownloads(this, ids -> adapter.setDownloads(ids));
+        mViewModel.getDownloads(ids -> adapter.setDownloads(ids));
     }
 
     @Override
@@ -139,12 +143,8 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         List<Chapter> chosen = new ArrayList<>();
 
         getTracker().getSelection().forEach(c -> {
-//            MangaInfoAdapter.ChapterViewHolder hold = (MangaInfoAdapter.ChapterViewHolder) mBinding.recyclerLoad.findViewHolderForItemId(c);
-//            int bindPos = hold.getBindingAdapterPosition();
-//
-//            List<Chapter> chaps = ((MangaInfoAdapter) hold.getBindingAdapter()).getCurrentList();
-            Chapter chap = mViewModel.getManga().getChapters().stream().filter(ch -> c == ch.getId()).findFirst().get();
-//            Chapter chap = chaps.get(bindPos);
+            Chapter chap = mViewModel.getManga().getChapters().stream()
+                    .filter(ch -> c == ch.getId()).findFirst().get();
 
             chosen.add(chap);
         });

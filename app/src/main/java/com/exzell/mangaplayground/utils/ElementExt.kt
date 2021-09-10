@@ -111,7 +111,7 @@ fun Element.createSearchManga(pos: Int): List<Manga> {
                     }
 
                     b.text().contains("Authors/Artists") -> {
-                        val text = b.nextElementSibling().text()
+                        author = b.nextElementSibling().text()
                     }
 
                     b.text().contains("Status") -> {

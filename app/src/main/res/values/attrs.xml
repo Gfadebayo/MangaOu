@@ -1,19 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="TitledRecyclerView">
-        <attr name="trv_text" format="string" />
-        <attr name="trv_manager" format="integer" />
-        <attr name="trv_orientation" format="integer" />
-        <attr name="trv_spanCount" format="integer" />
-    </declare-styleable>
 
-
-    <declare-styleable name="TitledSpinner">
-        <attr name="ts_title" format="string" />
-        <attr name="ts_spinnerFrom" format="integer" />
-        <attr name="ts_spinnerTo" format="integer" />
-        <attr name="ts_spinnerValue" format="integer" />
-        <attr name="ts_spinnerUserValues" format="reference" />
-        <attr name="ts_spinnerActualValues" format="reference" />
-    </declare-styleable>
 </resources>

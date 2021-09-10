@@ -1,51 +1,40 @@
 package com.exzell.mangaplayground.viewmodels
 
+import android.annotation.SuppressLint
 import android.app.Application
-import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import com.exzell.mangaplayground.advancedsearch.Genre
 import com.exzell.mangaplayground.advancedsearch.MangaSearch
+import com.exzell.mangaplayground.advancedsearch.Order
+import com.exzell.mangaplayground.advancedsearch.Type
 import com.exzell.mangaplayground.io.Repository
 import com.exzell.mangaplayground.models.Manga
 import com.exzell.mangaplayground.utils.createSearchManga
+import com.exzell.mangaplayground.utils.isConnectedToNetwork
 import com.exzell.mangaplayground.utils.toManga
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import okhttp3.ResponseBody
 import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import timber.log.Timber
-import java.io.IOException
 import java.util.*
 import java.util.function.Consumer
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
-class SearchViewModel(application: Application, private val mHandle: SavedStateHandle) : AndroidViewModel(application) {
+@SuppressLint("staticFieldLeak")
+class SearchViewModel(application: Application, private val mHandle: SavedStateHandle) : DisposableViewModel(application) {
+
+    companion object {
+        const val ERROR_NO_RESULT = "error no result"
+        const val ERROR_OTHERS = "error others"
+    }
 
     private val mContext = application.applicationContext
 
-    @JvmField
-    var mSearch: MangaSearch = MangaSearch.Builder().build()
+    lateinit var mSearch: MangaSearch
 
     @Inject
     lateinit var mRepo: Repository
-
-    //KEYS
-    private val KEY_TITLE = "title"
-    private val KEY_AUTHOR = "auth/art"
-    private val KEY_TITLE_CONTAIN = "title_extra"
-    private val KEY_AUTHOR_CONTAIN = "auth/art_extra"
-    private val KEY_GENRE = "genres"
-    private val KEY_RATING = "getRating"
-    private val KEY_STATUS = "status"
-    private val KEY_TYPE = "type"
-    private val KEY_CHAPTERS = "chapters"
-    private val KEY_RELEASE = "releases"
-    private val KEY_GENRE_INCL = "genre inclusion"
-    private val KEY_ORDER = "order"
 
     private val KEY_LINK = "last search link"
 
@@ -55,89 +44,121 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
     val nextLink: Map<String, String>?
         get() = mHandle.get<Map<String, String>>(KEY_LINK)
 
-    val selectedGenres: MutableList<String>?
-        get() = mHandle.get(KEY_GENRE)
-
     var rating: Int
-        get() = mHandle.get<Int>(KEY_RATING)!!
-        set(rating) = mHandle.set(KEY_RATING, rating)
+        get() = mSearch.rating
+        set(rating) {
+            mSearch.rating = rating
+        }
 
     var status: String?
-        get() = mHandle.get<String>(KEY_STATUS)
-        set(status) = mHandle.set(KEY_STATUS, status)
+        get() = mSearch.status
+        set(status) {
+            mSearch.status = status
+        }
 
     var type: String?
-        get() = mHandle.get<String>(KEY_TYPE)
-        set(type) = mHandle.set(KEY_TYPE, type)
+        get() = mSearch.type.dispName
+        set(type) {
+            mSearch.type = Type.values().find { it.dispName == type }
+        }
 
     var chapters: Int
-        get() = mHandle.get<Int>(KEY_CHAPTERS)!!
-        set(chap) = mHandle.set(KEY_CHAPTERS, chap)
+        get() = mSearch.chapterAmount
+        set(chap) {
+            mSearch.chapterAmount = chap
+        }
 
     var release: Int
-        get() = mHandle.get<Int>(KEY_RELEASE)!!
-        set(release) = mHandle.set(KEY_RELEASE, release)
+        get() = mSearch.release
+        set(release) {
+            mSearch.release = release
+        }
 
     var genreInclusion: String?
-        get() = mHandle.get<String>(KEY_GENRE_INCL)
-        set(incl) = mHandle.set(KEY_GENRE_INCL, incl)
+        get() = mSearch.genreInclusion
+        set(incl) {
+            mSearch.genreInclusion = incl
+        }
 
     var order: String?
-        get() = mHandle.get<String>(KEY_ORDER)
-        set(order) = mHandle.set(KEY_ORDER, order)
+        get() = mSearch.order.dispName
+        set(order) {
+            mSearch.order = Order.values().find { it.dispName == order }
+        }
+
+    var authorContain: String
+        get() = mSearch.authorContain
+        set(contain) {
+            mSearch.authorContain = contain
+        }
+
+    var titleContain: String
+        get() = mSearch.titleContain
+        set(contain) {
+            mSearch.titleContain = contain
+        }
+
+    var title: String
+        get() = mSearch.title
+        set(title) {
+            mSearch.title = title
+        }
+
+    var author: String
+        get() = mSearch.author
+        set(author) {
+            mSearch.author = author
+        }
+
+    var onSuccess: Consumer<List<Manga>>? = null
+
+    var onError: Consumer<String>? = null
 
     /**
      * Collects a map of search parameters to their values which can be created through [.search]
      * and makes the request as well as creating the mangas
-     * The consumer is called on the same thread the request was made
-     * @param onMangaRetrieved A consumer called when the mangas have been created
      */
-    fun resolveSearch(search: Map<String, String>, onMangaRetrieved: Consumer<List<Manga>>) {
+    fun resolveSearch(search: Map<String, String>) {
+        if (!mContext.isConnectedToNetwork()) {
+            onError?.accept(ERROR_OTHERS)
+            return
+        }
 
-        mRepo.advancedSearch(search)!!.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                if (response.isSuccessful) {
-                    val html: Element
-                    try {
-                        html = Jsoup.parse(response.body()!!.string()).body()
-                        response.body()!!.close()
+        addDisposable(mRepo.advancedSearch(search)?.map {
+            val html = Jsoup.parse(it.string()).body()
+            it.close()
 
-                        val next = html.getElementsContainingText("next▶").attr("href")
+            val hasNoMatch = html.select("div[class=manga-list").hasClass("no-match")
+            if (hasNoMatch) throw RuntimeException(ERROR_NO_RESULT)
 
-                        if (!next.isEmpty()) {
+            val next = html.getElementsContainingText("next▶").attr("href")
 
-                            val nextLink = HashMap(search)
-                            nextLink["page"] = getDigits(next)
-                            setNextSearchLink(nextLink)
-                        } else
-                            setNextSearchLink(null)
+            if (next.isNotEmpty()) setNextSearchLink(next, search)
+            else setNextSearchLink(null, search)
 
-                        val searchManga = html.createSearchManga(mCurrentSearchResults.size)
-                        mCurrentSearchResults.addAll(searchManga)
-                        onMangaRetrieved.accept(searchManga)
-                        Timber.w(next)
+            html.createSearchManga(mCurrentSearchResults.size)
+        }?.observeOn(AndroidSchedulers.mainThread())?.subscribe({
+            mCurrentSearchResults.addAll(it)
+            onSuccess?.accept(it)
 
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
+        }, {
+            onError?.accept(if (it.message.equals(ERROR_NO_RESULT)) ERROR_NO_RESULT else ERROR_OTHERS)
 
-                } else {
-                    Toast.makeText(mContext, "Error Code: " + response.code(), Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Toast.makeText(mContext, "Failed: " + t.message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        })) ?: onError?.accept(ERROR_OTHERS)
     }
 
     fun clearSearchResults() {
         mCurrentSearchResults.clear()
     }
 
-    fun setNextSearchLink(nextLink: Map<String, String>?) {
-        mHandle.set(KEY_LINK, nextLink)
+    private fun setNextSearchLink(nextLink: String?, currentQuery: Map<String, String>) {
+        if (nextLink == null) mHandle.set(KEY_LINK, null)
+        else {
+            val nextQuery = HashMap(currentQuery);
+            nextQuery["page"] = getDigits(nextLink)
+
+            mHandle.set(KEY_LINK, nextQuery)
+        }
     }
 
     private fun getDigits(string: String): String {
@@ -149,84 +170,23 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
         return num.toString()
     }
 
-    fun getName(which: Boolean): String? {
-        return if (which) mHandle.get<String>(KEY_AUTHOR) else mHandle.get<String>(KEY_TITLE)
+    fun getGenres(): List<String> {
+        return mSearch.genre.map { it.dispName }
     }
 
-    fun containValue(which: Boolean): String? {
-        return if (which) mHandle.get<String>(KEY_AUTHOR_CONTAIN) else mHandle.get<String>(KEY_TITLE_CONTAIN)
-    }
-
-    fun setGenres(genre: String, which: Boolean) {
-        val arr = mHandle.get<ArrayList<String>>(KEY_GENRE)
-
-        if (which) arr!!.add(genre)
-        else arr!!.removeAt(arr.indexOf(genre))
-    }
-
-    fun setName(which: Boolean, value: String) {
-        val key = if (which) KEY_AUTHOR else KEY_TITLE
-        mHandle.set(key, value)
-    }
-
-    fun setContainValue(which: Boolean, value: String) {
-        val key = if (which) KEY_AUTHOR_CONTAIN else KEY_TITLE_CONTAIN
-        mHandle.set(key, value)
+    fun setGenres(genre: String, isAdded: Boolean) {
+        val gen = Genre.values().find { it.dispName == genre }
+        if (isAdded) mSearch.addGenre(gen)
+        else mSearch.genre.remove(gen)
     }
 
     fun resetValues() {
-        setName(false, "")
-        setName(true, "")
-        setContainValue(false, "")
-        setContainValue(true, "")
-        chapters = -1
-        rating = -1
-        release = -1
-        status = ""
-        type = ""
-        genreInclusion = ""
-        selectedGenres!!.clear()
-    }
-
-    fun handlerDefaults() {
-        with(mHandle) {
-            if (!contains(KEY_GENRE)) set(KEY_GENRE, ArrayList<String>())
-            if (!contains(KEY_TITLE)) set(KEY_TITLE, "")
-            if (!contains(KEY_AUTHOR)) set(KEY_AUTHOR, "")
-            if (!contains(KEY_TITLE_CONTAIN)) set(KEY_TITLE_CONTAIN, "")
-            if (!contains(KEY_AUTHOR_CONTAIN)) set(KEY_AUTHOR_CONTAIN, "")
-            if (!contains(KEY_RATING)) set(KEY_RATING, -1)
-            if (!contains(KEY_STATUS)) set(KEY_STATUS, "")
-            if (!contains(KEY_TYPE)) set(KEY_TYPE, "")
-            if (!contains(KEY_CHAPTERS)) set(KEY_CHAPTERS, -1)
-            if (!contains(KEY_RELEASE)) set(KEY_RELEASE, -1)
-            if (!contains(KEY_GENRE_INCL)) set(KEY_GENRE_INCL, "")
-            if (!contains(KEY_ORDER)) set(KEY_ORDER, "")
-        }
+        mSearch = MangaSearch()
+        mHandle.keys().forEach { mHandle[it] = null }
     }
 
     fun search(): Map<String, String> {
-        val search = MangaSearch.Builder().setAuthor(getName(true)!!)
-                .setAuthorContain(containValue(true)!!)
-                .setTitle(getName(false)!!)
-                .setTitleContain(containValue(false)!!)
-                .setChapterAmount(chapters)
-                .setRating(rating)
-                .setRelease(release)
-                .setStatus(status!!)
-                .setType(type)
-                .addGenres(selectedGenres!!)
-                .setGenreInclusion(genreInclusion!!)
-                .setOrder(order)
-                .build().apply { mSearch = this }
-
-        //        if(search.searchQuery().isEmpty()) return;
-        return search.searchQuery()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        mCurrentSearchResults.clear()
+        return mSearch.searchQuery()
     }
 
     fun createAndBookmarkManga(mangaLinks: ArrayList<String>, onError: () -> Unit) {
@@ -241,5 +201,24 @@ class SearchViewModel(application: Application, private val mHandle: SavedStateH
         }
                 .toList()
                 .subscribe { mangas -> mRepo.insertManga(*mangas.toTypedArray()) }
+    }
+
+    fun saveSearchParams() {
+        val query = mSearch.searchQuery()
+        query.keys.forEach {
+            mHandle.set(it, query[it])
+        }
+    }
+
+    fun createSearchFromHandle() {
+        val lastQuery = hashMapOf<String, String>()
+        mHandle.keys().forEach { if (!it.equals(KEY_LINK)) lastQuery[it] = mHandle[it]!! }
+
+        mSearch = MangaSearch.from(lastQuery)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        mCurrentSearchResults.clear()
     }
 }

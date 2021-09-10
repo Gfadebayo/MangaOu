@@ -33,21 +33,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import timber.log.Timber;
-
 public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private Manga mManga;
     private ArrayList<Chapter> mVisibleChapters = new ArrayList<>();
+    private final int PAYLOAD_DOWNLOAD = 4;
+
     private final int PAYLOAD_BOOKMARK = 2;
+    private ArrayList<Long> mDownloadIds = new ArrayList<>();
+
     private Chapter.Version mCurrentVersion;
     private Context mContext;
     private View.OnClickListener mListener;
     private View.OnClickListener mBookmarkListener;
     private SelectionTracker<Long> mTracker;
     private DateFormat mDateFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT);
-    private final int PAYLOAD_DOWNLOAD = 4;
-    private ArrayList<Long> mDownloadIds = new ArrayList<>();
 
     public MangaInfoAdapter(Context context, Manga manga) {
         mManga = manga;
@@ -57,23 +57,18 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (manga != null) setCurrentVisibleChapters();
     }
 
-    public void setDownloads(List<Long> ids) {
-        List<Long> chapIds = mVisibleChapters.stream().map(chap -> chap.getId())
+    public void setDownloads(@NotNull List<Long> ids) {
+        List<Long> chapIds = mVisibleChapters.stream().map(Chapter::getId)
                 .collect(Collectors.toList());
 
-        List<Long> oldIds = new ArrayList<>(mDownloadIds);
+        ArrayList<Long> oldIds = new ArrayList<>(mDownloadIds);
 
         mDownloadIds.clear();
         mDownloadIds.addAll(ids);
 
-        List<Long> inserted = ids.stream().filter(id -> !oldIds.contains(id))
-                .collect(Collectors.toList());
-
-        List<Long> removed = oldIds.stream().filter(id -> !ids.contains(id))
-                .collect(Collectors.toList());
-
-        inserted.addAll(removed);
-        inserted.forEach(change -> notifyItemChanged(chapIds.indexOf(change), PAYLOAD_DOWNLOAD));
+        oldIds.addAll(ids);
+        if (!oldIds.isEmpty()) oldIds.stream().distinct()
+                .forEach(id -> notifyItemChanged(chapIds.indexOf(id) + 1, PAYLOAD_DOWNLOAD));
     }
 
     private void setCurrentVisibleChapters() {
@@ -143,9 +138,9 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull @NotNull RecyclerView.ViewHolder holder, int position) {
 
         if (holder instanceof ChapterViewHolder) {
+            Chapter chap = mVisibleChapters.get(position - 1);
             ChapterViewHolder chapHolder = (ChapterViewHolder) holder;
 
-            Chapter chap = mVisibleChapters.get(position - 1);
             holder.itemView.setSelected(mTracker.isSelected(getItemId(position)));
 
             String chapterName = mContext.getString(R.string.chapter, ChapterUtilsKt.getChapterNumericValue(chap));
@@ -155,8 +150,8 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             chapHolder.mBinding.textChapTitle.setText(title);
 
             chapHolder.mBinding.textChapReleaseLength.setText(createReleasePositionSpan(chap));
-            Timber.d("Binding chapter %s for version %s", chap.getTitle(), chap.getVersion().toString());
 
+            chapHolder.mBinding.imageChapDownload.setVisibility(mDownloadIds.contains(chap.getId()) ? View.VISIBLE : View.GONE);
         } else {
             ((MangaInfoViewHolder) holder).mBinding.setManga(mManga);
         }
@@ -170,18 +165,18 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (chapter.getLastReadingPosition() > 0)
             readPosition = chapter.getLastReadingPosition() + "/" + readPosition;
 
-        String bulletedText = date + " \u2022 " + readPosition;
-
-        return bulletedText;
+        return date + " \u2022 " + readPosition;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull RecyclerView.ViewHolder holder, int position, @NonNull @NotNull List<Object> payloads) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads) {
 
-        if (payloads.contains(PAYLOAD_BOOKMARK))
+        if (payloads.contains(PAYLOAD_BOOKMARK)) {
             ((MangaInfoViewHolder) holder).mBinding.bookmark.setSelected(mManga.isBookmark());
 
-        else if (payloads.contains(PAYLOAD_DOWNLOAD)) {
+        } else if (payloads.contains(PAYLOAD_DOWNLOAD)) {
+            if (position < 1) return;
+
             Chapter chap = mVisibleChapters.get(position - 1);
             int visibility = mDownloadIds.contains(chap.getId()) ? View.VISIBLE : View.GONE;
             ((ChapterViewHolder) holder).mBinding.imageChapDownload.setVisibility(visibility);

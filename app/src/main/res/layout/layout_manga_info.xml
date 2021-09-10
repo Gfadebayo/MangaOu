@@ -39,7 +39,8 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/image_manga"
-            thumbnail="@{manga.thumbnailLink}"
+            imageTarget="@{null}"
+            thumbnailLink="@{manga.thumbnailLink}"
             android:layout_width="0dp"
             android:layout_height="200dp"
             app:layout_constraintDimensionRatio="12:15"

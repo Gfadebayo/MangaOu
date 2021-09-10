@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:maxLevel="10"
+        android:minLevel="0">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:duration="1000"
+            android:fromDegrees="0"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="0" />
+    </item>
+
+    <item
+        android:maxLevel="20"
+        android:minLevel="11">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:duration="1000"
+            android:fromDegrees="0"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="30" />
+    </item>
+
+    <item
+        android:maxLevel="30"
+        android:minLevel="21">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:fromDegrees="30"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="60" />
+    </item>
+
+    <item
+        android:maxLevel="40"
+        android:minLevel="31">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:fromDegrees="60"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="90" />
+    </item>
+
+    <item
+        android:maxLevel="50"
+        android:minLevel="41">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:fromDegrees="90"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="120" />
+    </item>
+
+    <item
+        android:maxLevel="60"
+        android:minLevel="51">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:fromDegrees="120"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="150" />
+    </item>
+
+    <item
+        android:maxLevel="70"
+        android:minLevel="61">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:fromDegrees="150"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="180" />
+    </item>
+
+    <item
+        android:maxLevel="80"
+        android:minLevel="71">
+        <rotate
+            android:drawable="@drawable/ic_round_keyboard_arrow_down_24"
+            android:fromDegrees="180"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="180" />
+    </item>
+</level-list>

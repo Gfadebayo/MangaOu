@@ -1,13 +1,19 @@
 package com.exzell.mangaplayground.utils;
 
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Layout;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
+import androidx.annotation.ArrayRes;
 import androidx.databinding.BindingAdapter;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -16,28 +22,33 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.Request;
 import com.exzell.mangaplayground.R;
 import com.exzell.mangaplayground.advancedsearch.Genre;
+import com.exzell.mangaplayground.advancedsearch.MangaSearch;
 import com.exzell.mangaplayground.customview.ImageViewTarget;
 import com.exzell.mangaplayground.fragment.EmptyFragment;
 import com.exzell.mangaplayground.models.Manga;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textview.MaterialTextView;
-import com.skydoves.powerspinner.PowerSpinnerView;
+import com.tiper.MaterialSpinner;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import kotlin.Unit;
 import me.zhanghai.android.materialratingbar.MaterialRatingBar;
 
 public class BindingUtils {
 
     //Used in fragment_manga, list_manga
-    @BindingAdapter("thumbnail")
-    public static void addThumbnail(ImageView v, String link) {
-        ProgressBar bar = v.getRootView().findViewById(R.id.indicator_thumbnail);
-        ImageViewTarget target = new ImageViewTarget(v, null, bar);
+    @BindingAdapter(value = {"thumbnailLink", "imageTarget"})
+    public static void addThumbnail(ImageView v, String link, ImageViewTarget target) {
+        if (target == null) target = new ImageViewTarget(v, null, null);
 
         Request req = Glide.with(v)
                 .load(link)
@@ -79,19 +90,30 @@ public class BindingUtils {
         });
     }
 
-    public static void setSpinnerItems(PowerSpinnerView spinner, List<String> items, String selectedItem) {
-        spinner.setItems(items);
+    public static void setSpinnerItems(MaterialSpinner spinner, @ArrayRes int arrayRes, String selectedItem, BiConsumer<Integer, String> callback) {
+        String[] array = spinner.getContext().getResources().getStringArray(arrayRes);
+        ArrayAdapter<String> spinAdapter = new ArrayAdapter<>(spinner.getContext(), R.layout.spinner_textview, array);
+        spinner.setAdapter(spinAdapter);
 
-        if (selectedItem == null) return;
+        if (!selectedItem.isEmpty()) {
 
-        int selectedIndex = items.stream().map(String::toLowerCase).collect(Collectors.toList()).indexOf(selectedItem.toLowerCase());
+            int index = Arrays.stream(array).map(t -> t.toLowerCase())
+                    .collect(Collectors.toList()).indexOf(selectedItem.toLowerCase());
 
-        if (selectedIndex >= 0) spinner.selectItemByIndex(selectedIndex);
+            if (index >= 0) spinner.setSelection(index);
+        }
 
-        spinner.setOnSpinnerOutsideTouchListener((view, motionEvent) -> {
-            spinner.dismiss();
-            return Unit.INSTANCE;
-        });
+        MaterialSpinner.OnItemSelectedListener listener = new MaterialSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(@NotNull MaterialSpinner materialSpinner, @Nullable View view, int i, long l) {
+                callback.accept(materialSpinner.getId(), spinAdapter.getItem(i));
+            }
+
+            @Override
+            public void onNothingSelected(@NotNull MaterialSpinner materialSpinner) {
+            }
+        };
+        spinner.setOnItemSelectedListener(listener);
     }
 
     @BindingAdapter("createChips")
@@ -118,7 +140,7 @@ public class BindingUtils {
         }
 
         int left = parent.getChildCount() - manga.getGenres().size();
-        if(left > 0) IntStream.range(parent.getChildCount()-left, parent.getChildCount())
+        if (left > 0) IntStream.range(parent.getChildCount() - left, parent.getChildCount())
                 .forEach(i -> parent.getChildAt(i).setVisibility(View.GONE));
     }
 
@@ -134,5 +156,49 @@ public class BindingUtils {
 
     public static String listToString(List<String> list, String delimiter) {
         return list.stream().collect(Collectors.joining(delimiter));
+    }
+
+    public static void textChangeListeners(EditText editText, BiConsumer<Integer, String> callback) {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                callback.accept(editText.getId(), s.toString());
+            }
+        });
+    }
+
+    public static void populateGrid(GridLayout layout, MangaSearch search, BiConsumer<String, Boolean> callback) {
+        CompoundButton.OnCheckedChangeListener listener = (buttonView, isChecked) ->
+                callback.accept(buttonView.getText().toString(), isChecked);
+
+        int colIndex = 0;
+        int rowIndex = 0;
+        List<Genre> selectedGenres = search.getGenre();
+
+        for (Genre genre : Genre.values()) {
+            String stringGenre = genre.dispName;
+
+            MaterialCheckBox box = new MaterialCheckBox(layout.getContext());
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(rowIndex), GridLayout.spec(colIndex, 0f));
+
+            if (colIndex >= layout.getColumnCount() - 1) {
+                colIndex = 0;
+                rowIndex++;
+            } else colIndex++;
+
+            box.setText(stringGenre);
+            if (selectedGenres != null && selectedGenres.contains(genre)) box.setChecked(true);
+            box.setOnCheckedChangeListener(listener);
+            layout.addView(box, params);
+        }
     }
 }

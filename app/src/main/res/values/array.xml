@@ -47,4 +47,21 @@
         <item>@string/completed</item>
         <item>@string/ongoing</item>
     </string-array>
+
+    <string-array name="order_values">
+        <item>@string/a_z</item>
+        <item>@string/rating</item>
+        <item>@string/update</item>
+        <item>@string/create</item>
+        <item>@string/total</item>
+        <item>@string/days_365</item>
+        <item>@string/days_180</item>
+        <item>@string/days_90</item>
+        <item>@string/days_30</item>
+        <item>@string/days_7</item>
+        <item>@string/hours_24</item>
+        <item>@string/hours_12</item>
+        <item>@string/hours_6</item>
+        <item>@string/minutes_60</item>
+    </string-array>
 </resources>

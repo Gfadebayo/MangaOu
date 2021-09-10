@@ -98,7 +98,7 @@ class HistoryFragment : SearchViewFragment() {
                         }
                     } else {
                         val hAdapter = HistoryAdapter(requireActivity(), historyManga)
-                        val tAdapter = TitleAdapter(requireActivity(), dayTitle, hAdapter)
+                        val tAdapter = TitleAdapter(requireActivity(), dayTitle, hAdapter).apply { setDrawable(null) }
                         hAdapter.setOnClickListener(onBodyClicked())
                         hAdapter.setOnButtonsClickedListener(onButtonClicked(), onButtonClicked())
                         addAdapter(tAdapter)

@@ -60,7 +60,7 @@ public class DownloadMangaAdapter extends RecyclerView.Adapter<DownloadMangaAdap
         holder.mBinding.textDownloadChapter.setText(man.getState().toString());
 
 
-        BindingUtils.addThumbnail(holder.mBinding.imageDownloadManga, man.getThumbnailLink());
+        BindingUtils.addThumbnail(holder.mBinding.imageDownloadManga, man.getThumbnailLink(), null);
 
 
         int max = holder.mBinding.progressLength.getMax();
