@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="TextAppearance.AppCompat.Small.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.MaterialComponents.Button.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Body2.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.MaterialComponents.Caption.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.MaterialComponents.Subtitle1.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Medium.Inverse.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.AppCompat.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="TextAppearance.MaterialComponents.Tooltip.Default">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+    </style>
+
+    <style name="HeaderTextAppearance" parent="TextAppearance.MaterialComponents.Headline6">
+        <item name="fontFamily">@font/source_sans_pro_regular</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SearchTextAppearance" parent="HeaderTextAppearance">
+        <item name="android:textSize">16sp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+</resources>

@@ -220,6 +220,7 @@
 
 
                 <com.google.android.material.radiobutton.MaterialRadioButton
+                    style="@android:style/Widget.Material.CompoundButton.RadioButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/japanese_manga" />

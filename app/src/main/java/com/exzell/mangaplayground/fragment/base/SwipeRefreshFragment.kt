@@ -4,7 +4,6 @@ package com.exzell.mangaplayground.fragment.base
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
@@ -12,7 +11,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
  * A Fragment class that helps in disposing of [io.reactivex.rxjava3.disposables.Disposable]
  * in order not to make things look more complex, the class also handles the SwipeRefreshLayout issues
  */
-abstract class SwipeRefreshFragment : Fragment() {
+abstract class SwipeRefreshFragment : TransitionFragment() {
 
     private var mSwipeRefresh: SwipeRefreshLayout? = null
 

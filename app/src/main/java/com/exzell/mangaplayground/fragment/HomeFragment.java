@@ -121,7 +121,7 @@ public class HomeFragment extends SwipeRefreshFragment implements SwipeRefreshLa
             Bundle b = new Bundle(1);
             b.putInt(BookmarkFragment.KEY_PAGE, toBookmark ? BookmarkFragment.PAGE_BOOKMARK : BookmarkFragment.PAGE_BOOKMARK + 1);
 
-            control.navigate(R.id.action_nav_home_to_nav_bookamrk, b);
+            control.navigate(R.id.nav_bookmark, b);
         } else {
             String link = index == 0 ? "/popular" : "/latest";
 
@@ -129,7 +129,7 @@ public class HomeFragment extends SwipeRefreshFragment implements SwipeRefreshLa
 
             linkBund.putString(EmptyFragment.LINK, link);
             linkBund.putString(EmptyFragment.TITLE, title);
-            control.navigate(R.id.action_nav_home_to_nav_empty, linkBund);
+            control.navigate(R.id.nav_empty, linkBund);
         }
     }
 

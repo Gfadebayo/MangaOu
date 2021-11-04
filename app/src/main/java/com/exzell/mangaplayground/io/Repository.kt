@@ -244,8 +244,8 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
     }
 
     /** Returns a list of chapter_ids for all the completed downloads **/
-    fun getCompletedDownloadChapterIds(): Flow<List<Long>> {
-        return mDownloadDao.getCompleteIds()
+    fun getCompletedDownloadChapterIdsForManga(mangaId: Long): Flow<List<Long>> {
+        return mDownloadDao.getCompleteIds(mangaId)
     }
 
     fun getCurrentDownloads(): List<Download> = try {

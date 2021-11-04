@@ -19,10 +19,29 @@
 
         <item name="android:navigationBarColor">?attr/colorPrimary</item>
 
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Default</item>
+        <item name="android:textAppearanceSmall">@style/TextAppearance.AppCompat.Small.Default
+        </item>
+        <item name="textAppearanceButton">@style/TextAppearance.MaterialComponents.Button.Default
+        </item>
+        <item name="textAppearanceBody2">@style/TextAppearance.AppCompat.Body2.Default</item>
+        <item name="textAppearanceCaption">
+            @style/TextAppearance.MaterialComponents.Caption.Default
+        </item>
+        <item name="textAppearanceSubtitle1">
+            @style/TextAppearance.MaterialComponents.Subtitle1.Default
+        </item>
+        <item name="android:textAppearanceMediumInverse">
+            @style/TextAppearance.AppCompat.Medium.Inverse.Default
+        </item>
+
         <item name="bottomNavigationStyle">@style/MangaBottomNavigationView</item>
         <item name="linearProgressIndicatorStyle">@style/MangaProgressIndicator</item>
-        <item name="chipStyle">@style/Widget.MaterialComponents.Chip.Action.MangaChip</item>
+        <item name="chipStyle">@style/Widget.MaterialComponents.Chip.Action.Default</item>
         <item name="chipGroupStyle">@style/Widget.MaterialComponents.ChipGroup.MangaChipGroup</item>
         <item name="circularProgressIndicatorStyle">@style/CircularProgressIndicator.Repeated</item>
+        <item name="searchViewStyle">@style/Base.Widget.AppCompat.SearchView.ActionBar.Default
+        </item>
+        <item name="sliderStyle">@style/Widget.MaterialComponents.Slider.Default</item>
     </style>
 </resources>

@@ -3,4 +3,6 @@
     <color name="light_blue">#29B6F6</color>
     <color name="blue">#2092F1</color>
     <color name="orange">#F39149</color>
+
+    <color name="manga_detail_title">#000000</color>
 </resources>

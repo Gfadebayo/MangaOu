@@ -1,11 +1,4 @@
 <resources>
-
-    <style name="HeaderTextAppearance">
-        <item name="android:fontFamily">sans-serif-condensed-medium</item>
-        <item name="android:textColor">?attr/colorOnPrimary</item>
-        <item name="android:textSize">22sp</item>
-    </style>
-
     <style name="HeaderTextView" parent="Widget.MaterialComponents.TextView">
         <item name="android:paddingTop">2dp</item>
         <item name="android:paddingBottom">2dp</item>
@@ -24,7 +17,7 @@
         <item name="textInputStyle">@style/SearchTextInputLayout</item>
         <item name="android:textViewStyle">@style/SearchTitleTextView</item>
         <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>
-        <item name="sliderStyle">@style/SearchSlider</item>
+        <item name="sliderStyle">@style/Widget.MaterialComponents.Slider.Default</item>
     </style>
 
     <style name="SearchEditText" parent="Base.Widget.MaterialComponents.TextInputEditText">
@@ -52,7 +45,14 @@
         <item name="endIconTint">?attr/colorControlNormal</item>
     </style>
 
-    <style name="SearchSlider" parent="Widget.MaterialComponents.Slider">
+    <style name="Widget.MaterialComponents.Tooltip.Default">
+        <item name="android:textAppearance">
+            @style/TextAppearance.MaterialComponents.Tooltip.Default
+        </item>
+    </style>
+
+    <style name="Widget.MaterialComponents.Slider.Default">
+        <item name="labelStyle">@style/Widget.MaterialComponents.Tooltip.Default</item>
         <item name="android:stepSize">1</item>
         <item name="materialThemeOverlay">@style/PrimaryColorOverlay</item>
     </style>
@@ -70,11 +70,6 @@
         <item name="android:paddingBottom">2dp</item>
         <item name="android:paddingTop">2dp</item>
         <item name="android:minHeight">@dimen/search_field_height</item>
-    </style>
-
-    <style name="SearchTextAppearance" parent="android:TextAppearance.Material.Small">
-        <item name="android:textSize">16sp</item>
-        <item name="android:gravity">center_vertical</item>
     </style>
 
     <style name="MangaActionMode" parent="Widget.AppCompat.ActionMode">
@@ -102,7 +97,7 @@
         <item name="chipSpacing">2dp</item>
     </style>
 
-    <style name="Widget.MaterialComponents.Chip.Action.MangaChip">
+    <style name="Widget.MaterialComponents.Chip.Action.Default">
         <item name="chipBackgroundColor">@android:color/transparent</item>
         <item name="chipStrokeColor">?attr/colorSecondary</item>
         <item name="chipStrokeWidth">2dp</item>
@@ -116,14 +111,35 @@
     </style>
 
     <style name="ThemeOverlay.MaterialComponents.Light.MangaPageOverlay">
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
+        <item name="colorControlNormal">?attr/colorSecondary</item>
+        <item name="colorPrimary">?attr/colorSecondary</item>
         <item name="android:paddingStart">2dp</item>
         <item name="android:paddingEnd">2dp</item>
+
+        <item name="android:textViewStyle">@style/MangaDetailTextView</item>
         <item name="tabStyle">@style/Widget.MaterialComponents.TabLayout.ChapterTabLayout</item>
+    </style>
+
+    <style name="MangaDetailTextView" parent="Widget.MaterialComponents.TextView">
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:background">@drawable/box_shape_outline</item>
+        <item name="android:gravity">center_horizontal</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
     </style>
 
     <style name="Widget.MaterialComponents.TabLayout.ChapterTabLayout">
         <item name="colorPrimary">?attr/colorSecondary</item>
+        <item name="tabMode">scrollable</item>
+        <item name="tabGravity">start</item>
+    </style>
+
+    <style name="SimpleTab">
+        <item name="android:textViewStyle">@style/Widget.MaterialComponents.TextView</item>
+    </style>
+
+    <style name="Base.Widget.AppCompat.SearchView.ActionBar.Default">
+        <item name="closeIcon">@null</item>
     </style>
 </resources>

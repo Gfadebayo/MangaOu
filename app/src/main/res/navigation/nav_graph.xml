@@ -9,48 +9,19 @@
         android:name="com.exzell.mangaplayground.fragment.HomeFragment"
         android:id="@+id/nav_home"
         android:label="Home"
-        tools:layout="@layout/fragment_home">
-        <action
-            android:id="@+id/action_nav_home_to_frag_manga"
-            app:destination="@id/frag_manga"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/nav_home" />
-        <action
-            android:id="@+id/action_nav_home_to_nav_empty"
-            app:destination="@id/nav_empty" />
-        <action
-            android:id="@+id/action_nav_home_to_nav_history"
-            app:destination="@id/nav_history" />
-        <action
-            android:id="@+id/action_nav_home_to_nav_bookamrk"
-            app:destination="@id/nav_bookmark" />
-    </fragment>
+        tools:layout="@layout/fragment_home" />
 
     <fragment
         android:name="com.exzell.mangaplayground.fragment.SearchFragment"
         android:id="@+id/nav_search"
         android:label="Advanced Search"
-        tools:layout="@layout/fragment_search">
-        <action
-            android:id="@+id/action_nav_search_to_frag_manga"
-            app:destination="@id/frag_manga" />
-        <action
-            android:id="@+id/action_nav_search_to_nav_empty"
-            app:destination="@id/nav_empty" />
-    </fragment>
+        tools:layout="@layout/fragment_search" />
 
     <fragment
         android:name="com.exzell.mangaplayground.fragment.HistoryFragment"
         android:id="@+id/nav_history"
         android:label="History"
-        tools:layout="@layout/fragment_bookmark" >
-        <action
-            android:id="@+id/action_nav_history_to_frag_manga"
-            app:destination="@id/frag_manga" />
-    </fragment>
+        tools:layout="@layout/fragment_bookmark" />
 
     <fragment
         android:name="com.exzell.mangaplayground.fragment.MangaFragment"
@@ -62,29 +33,16 @@
         android:name="com.exzell.mangaplayground.fragment.BookmarkFragment"
         android:id="@+id/nav_bookmark"
         android:label="Bookmarks"
-        tools:layout="@layout/fragment_bookmark" >
-        <action
-            android:id="@+id/action_nav_bookamrk_to_frag_manga"
-            app:destination="@id/frag_manga"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/nav_bookmark" />
-    </fragment>
+        tools:layout="@layout/fragment_bookmark" />
 
     <fragment
         android:name="com.exzell.mangaplayground.fragment.EmptyFragment"
-        android:id="@+id/nav_empty">
-        <action
-            android:id="@+id/action_nav_empty_to_frag_manga"
-            app:destination="@id/frag_manga" />
-    </fragment>
+        android:id="@+id/nav_empty" />
 
     <fragment
         android:id="@+id/nav_downloads"
         android:name="com.exzell.mangaplayground.fragment.DownloadQueueMangaFragment"
-        android:label="Downloads">
+        android:label="@string/downloads">
         <action
             android:id="@+id/action_nav_downloads_to_nav_chapter_downloads"
             app:destination="@id/nav_chapter_downloads"

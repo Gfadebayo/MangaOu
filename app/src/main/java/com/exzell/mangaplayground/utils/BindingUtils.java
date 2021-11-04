@@ -3,8 +3,11 @@ package com.exzell.mangaplayground.utils;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Layout;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -200,5 +203,15 @@ public class BindingUtils {
             box.setOnCheckedChangeListener(listener);
             layout.addView(box, params);
         }
+    }
+
+    @BindingAdapter(value = {"title", "content"})
+    public static void splitTitleAndHeaderText(MaterialTextView textView, String title, String content) {
+        ForegroundColorSpan colorSpan = new ForegroundColorSpan(textView.getResources().getColor(R.color.manga_detail_title, null));
+
+        SpannableStringBuilder spanString = SpannableStringBuilder.valueOf(title + "\n" + content);
+        spanString.setSpan(colorSpan, 0, title.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        textView.setText(spanString);
     }
 }

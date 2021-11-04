@@ -46,14 +46,18 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        setEnterTransitionRes(R.transition.fragment_enter);
+        setExitTransitionRes(R.transition.fragment_exit);
+
         super.onCreate(savedInstanceState);
 
         MangaApplication app = (MangaApplication) requireActivity().getApplication();
 
-        autoUpdate = !getArguments().containsKey(AUTO_UPDATE) || getArguments().getBoolean(AUTO_UPDATE);
+        autoUpdate = !getArguments().containsKey(AUTO_UPDATE);
 
         String link = getArguments().getString(MANGA_LINK);
-        mViewModel = new ViewModelProvider(this, new MangaModelFactory(app, link)).get(MangaViewModel.class);
+        mViewModel = new ViewModelProvider(this, new MangaModelFactory(app, link))
+                .get(MangaViewModel.class);
 
         app.mAppComponent.injectRepo(mViewModel);
 
@@ -77,46 +81,16 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
         super.onViewCreated(view, savedInstanceState);
         mBinding.progressLoad.setVisibility(View.GONE);
         mBinding.loadRefresh.setRefreshing(autoUpdate);
-        //Access the network to re-update manga information
-        //if there's no internet connection, simply display the bookmarked manga
-
-        MangaInfoAdapter adapter = new MangaInfoAdapter(requireContext(), mViewModel.getManga());
-        adapter.setBookmarkListener(v -> {
-            boolean bookmark = mViewModel.alterBookmark();
-
-            String book = getString(bookmark ? R.string.bookmark_add : R.string.bookmark_remove);
-
-            adapter.updateMangaInfo(null, true);
-            Toast.makeText(requireActivity(), book, Toast.LENGTH_SHORT).show();
-        });
-
-        mBinding.recyclerLoad.setAdapter(adapter);
-        createTracker(mBinding.recyclerLoad);
-        adapter.addTracker(getTracker());
 
         onComplete();
-
-        if (autoUpdate) mViewModel.updateManga(noError -> {
-            mBinding.loadRefresh.setRefreshing(false);
-
-            if (noError) onComplete();
-                //Only display the snackbar when no existing manga is available
-            else errorSnackBar();
-
-            return Unit.INSTANCE;
-        });
-
-        mViewModel.getDownloads(ids -> {
-            adapter.setDownloads(ids);
-        });
 
         mBinding.loadRefresh.setOnRefreshListener(this);
     }
 
     private void errorSnackBar() {
         if (mErrorSnackbar == null) {
-            String message = requireActivity().getResources().getString(R.string.error_fetch);
-            String retry = requireActivity().getResources().getString(R.string.retry);
+            String message = requireActivity().getString(R.string.error_fetch);
+            String retry = requireActivity().getString(R.string.retry);
             mErrorSnackbar = Snackbar.make(mBinding.getRoot(), message, Snackbar.LENGTH_INDEFINITE)
                     .setAction(retry, v -> {
                         mBinding.loadRefresh.setRefreshing(true);
@@ -128,14 +102,34 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
     }
 
     private void onComplete() {
-        if (mViewModel.getManga() == null) return;
+        if (mViewModel.getManga() == null || mBinding.recyclerLoad.getAdapter() == null) {
 
-        MangaInfoAdapter adapter = (MangaInfoAdapter) mBinding.recyclerLoad.getAdapter();
+            MangaInfoAdapter adapter = new MangaInfoAdapter(requireContext(), mViewModel.getManga());
+            adapter.setBookmarkListener(v -> {
+                boolean bookmark = mViewModel.alterBookmark();
 
-        adapter.updateMangaInfo(mViewModel.getManga(), false);
+                String book = getString(bookmark ? R.string.bookmark_add : R.string.bookmark_remove);
 
+                adapter.updateMangaInfo(null, true);
+                Toast.makeText(requireActivity(), book, Toast.LENGTH_SHORT).show();
+            });
 
-        mViewModel.getDownloads(ids -> adapter.setDownloads(ids));
+            mBinding.recyclerLoad.setAdapter(adapter);
+            createTracker(mBinding.recyclerLoad);
+            adapter.addTracker(getTracker());
+
+            if (autoUpdate) onRefresh();
+
+            mViewModel.getDownloads(ids -> adapter.setDownloads(ids));
+
+        } else {
+
+            MangaInfoAdapter adapter = (MangaInfoAdapter) mBinding.recyclerLoad.getAdapter();
+
+            adapter.updateMangaInfo(mViewModel.getManga(), false);
+
+            mViewModel.getDownloads(ids -> adapter.setDownloads(ids));
+        }
     }
 
     @Override

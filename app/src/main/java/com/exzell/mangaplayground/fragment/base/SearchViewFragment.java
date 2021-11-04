@@ -85,6 +85,9 @@ public abstract class SearchViewFragment extends SelectionFragment {
                     mSearchMode.finish();
                     return false;
                 });
+            } else {
+                mSearchView.setIconified(false);
+                mSearchView.requestFocus();
             }
 
             mSearchMode = requireActivity().startActionMode(new ActionMode.Callback() {

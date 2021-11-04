@@ -35,16 +35,18 @@ import java.util.stream.Stream;
 
 public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private final int PAYLOAD_DOWNLOAD = 4;
+    private final int PAYLOAD_BOOKMARK = 2;
+
+    private Context mContext;
+
     private Manga mManga;
     private ArrayList<Chapter> mVisibleChapters = new ArrayList<>();
-    private final int PAYLOAD_DOWNLOAD = 4;
 
-    private final int PAYLOAD_BOOKMARK = 2;
     private ArrayList<Long> mDownloadIds = new ArrayList<>();
 
     private Chapter.Version mCurrentVersion;
-    private Context mContext;
-    private View.OnClickListener mListener;
+
     private View.OnClickListener mBookmarkListener;
     private SelectionTracker<Long> mTracker;
     private DateFormat mDateFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.SHORT);
@@ -115,10 +117,6 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public void addTracker(SelectionTracker<Long> track) {
         mTracker = track;
-    }
-
-    public void setListener(View.OnClickListener l) {
-        mListener = l;
     }
 
     public void setBookmarkListener(View.OnClickListener listener) {
@@ -279,8 +277,11 @@ public class MangaInfoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             mManga.getChapters().stream().map(ch -> ch.getVersion()).distinct()
                     .forEach(ver -> {
 
+                        long amount = mManga.getChapters().stream()
+                                .filter(ch -> ch.getVersion().equals(ver)).count();
+
                         TabLayout.Tab versionTab = mBinding.tabChapters.newTab();
-                        versionTab.setText(ver.getDispName() + "(" + mVisibleChapters.size() + ")");
+                        versionTab.setText(ver.getDispName() + "(" + amount + ")");
 
                         mBinding.tabChapters.addTab(versionTab, mCurrentVersion.equals(ver));
                         mBinding.tabChapters.addOnTabSelectedListener(tabListener);

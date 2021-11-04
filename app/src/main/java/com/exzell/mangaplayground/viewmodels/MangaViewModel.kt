@@ -105,7 +105,7 @@ class MangaViewModel(application: Application, private val mLink: String) : Disp
     fun getDownloads(consumer: Consumer<List<Long>>) {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                mRepo.getCompletedDownloadChapterIds()
+                mRepo.getCompletedDownloadChapterIdsForManga(mManga!!.id)
             }.collect {
                 consumer.accept(it)
             }

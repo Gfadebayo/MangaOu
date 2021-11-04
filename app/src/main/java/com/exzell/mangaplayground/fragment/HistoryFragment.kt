@@ -137,7 +137,7 @@ class HistoryFragment : SearchViewFragment() {
         val viewHolder = mBinding!!.recyclerLoad.findContainingViewHolder(it) as HistoryAdapter.ViewHolder?
         val manga = (viewHolder!!.bindingAdapter as HistoryAdapter?)!!.mangas[viewHolder.bindingAdapterPosition]
 
-        Navigation.findNavController(it).navigate(R.id.action_nav_history_to_frag_manga, Bundle(1).apply { putString(MangaFragment.MANGA_LINK, manga.link) })
+        Navigation.findNavController(it).navigate(R.id.frag_manga, Bundle(1).apply { putString(MangaFragment.MANGA_LINK, manga.link) })
     }
 
     private fun onSearchQueryChanged(newText: String) {
