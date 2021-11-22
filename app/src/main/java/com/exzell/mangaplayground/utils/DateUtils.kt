@@ -56,3 +56,27 @@ private fun parseDate(time: StringBuilder, oldTime: Long): Long {
     if (nextSpaceIndex != -1) time.delete(startIndex, nextSpaceIndex + 1) else time.delete(startIndex, time.length)
     return oldTimeMod
 }
+
+
+/**
+ * Returns the hours and minutes as string eg 20:00, 04:24
+ */
+fun Long.getTimeOnly(): String {
+    val stampReset = Calendar.getInstance().reset(this).timeInMillis
+    val seconds = (this - stampReset) / 1000
+    val hours = seconds.floorDiv(3600)
+    val minutes = seconds.mod(3600) / 60
+
+    return StringBuilder().apply {
+        if (hours < 10) append("0")
+
+        append(hours)
+
+        append(":")
+
+        if (minutes < 10) append("0")
+
+        append(minutes)
+
+    }.toString()
+}

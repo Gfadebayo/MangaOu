@@ -21,45 +21,39 @@
         android:id="@+id/text_title_history"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:lines="1"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/text_chapter_history"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:lines="4"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/image_resume"
         app:layout_constraintStart_toEndOf="@id/image_manga"
         app:layout_constraintTop_toTopOf="@id/image_manga"
         tools:text="One Piece" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/text_chapter_history"
-        android:layout_width="0dp"
+    <ImageView
+        android:id="@+id/image_resume"
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:maxLines="3"
-        app:layout_constraintBottom_toTopOf="@+id/button_resume"
+        android:layout_marginEnd="12dp"
+        android:src="@drawable/ic_round_play_arrow_24"
+        app:layout_constraintBottom_toTopOf="@id/image_delete"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="@id/text_title_history"
-        app:layout_constraintTop_toBottomOf="@id/text_title_history"
-        tools:text="ch.29" />
+        app:layout_constraintTop_toBottomOf="@id/image_more" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_resume"
+    <ImageView
+        android:id="@+id/image_delete"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:insetLeft="3dp"
-        android:insetRight="3dp"
-        android:text="Resume"
-        app:layout_constraintBottom_toBottomOf="@id/image_manga"
-        app:layout_constraintStart_toStartOf="@id/text_chapter_history" />
+        android:layout_height="0dp"
+        android:src="@drawable/ic_round_delete_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/image_resume"
+        app:layout_constraintTop_toBottomOf="@id/image_resume" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_delete"
+    <ImageView
+        android:id="@+id/image_more"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete"
-        app:layout_constraintBottom_toBottomOf="@id/button_resume"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/button_resume"
-        app:layout_constraintTop_toTopOf="@id/button_resume" />
-
+        android:layout_height="0dp"
+        android:rotation="90"
+        android:src="@drawable/ic_round_more_vert_24"
+        app:layout_constraintBottom_toTopOf="@id/image_resume"
+        app:layout_constraintEnd_toEndOf="@id/image_resume"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

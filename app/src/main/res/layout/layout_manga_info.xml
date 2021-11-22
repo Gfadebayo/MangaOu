@@ -242,7 +242,7 @@
             android:layout_height="wrap_content"
             android:text="@string/chapters"
             android:background="@android:color/transparent"
-            android:textColor="@color/manga_detail_title"
+            android:textColor="@color/title_only"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/chips" />

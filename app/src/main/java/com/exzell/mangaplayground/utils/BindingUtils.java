@@ -207,7 +207,7 @@ public class BindingUtils {
 
     @BindingAdapter(value = {"title", "content"})
     public static void splitTitleAndHeaderText(MaterialTextView textView, String title, String content) {
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(textView.getResources().getColor(R.color.manga_detail_title, null));
+        ForegroundColorSpan colorSpan = new ForegroundColorSpan(textView.getResources().getColor(R.color.title_only, null));
 
         SpannableStringBuilder spanString = SpannableStringBuilder.valueOf(title + "\n" + content);
         spanString.setSpan(colorSpan, 0, title.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);

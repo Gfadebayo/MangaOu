@@ -52,9 +52,9 @@ interface MangaDao {
     @Query("SELECT DISTINCT manga.* FROM manga, chapter ON manga.id=chapter.manga_id AND chapter.last_read_time >=:read_time ORDER BY chapter.last_read_time DESC")
     fun getMangaFromChapterTime(read_time: Long): List<DBManga>
 
-    @Query("SELECT m.id id, m.title title, m.link link, m.thumbnailLink thumbnail_link," +
-            " c.id chapter_id, c.number number, c.last_read_time last_read_time FROM manga m" +
-            " INNER JOIN chapter c ON m.id=c.manga_id AND c.last_read_time >=:read_time" +
-            " ORDER BY c.last_read_time DESC")
-    fun lastReadInfo(read_time: Long): List<HistoryInfo>
+    @Query("SELECT m.id id, m.title title, m.link link, m.thumbnailLink thumbnail_link, " +
+            "c.id chapter_id, c.number number, c.last_read_time last_read_time" +
+            " FROM manga m INNER JOIN chapter c ON m.id=c.manga_id AND c.last_read_time >= :readTime " +
+            "GROUP BY m.id HAVING max(c.last_read_time) ORDER BY c.last_read_time DESC")
+    fun lastReadInfo(readTime: Long): Flow<List<HistoryInfo>>
 }

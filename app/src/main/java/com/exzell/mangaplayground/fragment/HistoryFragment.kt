@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
@@ -18,8 +19,10 @@ import com.exzell.mangaplayground.databinding.GenericLoadingRecyclerViewBinding
 import com.exzell.mangaplayground.fragment.base.SearchViewFragment
 import com.exzell.mangaplayground.io.database.DBManga
 import com.exzell.mangaplayground.reader.ReadActivity
+import com.exzell.mangaplayground.utils.getTimeOnly
 import com.exzell.mangaplayground.utils.reset
 import com.exzell.mangaplayground.viewmodels.HistoryViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 class HistoryFragment : SearchViewFragment() {
@@ -41,6 +44,7 @@ class HistoryFragment : SearchViewFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         mBinding!!.progressLoad.visibility = View.GONE
 
         mBinding!!.recyclerLoad.adapter = ConcatAdapter()
@@ -72,18 +76,12 @@ class HistoryFragment : SearchViewFragment() {
             adapter.adapters.filterIsInstance<TitleAdapter>()
         }
 
-        val today = Calendar.getInstance().reset().timeInMillis
-        val todayInDays = Math.floorDiv(today, (1000 * 60 * 60 * 24).toLong())
-
         historyMangas.keys.forEach { time ->
-            val day = Calendar.getInstance().reset(time).timeInMillis
 
             val historyManga = historyMangas.getOrDefault(time, emptyList())
 
             if (historyManga.isNotEmpty()) {
-                val dayInDays = Math.floorDiv(day, (1000 * 60 * 60 * 24).toLong())
-                val days = todayInDays - dayInDays
-                val dayTitle = mViewModel!!.getDayTitle(days.toInt())
+                val dayTitle = mViewModel!!.getDayTitle(time)
 
                 //Its possible the concat adapter already has the adapters so we should just update them
                 val index = historyMangas.keys.indexOf(time)
@@ -100,7 +98,7 @@ class HistoryFragment : SearchViewFragment() {
                         val hAdapter = HistoryAdapter(requireActivity(), historyManga)
                         val tAdapter = TitleAdapter(requireActivity(), dayTitle, hAdapter).apply { setDrawable(null) }
                         hAdapter.setOnClickListener(onBodyClicked())
-                        hAdapter.setOnButtonsClickedListener(onButtonClicked(), onButtonClicked())
+                        hAdapter.setOnButtonsClickedListener(onButtonClicked())
                         addAdapter(tAdapter)
                         addAdapter(hAdapter)
                     }
@@ -123,13 +121,32 @@ class HistoryFragment : SearchViewFragment() {
         return View.OnClickListener { v: View ->
             val viewHolder = mBinding!!.recyclerLoad.findContainingViewHolder(v) as HistoryAdapter.ViewHolder?
             val manga = (viewHolder!!.bindingAdapter as HistoryAdapter?)!!.mangas[viewHolder.bindingAdapterPosition]
-            if (v.id == R.id.button_resume) {
-                val resumeIntent = Intent(requireActivity(), ReadActivity::class.java)
-                resumeIntent.putExtra(ReadActivity.CHAPTER, manga.lastChapter.id)
-                ContextCompat.startActivity(requireActivity(), resumeIntent, null)
-            } else {
-                mViewModel!!.removeFromHistory(manga)
+
+            if (v.id == R.id.image_resume) launchReadActivity(manga.lastChapter.id)
+            else if (v.id == R.id.image_more) createMoreDialog(manga)
+            else mViewModel!!.removeFromHistory(manga)
+        }
+    }
+
+    private fun createMoreDialog(manga: DBManga) {
+        mViewModel!!.getChaptersWithMangaId(manga.id) {
+            val list = it.map {
+                val chapNumber = "Chapter: " + it.number
+                val lastRead = "Last read position: " + it.lastReadingPosition + "/" + it.length
+                val lastTime = "Last read time: " + mViewModel!!.getDayTitle(it.lastReadTime) + " at " + it.lastReadTime.getTimeOnly()
+
+                chapNumber + "\n" + lastRead + "\n" + lastTime
             }
+
+            val adapter = ArrayAdapter(requireContext(), R.layout.spinner_textview, R.id.text_spinner, list)
+            MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("${manga.title} History")
+                    .setAdapter(adapter) { dialog, index ->
+
+                        launchReadActivity(it[index].id)
+
+                        dialog.cancel()
+                    }.show()
         }
     }
 
@@ -146,6 +163,12 @@ class HistoryFragment : SearchViewFragment() {
         }.groupBy {
             Calendar.getInstance().reset(it.lastReadTime).timeInMillis
         })
+    }
+
+    private fun launchReadActivity(id: Long) {
+        val resumeIntent = Intent(requireActivity(), ReadActivity::class.java)
+        resumeIntent.putExtra(ReadActivity.CHAPTER, id)
+        ContextCompat.startActivity(requireActivity(), resumeIntent, null)
     }
 
     override fun onDestroyView() {

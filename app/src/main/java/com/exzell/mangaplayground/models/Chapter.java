@@ -105,10 +105,6 @@ public class Chapter {
         this.number = number;
     }
 
-    public String getNumberString() {
-        return String.valueOf(number);
-    }
-
     public Version getVersion() {
         return version;
     }

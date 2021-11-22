@@ -23,7 +23,7 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
     private String mTitle;
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mBodyAdapter;
     private Drawable mDrawable;
-    private View.OnClickListener mParentListener = null;
+    private View.OnClickListener mListener = null;
 
     private boolean useDrawable = true;
 
@@ -81,15 +81,15 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
         return position;
     }
 
-    public RecyclerView.Adapter<? extends RecyclerView.ViewHolder> getBodyAdapter(){
+    public RecyclerView.Adapter<? extends RecyclerView.ViewHolder> getBodyAdapter() {
         return mBodyAdapter;
     }
 
-    public void setParentListener(View.OnClickListener listener){
-        mParentListener = listener;
+    public void setListener(View.OnClickListener listener) {
+        mListener = listener;
     }
 
-    public void setDrawable(Drawable drawable){
+    public void setDrawable(Drawable drawable) {
         useDrawable = drawable != null;
         mDrawable = drawable;
         notifyItemChanged(0, PAYLOAD_DRAWABLE);
@@ -99,11 +99,12 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.HeaderViewHo
 
         public MaterialTextView mText;
 
-        public HeaderViewHolder(View itemView){
+        public HeaderViewHolder(View itemView) {
             super(itemView);
             mText = itemView.findViewById(R.id.text_header);
 
-            itemView.setOnClickListener(mParentListener);
+            if (mListener == null) itemView.setFocusable(false);
+            else itemView.setOnClickListener(mListener);
         }
     }
 }

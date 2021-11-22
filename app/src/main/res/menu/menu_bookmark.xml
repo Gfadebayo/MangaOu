@@ -9,12 +9,6 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_filter"
-        android:icon="@drawable/ic_round_filter_alt_24"
-        android:title="@string/filter"
-        app:showAsAction="ifRoom" />
-
-    <item
         android:id="@+id/action_display"
         android:title="@string/display_type"
         app:showAsAction="never">

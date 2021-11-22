@@ -30,6 +30,12 @@ data class DownloadInfo(val id: Long,
                         val title: String,
                         val thumbnailLink: String)
 
+data class ReadChaptersInfo(val id: Long,
+                            val number: Float,
+                            val lastPosition: Int,
+                            val length: Int,
+                            val lastTime: Long)
+
 fun BookmarkInfo.createManga() = Manga(link).apply {
     this.thumbnailLink = this@createManga.thumbnailLink
     title = this@createManga.title
@@ -42,6 +48,7 @@ fun Manga.toBookmarkInfo() = BookmarkInfo(id, title, link, thumbnailLink)
  * DBManga is used as it already caters for last chapter
  */
 fun HistoryInfo.createManga() = DBManga().apply {
+    id = this@createManga.id
     title = this@createManga.title
     link = this@createManga.link
     thumbnailLink = this@createManga.thumbnailLink
@@ -51,7 +58,6 @@ fun HistoryInfo.createManga() = DBManga().apply {
         lastReadTime = this@createManga.lastReadTime
         number = this@createManga.lastChapterNumber
     }))
-
 }
 
 fun DownloadInfo.createManga() = DownloadManga().apply {
@@ -61,3 +67,11 @@ fun DownloadInfo.createManga() = DownloadManga().apply {
 }
 
 fun Manga.toDownloadInfo() = DownloadInfo(id, title, thumbnailLink)
+
+fun ReadChaptersInfo.toChapter() = Chapter().apply {
+    this.id = this@toChapter.id
+    this.number = this@toChapter.number
+    this.lastReadingPosition = this@toChapter.lastPosition
+    this.lastReadTime = this@toChapter.lastTime
+    this.length = this@toChapter.length
+}

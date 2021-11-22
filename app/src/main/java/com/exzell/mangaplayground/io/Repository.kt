@@ -172,16 +172,8 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         }
     }
 
-    fun lastReadMangas(time: Long): List<HistoryInfo> {
-        return try {
-            mExecutor.diskExecutor.submit(Callable { mMangaDao.lastReadInfo(time).distinctBy { it.id } }).get()
-        } catch (e: ExecutionException) {
-            e.printStackTrace()
-            emptyList()
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-            emptyList()
-        }
+    fun lastReadMangas(time: Long): Flow<List<HistoryInfo>> {
+        return mMangaDao.lastReadInfo(time)
     }
 
     fun getMangaForChapter(id: Long): DBManga? {
@@ -217,10 +209,14 @@ class Repository @Inject constructor(private val mExecutor: AppExecutors, servic
         mExecutor.diskExecutor.submit { mChapterDao.updateChaptersTime(chapters) }
     }
 
+    fun getReadChaptersForManga(mangaId: Long): Flow<List<ReadChaptersInfo>> {
+        return mChapterDao.allReadChaptersWithMangaId(mangaId)
+    }
+
     /**
      * Returns the timestamp for every manga with atleast 1 chapter with a read time greater than 0
      */
-    fun allMangaTime(): Flow<List<Long>> {
+    fun allMangaTime(): Flow<Long> {
         return mChapterDao.allMangaTime()
     }
 

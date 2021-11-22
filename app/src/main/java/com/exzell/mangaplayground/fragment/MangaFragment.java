@@ -156,7 +156,7 @@ public class MangaFragment extends SelectionFragment implements SwipeRefreshLayo
                 String dir = FileUtilsKt.createDownloadFolder(requireActivity(), mViewModel.getManga(), chap);
 
                 return new Download(chap.getId(), mViewModel.getManga().getTitle(),
-                        String.valueOf(chap.getNumberString()), dir, chap.getLink(), chap.getLength(), mViewModel.getManga().getId());
+                        String.valueOf(chap.getNumber()), dir, chap.getLink(), chap.getLength(), mViewModel.getManga().getId());
             }).collect(Collectors.toList());
 
             mViewModel.queueDownloads(downloads);

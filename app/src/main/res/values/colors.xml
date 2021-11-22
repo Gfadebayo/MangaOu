@@ -4,5 +4,6 @@
     <color name="blue">#2092F1</color>
     <color name="orange">#F39149</color>
 
-    <color name="manga_detail_title">#000000</color>
+    <!--    When two separate texts are used in the same textview in a title content manner, the top/title uses this color-->
+    <color name="title_only">#000000</color>
 </resources>
